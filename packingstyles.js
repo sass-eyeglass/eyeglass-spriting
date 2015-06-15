@@ -1,5 +1,5 @@
 /* 
- * Each packing style object should contain the following methods; 
+ * Each packing style object should contain the following methods:
  * 
  * updateSpritemapDimensions - called on each image in getSpritesData 
  * getNextCoordinates - called on each image to get sprite top left coordinates
@@ -11,6 +11,7 @@ var fakePrevImage = {
 	height : function() { return 0 }, 
 	width  : function() { return 0 }
 }
+
 
 var vertical_left = {
 	updateSpritemapDimensions : function(curDimensions, image) {

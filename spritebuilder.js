@@ -36,6 +36,43 @@ var getSpriteName = function(imagesFolder, filePath) {
 	return prefix + "-" + filename.substring(0, filename.indexOf('.'));
 }
 
+var getSpritesData = function(spritesData, array, index, prevImage, prevCoordinates, spritemapDimensions, packingStyle, cb) {
+	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
+
+	// read in image files and get sprite map dimensions & sprite data 
+	if (index < array.length) {
+		lwip.open(array[index], function(err, image) {
+			if (err) throw err; 
+
+			spritemapDimensions = packingStyle.updateSpritemapDimensions(spritemapDimensions, image); 
+			var curCoordinates = packingStyle.getNextCoordinates(prevCoordinates, prevImage, image); 
+
+			var spriteName = getSpriteName(imagesFolder, array[index]);
+			var encodingFormat = array[index].match(imageFileRegexp)[1]; 
+
+			image.toBuffer(encodingFormat, function(err, buffer) {
+				if (err) throw err; 
+
+				spritesData[spriteName] = {
+					'origin-x'	: curCoordinates[0],
+					'origin-y' 	: curCoordinates[1],
+					'width' 	: image.width(),
+					'height' 	: image.height(),
+					'filename' 	: array[index],
+					'md5sum' 	: crypto.createHash("md5").update(buffer).digest('hex')
+				}
+
+				getSpritesData(spritesData, array, index + 1, image, curCoordinates, spritemapDimensions, packingStyle, cb); 
+			});
+		});
+	}
+
+	// finished reading files
+	else {
+		cb(spritesData, spritemapDimensions); 
+	} 
+}
+
 var createSpriteMap = function(dimensions, imageFiles, spritesData, filename) {
 	lwip.create(dimensions[0], dimensions[1], function(err, spritemap) {
 		if (err) throw err; 
@@ -81,6 +118,8 @@ var printUsage = function() {
 }
 
 var buildSprites = function(imagesFolder, packingStyle) {
+
+	packingStyle = ps.getPackingStyle(packingStyle); 
 	
 	var imageFiles = []; 
 	getAllImageFiles(imagesFolder, function(result) {
@@ -95,56 +134,12 @@ var buildSprites = function(imagesFolder, packingStyle) {
 	var spritemapFile = path.join("spritemaps", path.basename(imagesFolder) + "_spritemap.png"); 
 	var spritedataFile = path.join("spritedata", path.basename(imagesFolder) + "_spritedata.json"); 
 
-	var spritesData = {}; 
-
-	var getSpritesData = function(array, index, prevImage, prevCoordinates, spritemapDimensions) {
-
-		var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
-
-		// read in image files and get sprite map dimensions & sprite data 
-		if (index < array.length) {
-			lwip.open(array[index], function(err, image) {
-				if (err) throw err; 
-
-				spritemapDimensions = packingStyle.updateSpritemapDimensions(spritemapDimensions, image); 
-				var curCoordinates = packingStyle.getNextCoordinates(prevCoordinates, prevImage, image); 
-
-				var spriteName = getSpriteName(imagesFolder, array[index]);
-				var encodingFormat = array[index].match(imageFileRegexp)[1]; 
-
-				image.toBuffer(encodingFormat, function(err, buffer) {
-					if (err) throw err; 
-
-					spritesData[spriteName] = {
-						'origin-x'	: curCoordinates[0],
-						'origin-y' 	: curCoordinates[1],
-						'width' 	: image.width(),
-						'height' 	: image.height(),
-						'filename' 	: array[index],
-						'md5sum' 	: crypto.createHash("md5").update(buffer).digest('hex')
-					}
-
-					getSpritesData(array, index + 1, image, curCoordinates, spritemapDimensions); 
-				});
-			});
-		}
-
-		// finished reading files
-		else {
-			// cb(spritesData, spritemapDimensions); 
-			packingStyle.updateSpritesData(spritesData, spritemapDimensions); 
-			createSpriteMap(spritemapDimensions, imageFiles, spritesData, spritemapFile);
-			saveSpriteData(spritesData, spritedataFile); 
-		} 
-	}
-	
-	getSpritesData(imageFiles, 0, null, [0, 0], [0, 0], function(spritesData, spritemapDimensions) {
-		updateSpritesData(spritesData, spritemapDimensions, packingStyle); 
+	getSpritesData({}, imageFiles, 0, null, [0, 0], [0, 0], packingStyle, function(spritesData, spritemapDimensions) {
+		packingStyle.updateSpritesData(spritesData, spritemapDimensions); 
 		createSpriteMap(spritemapDimensions, imageFiles, spritesData, spritemapFile);
 		saveSpriteData(spritesData, spritedataFile); 
-	});
+	}); 
 }
-
 
 
 if (process.argv.length < 3 || process.argv.length > 4) 
@@ -159,7 +154,7 @@ else {
 		imagesFolder = process.argv[3]; 
 	}
 
-	buildSprites(imagesFolder, ps.getPackingStyle(packingStyle)); 
+	buildSprites(imagesFolder, packingStyle); 
 }
 
 module.exports = buildSprites;
