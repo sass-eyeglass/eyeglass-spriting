@@ -72,6 +72,23 @@ var getNextCoordinates = function(cur_coordinates, image, packingStyle) {
 	}
 }
 
+var getNextCoordinates = function(prevCoordinates, prevImage, curImage, packingStyle) {
+	switch (packingStyle) {
+		case '-vl' : 
+			return [0, prevCoordinates[1] + prevImage.height()];
+		case '-ht' : 
+			return [prevCoordinates[0] + prevImage.width(), 0];
+		case '-vr' :
+			return [-curImage.width(), prevCoordinates[1] + prevImage.height()];
+		case '-hb' : 
+			return [prevCoordinates[0] + prevImage.width(), -curImage.height()]; 
+		case '-d'  :
+			return [prevCoordinates[0] + prevImage.width(), prevCoordinates[1] + prevImage.height()]; 
+		default : // do vertical left-aligned packing by default 
+			return [0, prevCoordinates[1] + prevImage.height()];
+	}
+}
+
 var updateSpritesData = function(sprites_data, spritemap_dimensions, packingStyle) {
 	switch (packingStyle) {
 		case '-vr' : 
@@ -87,16 +104,16 @@ var updateSpritesData = function(sprites_data, spritemap_dimensions, packingStyl
 	}
 }
 
-var updateCoordinates = function(cur_coordinates, image, packingStyle) {
-	switch (packingStyle) {
-		case '-vr' : 
-			return [-image.width(), cur_coordinates[1]];
-		case '-hb' :
-			return [cur_coordinates[0], -image.height()];
-		default : 
-			return cur_coordinates; 
-	}
-}
+// var updateCoordinates = function(cur_coordinates, image, packingStyle) {
+// 	switch (packingStyle) {
+// 		case '-vr' : 
+// 			return [-image.width(), cur_coordinates[1]];
+// 		case '-hb' :
+// 			return [cur_coordinates[0], -image.height()];
+// 		default : 
+// 			return cur_coordinates; 
+// 	}
+// }
 
 var createSpriteMap = function(dimensions, imageFiles, spritesData, filename) {
 	lwip.create(dimensions[0], dimensions[1], function(err, spritemap) {
@@ -124,6 +141,24 @@ var createSpriteMap = function(dimensions, imageFiles, spritesData, filename) {
 	});
 }
 
+var saveSpriteData = function(spritesData, filename) {
+	fs.writeFile(filename, JSON.stringify(spritesData, null, 2), function(err) {
+		if(err) throw err; 
+		console.log('*	wrote sprite data at \'' + filename + '\'');
+	}); 
+}
+
+var printUsage = function() {
+	console.log("\nusage:	node spritebuilder.js [path-to-image-folder]\n"
+		+ "or	node spritebuilder.js [packing-style] [path-to-image-folder]\n\n"
+		+ "packing style options:\n"
+		+ "	-vl : vertical left-aligned\n"
+		+ "	-vr : vertical right-aligned\n"
+		+ "	-ht : horizontal top-aligned\n"
+		+ "	-hb : horizontal bottom-aligned\n"
+		+ "	-d  : diagonal\n");
+}
+
 var buildSprites = function(imagesFolder, packingStyle) {
 	
 	var imageFiles = []; 
@@ -139,10 +174,10 @@ var buildSprites = function(imagesFolder, packingStyle) {
 	var spritemapFile = path.join("spritemaps", path.basename(imagesFolder) + "_spritemap.png"); 
 	var spritedataFile = path.join("spritedata", path.basename(imagesFolder) + "_spritedata.json"); 
 
-	var spritemapDimensions = [0, 0];
+	// var spritemapDimensions = [0, 0];
 	var spritesData = {}; 
 
-	var getSpritesData = function(array, index, curCoordinates) {
+	var getSpritesData = function(array, index, prevImage, prevCoordinates, spritemapDimensions) {
 
 		var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
@@ -152,6 +187,7 @@ var buildSprites = function(imagesFolder, packingStyle) {
 				if (err) throw err; 
 
 				spritemapDimensions = updateSpritemapDimensions(spritemapDimensions, image, packingStyle); 
+				var curCoordinates = getNextCoordinates(prevCoordinates, prevImage, image, packingStyle); 
 
 				var spriteName = getSpriteName(imagesFolder, array[index]);
 				var encodingFormat = array[index].match(imageFileRegexp)[1]; 
@@ -160,7 +196,7 @@ var buildSprites = function(imagesFolder, packingStyle) {
 					if (err) throw err; 
 
 					// necessary for right-align or bottom-align 
-					curCoordinates = updateCoordinates(curCoordinates, image, packingStyle); 
+					// curCoordinates = updateCoordinates(curCoordinates, image, packingStyle); 
 
 					spritesData[spriteName] = {
 						'origin-x'	: curCoordinates[0],
@@ -171,40 +207,32 @@ var buildSprites = function(imagesFolder, packingStyle) {
 						'md5sum' 	: crypto.createHash("md5").update(buffer).digest('hex')
 					}
 
-					getSpritesData(array, index + 1, getNextCoordinates(curCoordinates, image, packingStyle)); 
+					getSpritesData(array, index + 1, image, curCoordinates, spritemapDimensions); 
 				});
 			});
 		}
 
 		// finished reading files
 		else {
-
+			// cb(spritesData, spritemapDimensions); 
 			// right-align or bottom-align sprites 
 			updateSpritesData(spritesData, spritemapDimensions, packingStyle); 
-			
 			createSpriteMap(spritemapDimensions, imageFiles, spritesData, spritemapFile);
-
-			// save sprite data to json file 
-			// TODO: make helper function 
-			fs.writeFile(spritedataFile, JSON.stringify(spritesData, null, 2), function(err) {
-			    if(err) throw err; 
-			    console.log('*	wrote sprite data at \'' + spritedataFile + '\'');
-			}); 
+			saveSpriteData(spritesData, spritedataFile); 
 		} 
 	}
 	
-	getSpritesData(imageFiles, 0, [0, 0]);
+	getSpritesData(imageFiles, 0, [0, 0], [0, 0], function(spritesData, spritemapDimensions) {
+		updateSpritesData(spritesData, spritemapDimensions, packingStyle); 
+		createSpriteMap(spritemapDimensions, imageFiles, spritesData, spritemapFile);
+		saveSpriteData(spritesData, spritedataFile); 
+	});
 }
 
+
+
 if (process.argv.length < 3 || process.argv.length > 4) 
-	console.log("\nusage:	node spritebuilder.js [path-to-image-folder]\n"
-	+ "or	node spritebuilder.js [packing-style] [path-to-image-folder]\n\n"
-	+ "packing style options:\n"
-	+ "	-vl : vertical left-aligned\n"
-	+ "	-vr : vertical right-aligned\n"
-	+ "	-ht : horizontal top-aligned\n"
-	+ "	-hb : horizontal bottom-aligned\n"
-	+ "	-d  : diagonal\n");
+	printUsage(); 
 else {
 	var packingStyle = defaultPacking;
 	var imagesFolder = process.argv[2];

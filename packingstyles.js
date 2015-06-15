@@ -1,32 +1,60 @@
+/* 
+ * Each packing style object should contain the following methods; 
+ * 
+ * updateSpritemapDimensions - called on each image in getSpritesData 
+ * getNextCoordinates - called on each image to get coordinates of next sprite
+ * updateCoordinates - 
+ * updateSpritesData - called at the end of getSpritesData to right-align 
+ *					   or bottom-align sprites
+ */ 
 
-// vertical left-aligned 
-module.exports.vl = {
-	updateSpritemapDimensions : function(curDimensions, image, packingStyle) {
+var vertical_left = {
+	// called on each image in getSpritesData 
+	updateSpritemapDimensions : function(curDimensions, image) {
 	}, 
-	getNextCoordinates : function(cur_coordinates, image, packingStyle) {
+	// called on each image to get coordinates of next sprite
+	getNextCoordinates : function(cur_coordinates, image) {
 	},
-	updateSpritesData : function(sprites_data, spritemap_dimensions, packingStyle) {
+	updateCoordinates : function(cur_coordinates, image) {
 	},
-	updateCoordinates : function(cur_coordinates, image, packingStyle) {
+	updateSpritesData : function(sprites_data, spritemap_dimensions) {
 	}
 }
 
-// vertical right-aligned 
-module.exports.vr = {
+
+var vertical_right = {
 
 }
 
-// horizontal top-aligned 
-module.exports.ht = {
+
+var horizontal_top = {
 
 }
 
-// horizontal bottom-aligned 
-module.exports.hb = {
+
+var horizontal_bottom = {
 
 }
 
-// diagonal 
-module.exports.d = {
 
+var diagonal = {
+
+}
+
+
+module.exports.getPackingStyle = function(str) {
+	switch (packingStyle) {
+		case '-vl' : 
+			return vertical_left;
+		case '-ht' : 
+			return horizontal_top; 
+		case '-vr' :
+			return vertical_right; 
+		case '-hb' : 
+			return horizontal_bottom; 
+		case '-d'  :
+			return diagonal;
+		default : // do vertical left-aligned packing by default 
+			return vertical_left;
+	}
 }
