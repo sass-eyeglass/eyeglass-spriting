@@ -8,6 +8,7 @@ var ps = require('./packingstyles');
 var defaultPacking = '-vl';
 
 // recursively get all the image files in given folder; returns array of filenames 
+// TODO: use glob?
 var getAllImageFiles = function(folder, cb) {
 	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 	var imageFiles = []; 	
@@ -29,33 +30,29 @@ var getAllImageFiles = function(folder, cb) {
 	var walker = walk.walkSync(folder, options);
 }
 
-var buildSpriteMap = function(imagesFolder, packingStyle) {
-	
-	var files = []; 
-	getAllImageFiles(imagesFolder, function(imgFiles) {
-		files = imgFiles; 
-	}); 
-	
-	// console.log("image files:", files); 
-
-var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
-
+var getSpriteName = function(imagesFolder, filePath) {
 	var prefix = path.basename(imagesFolder); 
-	var spritemapFile = path.join("spritemaps", prefix + "_spritemap.png"); 
-	var spritedataFile = path.join("spritedata", prefix + "_spritedata.json"); 
+	var filename = path.basename(filePath); 
+	return prefix + "-" + filename.substring(0, filename.indexOf('.'));
+}
 
-	try {
-		var filenames = fs.readdirSync(imagesFolder);
-	} catch (err) {
-		console.log("directory not found!");
+var buildSprites = function(imagesFolder, packingStyle) {
+	
+	var imageFiles = []; 
+	getAllImageFiles(imagesFolder, function(result) {
+		imageFiles = result; 
+	}); 
+
+	if (imageFiles.length <= 0) {
+		console.log('no images found in \'' + imagesFolder + '\' folder');
 		return; 
 	}
 
-	
-	var imageFiles = []; 
+	var spritemapFile = path.join("spritemaps", path.basename(imagesFolder) + "_spritemap.png"); 
+	var spritedataFile = path.join("spritedata", path.basename(imagesFolder) + "_spritedata.json"); 
 
-	var spritemap_dimensions = [0, 0];
-	var sprites_data = {}; 
+	var spritemapDimensions = [0, 0];
+	var spritesData = {}; 
 
 	// return array [newWidth, newHeight]
 	var updateSpritemapDimensions = function(curDimensions, image, packingStyle) {
@@ -121,62 +118,57 @@ var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
 	var readImageFiles = function(array, index, cur_coordinates) {
 
+		var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
+
 		// read in image files and get sprite map dimensions & sprite data 
 		if (index < array.length) {
-			
-			// image file found 
-			// TODO: do image file checking outside; use glob 
-			if (imageFileRegexp.test(filenames[index])) {
-				imageFiles.push(filenames[index]);
-				lwip.open(path.join(imagesFolder, array[index]), function(err, image) {
-					if (err) throw err; 
-					else {
-						spritemap_dimensions = updateSpritemapDimensions(spritemap_dimensions, image, packingStyle); 
+			lwip.open(array[index], function(err, image) {
+				if (err) throw err; 
+				else {
+					spritemapDimensions = updateSpritemapDimensions(spritemapDimensions, image, packingStyle); 
 
-						var sprite_name = imagesFolder + "-" + filenames[index].substring(0, filenames[index].indexOf('.'));
+					var spriteName = getSpriteName(imagesFolder, array[index]);
+					var encodingFormat = array[index].match(imageFileRegexp)[1]; 
 
-						var encodingFormat = filenames[index].match(imageFileRegexp)[1]; 
-						image.toBuffer(encodingFormat, function(err, buffer) {
-							if (err) throw err; 
+					image.toBuffer(encodingFormat, function(err, buffer) {
+						if (err) throw err; 
 
-							// necessary for right-align or bottom-align 
-							cur_coordinates = updateCoordinates(cur_coordinates, image, packingStyle); 
+						// necessary for right-align or bottom-align 
+						cur_coordinates = updateCoordinates(cur_coordinates, image, packingStyle); 
 
-							sprites_data[sprite_name] = {
-								'origin-x'	: cur_coordinates[0],
-								'origin-y' 	: cur_coordinates[1],
-								'width' 	: image.width(),
-								'height' 	: image.height(),
-								'filename' 	: filenames[index],
-								'md5sum' 	: crypto.createHash("md5").update(buffer).digest('hex')
-							}
+						spritesData[spriteName] = {
+							'origin-x'	: cur_coordinates[0],
+							'origin-y' 	: cur_coordinates[1],
+							'width' 	: image.width(),
+							'height' 	: image.height(),
+							'filename' 	: array[index],
+							'md5sum' 	: crypto.createHash("md5").update(buffer).digest('hex')
+						}
 
-							readImageFiles(array, index + 1, getNextCoordinates(cur_coordinates, image, packingStyle)); 
-						});
-					}
-				})
-			} else {
-				readImageFiles(array, index + 1, cur_coordinates); 
-			}
+						readImageFiles(array, index + 1, getNextCoordinates(cur_coordinates, image, packingStyle)); 
+					});
+				}
+			})
+
 		}
 
 		// finished reading files
-		else if (imageFiles.length > 0) {
+		else {
 
 			// right-align or bottom-align sprites 
-			updateSpritesData(sprites_data, spritemap_dimensions, packingStyle); 
+			updateSpritesData(spritesData, spritemapDimensions, packingStyle); 
 
 			// construct sprite map and paste data in
 			// TODO: separate function 
-			lwip.create(spritemap_dimensions[0], spritemap_dimensions[1], function(err, spritemap) {
+			lwip.create(spritemapDimensions[0], spritemapDimensions[1], function(err, spritemap) {
 				if (err) throw err; 
 				else {
 					var pasteImages = function(array, index, cur_spritemap, cur_ycoord) {
 						if (index < array.length) {
-							lwip.open(path.join(imagesFolder, array[index]), function(err, image) {
-								var sprite_name = imagesFolder + "-" + array[index].substring(0, array[index].indexOf('.'));
-								var origin_x = sprites_data[sprite_name]["origin-x"];
-								var origin_y = sprites_data[sprite_name]["origin-y"];
+							lwip.open(array[index], function(err, image) {
+								var spriteName = getSpriteName(imagesFolder, array[index]); 
+								var origin_x = spritesData[spriteName]["origin-x"];
+								var origin_y = spritesData[spriteName]["origin-y"];
 								cur_spritemap.paste(origin_x, origin_y, image, function(err, new_spritemap) {
 									pasteImages(array, index + 1, new_spritemap, cur_ycoord + image.height()); 
 								});
@@ -194,17 +186,14 @@ var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
 			// save sprite data to json file 
 			// TODO: make helper function 
-			fs.writeFile(spritedataFile, JSON.stringify(sprites_data, null, 2), function(err) {
+			fs.writeFile(spritedataFile, JSON.stringify(spritesData, null, 2), function(err) {
 			    if(err) throw err; 
 			    console.log('*	wrote sprite data at \'' + spritedataFile + '\'');
 			}); 
 		} 
-
-		else console.log('no images found in \'' + imagesFolder + '\' folder');
 	}
-
-	readImageFiles(filenames, 0, [0, 0]);
-
+	
+	readImageFiles(imageFiles, 0, [0, 0]);
 }
 
 if (process.argv.length < 3 || process.argv.length > 4) 
@@ -226,10 +215,10 @@ else {
 		imagesFolder = process.argv[3]; 
 	}
 
-	buildSpriteMap(imagesFolder, packingStyle); 
+	buildSprites(imagesFolder, packingStyle); 
 }
 
-module.exports = buildSpriteMap; 
+module.exports = buildSprites; 
 
 
 
