@@ -1,0 +1,16 @@
+{
+  "name": "sprite-builder",
+  "devDependencies": {
+    "crypto": "0.0.3",
+    "mocha": "^2.2.5",
+    "should": "^6.0.3",
+    "walk": "^2.3.9"
+  },
+  "dependencies": {
+    "lwip": "0.0.7"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha",
+    "start": "node spritebuilder.js"
+  }
+}
