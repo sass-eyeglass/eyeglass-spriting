@@ -19,20 +19,20 @@ var getSpriteName = function(imagesFolder, filePath) {
 
 function SpriteMap(imagesFolder) {
 
-	this.sprites 			= []; 
-	this.imagesFolder	= imagesFolder; 
-	this.filenames	 	= getAllImageFiles(imagesFolder); 
-	var test = []; 
+  this.private = {
 
-	// this.hasData 			= false; 
-	// this.packingStyle = null; 
+  }
+
+	var sprites 			= []; 
+	var filenames	 		= getAllImageFiles(imagesFolder); 
+
 	this.width 				= null; 
 	this.height 			= null; 
 
-	for (var i = 0; i < this.filenames.length; i++) {
-		this.sprites[i] = { 
-			'name'     : getSpriteName(this.imagesFolder, this.filenames[i]),
-			'filename' : this.filenames[i] 
+	for (var i = 0; i < filenames.length; i++) {
+		sprites[i] = { 
+			'name'     : getSpriteName(imagesFolder, filenames[i]),
+			'filename' : filenames[i] 
 		};
 	}
 
@@ -61,27 +61,20 @@ function SpriteMap(imagesFolder) {
 			}
 		}
 
-		aux(this.sprites, 0); 
+		aux(sprites, 0); 
 	}
 
 	// get coordinates for each sprite 
 	this.pack = function(packingStyle) {
-		var coordinates = packingStyle.getAllCoordinates(this.sprites); 
-		var dimensions 	= packingStyle.getSpritemapDimensions(this.sprites); 
-
+		var dimensions = packingStyle.pack(sprites); 
 		this.width 	= dimensions[0]; 
 		this.height = dimensions[1]; 
-
-		for (var i = 0; i < this.sprites.length; i++) {
-			this.sprites[i].origin_x = coordinates[i][0]; 
-			this.sprites[i].origin_y = coordinates[i][1];
-		}
 	}
 
 	this.saveData = function(filename) {
 		var data = {}; 
-		for (var i = 0; i < this.sprites.length; i++) {
-			data[this.sprites[i].name] = this.sprites[i]; 
+		for (var i = 0; i < sprites.length; i++) {
+			data[sprites[i].name] = sprites[i]; 
 		}
 
 		fs.writeFile(filename, JSON.stringify(data, null, 2), function(err) {
@@ -92,28 +85,28 @@ function SpriteMap(imagesFolder) {
 
 	this.createSpriteMap = function(filename) {
 
-	// 	var pasteImages = function(index, cur_spritemap) {
-	// 		if (index < this.sprites.length) {
-	// 			lwip.open(this.sprites[index].filename, function(err, image) {
-	// 				var origin_x = this.sprites[index].origin_x;
-	// 				var origin_y = this.sprites[index].origin_y; 
-	// 				cur_spritemap.paste(origin_x, origin_y, image, function(err, new_spritemap) {
-	// 					pasteImages(index + 1, new_spritemap); 
-	// 				});
-	// 			}); 
-	// 		} else { 
-	// 			cur_spritemap.writeFile(filename, function(err) { 
-	// 				if (err) throw err; 
-	// 				console.log('*	created spritemap at \'' + filename + '\'');
-	// 			});
-	// 		}
-	// 	}
+		var pasteImages = function(index, cur_spritemap) {
+			if (index < sprites.length) {
+				lwip.open(sprites[index].filename, function(err, image) {
+					var origin_x = sprites[index].origin_x;
+					var origin_y = sprites[index].origin_y; 
+					cur_spritemap.paste(origin_x, origin_y, image, function(err, new_spritemap) {
+						pasteImages(index + 1, new_spritemap); 
+					});
+				}); 
+			} else { 
+				cur_spritemap.writeFile(filename, function(err) { 
+					if (err) throw err; 
+					console.log('*	created spritemap at \'' + filename + '\'');
+				});
+			}
+		}
 
-	// 	lwip.create(this.width, this.height, function(err, spritemap) {
-	// 		if (err) throw err; 
-	// 		pasteImages(0, spritemap); 
-	// 	});
-	// }
+		lwip.create(this.width, this.height, function(err, spritemap) {
+			if (err) throw err; 
+			pasteImages(0, spritemap); 
+		});
+	}
 
 }
 
@@ -125,17 +118,43 @@ var buildSprites = function(folder, packingStyle) {
 	// sm.saveData("data.json"); 									// save json file 
 	// sm.createSpriteMap("spritemap.png"); 			// create spritemap png 
 
-	var sm = new SpriteMap(folder);
-	var packingStyle = ps.getPackingStyle(packingStyle); 
+	var sm 						= new SpriteMap(folder);
+	var packingStyle 	= ps.getPackingStyle(packingStyle); 
+	var dataFile 			= path.join('spritedata', path.basename(folder) + '_data.json'); 
+	var spritemapFile =	path.join('spritemaps', path.basename(folder) + "_spritemap.png");  
 
-	sm.getData(function(data) { 						// get dimensions & hashes 
-		sm.pack(packingStyle);								// get coordinates 
-		sm.saveData("data.json"); 						// save json file 
-		sm.createSpriteMap("spritemap.png"); 	// create spritemap png 
+	sm.getData(function() { 					// get dimensions & hashes 
+		sm.pack(packingStyle);							// get coordinates 
+		sm.saveData(dataFile); 							// save json file 
+		sm.createSpriteMap(spritemapFile);	// create spritemap png 
 	});																
 
 }
 
-buildSprites("images/corgi", "-vl"); 
+var printUsage = function() {
+	console.log("\nusage:	node spritebuilder.js [path-to-image-folder]\n"
+		+ "or	node spritebuilder.js [packing-style] [path-to-image-folder]\n\n"
+		+ "packing style options:\n"
+		+ "	-vl : vertical left-aligned\n"
+		+ "	-vr : vertical right-aligned\n"
+		+ "	-ht : horizontal top-aligned\n"
+		+ "	-hb : horizontal bottom-aligned\n"
+		+ "	-d  : diagonal\n");
+}
+
+if (process.argv.length < 3 || process.argv.length > 4) 
+	printUsage(); 
+else {
+	var packingStyle = "-vl";
+	var imagesFolder = process.argv[2];
+
+	// check if packing style specified 
+	if (process.argv.length == 4) {
+		packingStyle = process.argv[2];
+		imagesFolder = process.argv[3]; 
+	}
+
+	buildSprites(imagesFolder, packingStyle); 
+}
 
 module.exports = SpriteMap; 
