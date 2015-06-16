@@ -1,7 +1,9 @@
 {
   "name": "sprite-builder",
   "devDependencies": {
+    "cassowary": "0.0.2",
     "crypto": "0.0.3",
+    "glob": "^5.0.10",
     "mocha": "^2.2.5",
     "should": "^6.0.3",
     "walk": "^2.3.9"
