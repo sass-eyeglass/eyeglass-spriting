@@ -19,15 +19,10 @@ var getSpriteName = function(imagesFolder, filePath) {
 
 function SpriteMap(imagesFolder) {
 
-  this.private = {
-
-  }
-
 	var sprites 			= []; 
 	var filenames	 		= getAllImageFiles(imagesFolder); 
-
-	this.width 				= null; 
-	this.height 			= null; 
+	var width 				= null; 
+	var height 				= null; 
 
 	for (var i = 0; i < filenames.length; i++) {
 		sprites[i] = { 
@@ -64,13 +59,14 @@ function SpriteMap(imagesFolder) {
 		aux(sprites, 0); 
 	}
 
-	// get coordinates for each sprite 
+	// get coordinates for each sprite & spritemap dimensions 
 	this.pack = function(packingStyle) {
 		var dimensions = packingStyle.pack(sprites); 
-		this.width 	= dimensions[0]; 
-		this.height = dimensions[1]; 
+		width 	= dimensions[0]; 
+		height	= dimensions[1]; 
 	}
 
+	// save sprites data to file in json format 
 	this.saveData = function(filename) {
 		var data = {}; 
 		for (var i = 0; i < sprites.length; i++) {
@@ -83,6 +79,7 @@ function SpriteMap(imagesFolder) {
 		}); 
 	}
 
+	// create spritemap according to the last used packing style 
 	this.createSpriteMap = function(filename) {
 
 		var pasteImages = function(index, cur_spritemap) {
@@ -102,7 +99,7 @@ function SpriteMap(imagesFolder) {
 			}
 		}
 
-		lwip.create(this.width, this.height, function(err, spritemap) {
+		lwip.create(width, height, function(err, spritemap) {
 			if (err) throw err; 
 			pasteImages(0, spritemap); 
 		});
@@ -111,24 +108,16 @@ function SpriteMap(imagesFolder) {
 }
 
 var buildSprites = function(folder, packingStyle) {
-
-	// var sm = new SpriteMap(folder);
-	// sm.getData();															// get dimensions & hashes 
-	// sm.pack(ps.getPackingStyle(packingStyle));	// get coordinates 
-	// sm.saveData("data.json"); 									// save json file 
-	// sm.createSpriteMap("spritemap.png"); 			// create spritemap png 
-
 	var sm 						= new SpriteMap(folder);
 	var packingStyle 	= ps.getPackingStyle(packingStyle); 
 	var dataFile 			= path.join('spritedata', path.basename(folder) + '_data.json'); 
 	var spritemapFile =	path.join('spritemaps', path.basename(folder) + "_spritemap.png");  
 
-	sm.getData(function() { 					// get dimensions & hashes 
+	sm.getData(function() { 							// get dimensions & hashes 
 		sm.pack(packingStyle);							// get coordinates 
 		sm.saveData(dataFile); 							// save json file 
 		sm.createSpriteMap(spritemapFile);	// create spritemap png 
 	});																
-
 }
 
 var printUsage = function() {
