@@ -13,11 +13,25 @@ var buildSprites = function(folder, packingStyle, spacing) {
 	var dataFile 		= path.join('spritedata', path.basename(folder) + '_data.json'); 
 	var spritemapFile	= path.join('spritemaps', path.basename(folder) + "_spritemap.png");  
 
+	// sm.getData
+	// 	.then(sm.pack(packingStyle, spacing))
+	// 	.then(saveData(dataFile))
+	// 	.then(createSpriteMap(spritemapFile))
+	// 	.catch(handleError); 
+
 	// var promise = new rsvp.Promise(function(resolve, reject) {
 	// 	sm.getData(function(err, data) {
 	// 		if (err) { console.log(err); reject(err)}
 	// 		else 	 resolve(data)
 	// 	});
+	// });
+
+	// promise.then(function(data) {
+	// 	return 123; 	
+	// }).then(function(something) {
+	// 	return something; 
+	// }).then(function(somethingelse) {
+	// 	console.log(somethingelse); 
 	// });
 
 	// promise.then(function(data) {
@@ -67,6 +81,21 @@ var buildSprites = function(folder, packingStyle, spacing) {
 			if (err) throw err; 
 			console.log('*	created spritemap at \'' + spritemapFile+ '\'');
 		});		
+
+		// var getPromise = function(f, filename) {
+		// 	return new rsvp.Promise(function(resolve, reject) {
+		// 		f(filename, function(err, success) {
+		// 			if (err) reject(err); 
+		// 			else resolve(success);
+		// 		})
+		// 	});
+		// }	
+
+		// getPromise(sm.saveData, dataFile).then(function(data){
+		// 	return getPromise(sm.createSpriteMap, spritemapFile); 
+		// }).then(function(spritemap) {
+		// 	console.log("done"); 
+		// });
 
 		
 	});																
