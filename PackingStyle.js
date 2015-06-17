@@ -4,7 +4,7 @@
  */
 
 var vertical_left = {
-	pack : function(sprites) {
+	pack : function(sprites, spacing) {
 		var width 	= sprites[0].width; 
 		var height 	= sprites[0].height; 
 		sprites[0].origin_x = 0; 
@@ -12,10 +12,10 @@ var vertical_left = {
 
 		for (var i = 1; i < sprites.length; i++) {
 			sprites[i].origin_x = 0; 
-			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height; 
+			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height + spacing; 
 
 			width 	= Math.max(width, sprites[i].width); 
-			height += sprites[i].height; 
+			height += sprites[i].height + spacing; 
 		}
 
 		return [width, height]; 
@@ -23,7 +23,7 @@ var vertical_left = {
 }
 
 var vertical_right = {
-	pack : function(sprites) {
+	pack : function(sprites, spacing) {
 		var width 	= sprites[0].width; 
 		var height 	= sprites[0].height; 
 		sprites[0].origin_x = -sprites[0].width; 
@@ -31,10 +31,10 @@ var vertical_right = {
 
 		for (var i = 1; i < sprites.length; i++) {
 			sprites[i].origin_x = -sprites[i].width; 
-			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height; 
+			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height + spacing; 
 
 			width 	= Math.max(width, sprites[i].width); 
-			height += sprites[i].height; 
+			height += sprites[i].height + spacing; 
 		}
 
 		for (var i = 0; i < sprites.length; i++) 
@@ -45,17 +45,17 @@ var vertical_right = {
 }
 
 var horizontal_top = {
-	pack : function(sprites) {
+	pack : function(sprites, spacing) {
 		var width 	= sprites[0].width; 
 		var height 	= sprites[0].height; 
 		sprites[0].origin_x = 0; 
 		sprites[0].origin_y = 0; 
 
 		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width; 
+			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width + spacing; 
 			sprites[i].origin_y = 0; 
 
-			width += sprites[i].width; Math.max(width, sprites[i].width); 
+			width += sprites[i].width + spacing; 
 			height = Math.max(height, sprites[i].height); 
 		}
 
@@ -64,17 +64,17 @@ var horizontal_top = {
 }
 
 var horizontal_bottom = {
-	pack : function(sprites) {
+	pack : function(sprites, spacing) {
 		var width 	= sprites[0].width; 
 		var height 	= sprites[0].height; 
 		sprites[0].origin_x = 0;
 		sprites[0].origin_y = -sprites[0].height; 
 		
 		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width; 
+			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width + spacing; 
 			sprites[i].origin_y = -sprites[i].height; 
 
-			width += sprites[i].width; Math.max(width, sprites[i].width); 
+			width += sprites[i].width + spacing;
 			height = Math.max(height, sprites[i].height); 
 		}
 
@@ -86,7 +86,7 @@ var horizontal_bottom = {
 }
 
 var diagonal = {
-	pack : function(sprites) {
+	pack : function(sprites, spacing) {
 		var width 	= sprites[0].width; 
 		var height 	= sprites[0].height; 
 		sprites[0].origin_x = 0;

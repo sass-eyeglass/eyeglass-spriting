@@ -57,8 +57,8 @@ SpriteMap.prototype.getData = function(cb) {
 }
 
 // get coordinates for each sprite & spritemap dimensions 
-SpriteMap.prototype.pack = function(packingStyle) {
-	var dimensions = packingStyle.pack(this.sprites); 
+SpriteMap.prototype.pack = function(packingStyle, spacing) {
+	var dimensions = packingStyle.pack(this.sprites, spacing); 
 	this.width 	= dimensions[0]; 
 	this.height	= dimensions[1]; 
 }
