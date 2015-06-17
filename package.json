@@ -1,18 +1,17 @@
 {
   "name": "sprite-builder",
   "devDependencies": {
-    "cassowary": "0.0.2",
-    "crypto": "0.0.3",
-    "glob": "^5.0.10",
+    "lwip": "0.0.7",
     "mocha": "^2.2.5",
-    "should": "^6.0.3",
-    "walk": "^2.3.9"
+    "should": "^6.0.3"
   },
   "dependencies": {
+    "crypto": "0.0.3",
+    "glob": "^5.0.10",
     "lwip": "0.0.7"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha",
-    "start": "node spritebuilder.js"
+    "start": "node SpriteMap.js"
   }
 }

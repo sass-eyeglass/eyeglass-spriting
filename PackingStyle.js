@@ -22,7 +22,6 @@ var vertical_left = {
 	}
 }
 
-
 var vertical_right = {
 	pack : function(sprites) {
 		var width 	= sprites[0].width; 
@@ -45,7 +44,6 @@ var vertical_right = {
 	}
 }
 
-
 var horizontal_top = {
 	pack : function(sprites) {
 		var width 	= sprites[0].width; 
@@ -64,7 +62,6 @@ var horizontal_top = {
 		return [width, height]; 
 	}
 }
-
 
 var horizontal_bottom = {
 	pack : function(sprites) {
@@ -88,7 +85,6 @@ var horizontal_bottom = {
 	}
 }
 
-
 var diagonal = {
 	pack : function(sprites) {
 		var width 	= sprites[0].width; 
@@ -107,7 +103,6 @@ var diagonal = {
 		return [width, height]; 
 	}
 }
-
 
 module.exports.getPackingStyle = function(str) {
 	switch (str) {
