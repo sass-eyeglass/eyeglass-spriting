@@ -56,7 +56,7 @@ describe("SpriteMap", function () {
     it("can get sprites data", function(done) {
       var sm = new SpriteMap("test/images/test02"); 
       sm.getData(function() {
-        sm.pack(ps.getPackingStyle('-vl')); 
+        sm.pack(ps.getPackingStyle('-vl'), 0); 
         done(); 
       });
     });
@@ -64,16 +64,16 @@ describe("SpriteMap", function () {
     it("can save sprites data", function(done) {
         var sm = new SpriteMap("test/images/test02"); 
         sm.getData(function() {
-            sm.pack(ps.getPackingStyle('-vl'));
+            sm.pack(ps.getPackingStyle('-vl'), 0);
             sm.saveData("test/results/data.json");
             done(); 
         });  
     });
 
-    it("can create & save spritemap", function(done) {
+    it("can create & save spritemap png", function(done) {
         var sm = new SpriteMap("test/images/test02"); 
         sm.getData(function() {
-            sm.pack(ps.getPackingStyle('-vl'));
+            sm.pack(ps.getPackingStyle('-vl'), 0);
             sm.createSpriteMap("test/results/spritemap.png");
             done(); 
         }); 
@@ -88,7 +88,7 @@ describe("SpriteMap", function () {
           if (err) throw err; 
           var sm = new SpriteMap("test/images/test01"); 
           sm.getData(function() {
-            sm.pack(ps.getPackingStyle('-vl'));
+            sm.pack(ps.getPackingStyle('-vl'), 0);
             assert.equal(sm.width, width); 
             assert.equal(sm.height, height); 
             done(); 
@@ -117,7 +117,7 @@ describe("SpriteMap", function () {
     ];
     var sm = new SpriteMap("test/images/test02"); 
     sm.getData(function() {
-      sm.pack(ps.getPackingStyle('-vl'));
+      sm.pack(ps.getPackingStyle('-vl'), 0);
       assert.equal(sm.width, 200); 
       assert.equal(sm.height, 350); 
       assert.deepEqual(sm.sprites, expectedData); 
@@ -144,7 +144,7 @@ describe("SpriteMap", function () {
     ];
     var sm = new SpriteMap("test/images/test02"); 
     sm.getData(function() {
-      sm.pack(ps.getPackingStyle('-vr'));
+      sm.pack(ps.getPackingStyle('-vr'), 0);
       assert.equal(sm.width, 200); 
       assert.equal(sm.height, 350); 
       assert.deepEqual(sm.sprites, expectedData); 
@@ -171,7 +171,7 @@ describe("SpriteMap", function () {
     ];
     var sm = new SpriteMap("test/images/test02"); 
     sm.getData(function() {
-      sm.pack(ps.getPackingStyle('-ht'));
+      sm.pack(ps.getPackingStyle('-ht'), 0);
       assert.equal(sm.width, 250); 
       assert.equal(sm.height, 300); 
       assert.deepEqual(sm.sprites, expectedData); 
@@ -198,7 +198,7 @@ describe("SpriteMap", function () {
     ];
     var sm = new SpriteMap("test/images/test02"); 
     sm.getData(function() {
-      sm.pack(ps.getPackingStyle('-hb'));
+      sm.pack(ps.getPackingStyle('-hb'), 0);
       assert.equal(sm.width, 250); 
       assert.equal(sm.height, 300); 
       assert.deepEqual(sm.sprites, expectedData); 
@@ -225,7 +225,7 @@ describe("SpriteMap", function () {
     ];
     var sm = new SpriteMap("test/images/test02"); 
     sm.getData(function() {
-      sm.pack(ps.getPackingStyle('-d'));
+      sm.pack(ps.getPackingStyle('-d'), 0);
       assert.equal(sm.width, 250); 
       assert.equal(sm.height, 350); 
       assert.deepEqual(sm.sprites, expectedData); 

@@ -1,6 +1,11 @@
 var SpriteMap = require('./SpriteMap');
 var ps = require('./PackingStyle');
 var path = require('path'); 
+var rsvp = require('rsvp'); 
+
+var handleError = function(err) {
+	throw err; 
+}
 
 var buildSprites = function(folder, packingStyle, spacing) {
 	var sm 			 	= new SpriteMap(folder);
@@ -8,14 +13,62 @@ var buildSprites = function(folder, packingStyle, spacing) {
 	var dataFile 		= path.join('spritedata', path.basename(folder) + '_data.json'); 
 	var spritemapFile	= path.join('spritemaps', path.basename(folder) + "_spritemap.png");  
 
-	sm.getData(function() { 					// get dimensions & hashes 
-		sm.pack(packingStyle, spacing);				// get coordinates 
+	// var promise = new rsvp.Promise(function(resolve, reject) {
+	// 	sm.getData(function(err, data) {
+	// 		if (err) { console.log(err); reject(err)}
+	// 		else 	 resolve(data)
+	// 	});
+	// });
 
-		sm.saveData(dataFile); 					// save json file 
-		console.log('*	wrote sprite data at \'' + dataFile + '\'');
+	// promise.then(function(data) {
 
-		sm.createSpriteMap(spritemapFile);		// create spritemap png 
-		console.log('*	created spritemap at \'' + spritemapFile+ '\'');
+	// 	console.log("data received"); 
+	// 	// sm.pack(packingStyle, spacing); 
+
+	// 	// sm.saveData(dataFile, function(err, data) {	
+	// 	// 	if (err) throw err; 
+	// 	// 	console.log('*	wrote sprite data at \'' + dataFile + '\'');
+	// 	// }); 
+
+	// 	// sm.createSpriteMap(spritemapFile, function(err, spritemap) { 
+	// 	// 	if (err) throw err; 
+	// 	// 	console.log('*	created spritemap at \'' + spritemapFile+ '\'');
+	// 	// });
+
+	// }, function(err) { console.log(err); })
+
+
+	// var saveData_promise = sm.saveData(); 
+	// var createSpritemap_promise = sm.createSpriteMap(); 
+
+	// saveData_promise.then(function(data) {
+
+	// }, handleError); 
+
+	// createSpritemap_promise.then(function(spritemap) {
+
+	// }, handleError); 
+
+	// get dimensions & hashes; success = sprite data array 
+	sm.getData(function(err, data) { 					
+		if (err) throw err; 
+
+		// get coordinates 
+		sm.pack(packingStyle, spacing);				
+
+		// save json file; success = sprites data in object form 
+		sm.saveData(dataFile, function(err, data) {	
+			if (err) throw err; 
+			console.log('*	wrote sprite data at \'' + dataFile + '\'');
+		}); 					
+
+		// create spritemap png; success = spritemap image?
+		sm.createSpriteMap(spritemapFile, function(err, spritemap) { 
+			if (err) throw err; 
+			console.log('*	created spritemap at \'' + spritemapFile+ '\'');
+		});		
+
+		
 	});																
 }
 

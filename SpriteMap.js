@@ -14,8 +14,8 @@ var getSpriteName = function(imagesFolder, filePath) {
 function SpriteMap(imagesFolder) {
 	this.sprites 		= []; 
 	this.filenames	= glob.sync(path.join(imagesFolder, "**/*.+(png|jpg|jpeg|gif)")); 
-	this.width 			= null; 
-	this.height 		= null; 
+	this.width 			= 0; 
+	this.height 		= 0; 
 
 	if (this.filenames.length <= 0) 
 		throw new Error("no images found in \'" + imagesFolder + "\' folder!");
@@ -35,11 +35,11 @@ SpriteMap.prototype.getData = function(cb) {
 	var aux = function(array, index) {
 		if (index < array.length) {
 			lwip.open(array[index].filename, function(err, image) {
-				if (err) throw err; 
+				if (err) cb(err, null); 
 
 				var encodingFormat = array[index].filename.match(imageFileRegexp)[1]; 
 				image.toBuffer(encodingFormat, function(err, buffer) {
-					if (err) throw err; 
+					if (err) cb(err, null); 
 
 					array[index].width 	= image.width();
 					array[index].height = image.height(); 
@@ -49,7 +49,7 @@ SpriteMap.prototype.getData = function(cb) {
 				}); 
 			});
 		} else {
-			cb(array); 
+			cb(null, array); 
 		}
 	}
 
@@ -64,19 +64,20 @@ SpriteMap.prototype.pack = function(packingStyle, spacing) {
 }
 
 // save sprites data to file in json format 
-SpriteMap.prototype.saveData = function(filename) {
+SpriteMap.prototype.saveData = function(filename, cb) {
 	var data = {}; 
 	for (var i = 0; i < this.sprites.length; i++) {
 		data[this.sprites[i].name] = this.sprites[i]; 
 	}
 
 	fs.writeFile(filename, JSON.stringify(data, null, 2), function(err) {
-		if(err) throw err; 
+		if (err)	cb(err, null); 
+		else  		cb(null, data);
 	}); 
 }
 
 // create spritemap according to the last used packing style 
-SpriteMap.prototype.createSpriteMap = function(filename) {
+SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 	var self = this;
 
 	var pasteImages = function(index, cur_spritemap) {
@@ -90,13 +91,14 @@ SpriteMap.prototype.createSpriteMap = function(filename) {
 			}); 
 		} else { 
 			cur_spritemap.writeFile(filename, function(err) { 
-				if (err) throw err; 
+				if (err) cb(err, null); 
+				else 		 cb(null, cur_spritemap); 
 			});
 		}
 	}
 
 	lwip.create(this.width, this.height, function(err, spritemap) {
-		if (err) throw err; 
+		if (err) cb(err, null); 
 		pasteImages(0, spritemap); 
 	});
 }
