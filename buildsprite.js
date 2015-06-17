@@ -8,10 +8,14 @@ var buildSprites = function(folder, packingStyle) {
 	var dataFile 			= path.join('spritedata', path.basename(folder) + '_data.json'); 
 	var spritemapFile =	path.join('spritemaps', path.basename(folder) + "_spritemap.png");  
 
-	sm.getData(function() { 							// get dimensions & hashes 
-		sm.pack(packingStyle);							// get coordinates 
-		sm.saveData(dataFile); 							// save json file 
-		sm.createSpriteMap(spritemapFile);	// create spritemap png 
+	sm.getData(function() { 					// get dimensions & hashes 
+		sm.pack(packingStyle);				 	// get coordinates 
+
+		sm.saveData(dataFile); 					// save json file 
+		console.log('*	wrote sprite data at \'' + dataFile + '\'');
+		
+		sm.createSpriteMap(spritemapFile);		// create spritemap png 
+		console.log('*	created spritemap at \'' + spritemapFile+ '\'');
 	});																
 }
 

@@ -5,12 +5,6 @@ var path 		= require('path');
 var lwip 		= require('lwip'); 
 var crypto	= require('crypto'); 
 
-// TODO: move these to a util file?
-
-var getAllImageFiles = function(folder) {
-	return glob.sync(path.join(folder, "**/*.+(png|jpg|jpeg|gif)")); 
-}
-
 var getSpriteName = function(imagesFolder, filePath) {
 	var prefix = path.basename(imagesFolder); 
 	var filename = path.basename(filePath); 
@@ -19,9 +13,12 @@ var getSpriteName = function(imagesFolder, filePath) {
 
 function SpriteMap(imagesFolder) {
 	this.sprites 		= []; 
-	this.filenames	= getAllImageFiles(imagesFolder); 
+	this.filenames	= glob.sync(path.join(imagesFolder, "**/*.+(png|jpg|jpeg|gif)")); 
 	this.width 			= null; 
 	this.height 		= null; 
+
+	if (this.filenames.length <= 0) 
+		throw new Error("no images found in \'" + imagesFolder + "\' folder!");
 
 	for (var i = 0; i < this.filenames.length; i++) {
 		this.sprites[i] = { 
@@ -75,7 +72,6 @@ SpriteMap.prototype.saveData = function(filename) {
 
 	fs.writeFile(filename, JSON.stringify(data, null, 2), function(err) {
 		if(err) throw err; 
-		// console.log('*	wrote sprite data at \'' + filename + '\'');
 	}); 
 }
 
@@ -95,7 +91,6 @@ SpriteMap.prototype.createSpriteMap = function(filename) {
 		} else { 
 			cur_spritemap.writeFile(filename, function(err) { 
 				if (err) throw err; 
-				// console.log('*	created spritemap at \'' + filename + '\'');
 			});
 		}
 	}

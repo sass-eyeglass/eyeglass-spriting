@@ -31,7 +31,7 @@ describe("SpriteMap", function () {
 			    .rotate(45, 'white')  // rotate 45degs clockwise (white fill)
 			    .crop(200, 200)       // crop a 200X200 square from center
 			    .blur(5)              // Gaussian blur with SD=5
-			    .writeFile('output.png', function(err){
+			    .writeFile('test/results/output.png', function(err){
 			    	done(); 
 			    });
     	});
