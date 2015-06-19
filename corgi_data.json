@@ -1,0 +1,74 @@
+{
+  "images/corgi/blurrycorgi.png": {
+    "name": "images/corgi/blurrycorgi.png",
+    "filename": "images/corgi/blurrycorgi.png",
+    "width": 200,
+    "height": 200,
+    "md5sum": "7ca44917891ce279dd22dcee6be1ceca",
+    "origin_x": 0,
+    "origin_y": 925
+  },
+  "images/corgi/corgiball.gif": {
+    "name": "images/corgi/corgiball.gif",
+    "filename": "images/corgi/corgiball.gif",
+    "width": 296,
+    "height": 200,
+    "md5sum": "20134192dd45fc1768c32270794470df",
+    "origin_x": 250,
+    "origin_y": 925
+  },
+  "images/corgi/corgistampede.jpg": {
+    "name": "images/corgi/corgistampede.jpg",
+    "filename": "images/corgi/corgistampede.jpg",
+    "width": 671,
+    "height": 324,
+    "md5sum": "ca2230609c142fbdbcf52ef97977fc50",
+    "origin_x": 596,
+    "origin_y": 801
+  },
+  "images/corgi/oliver.jpg": {
+    "name": "images/corgi/oliver.jpg",
+    "filename": "images/corgi/oliver.jpg",
+    "width": 891,
+    "height": 1014,
+    "md5sum": "a7dcb6acea210e582e2c4b5550e7e997",
+    "origin_x": 6238,
+    "origin_y": 111
+  },
+  "images/corgi/twocorgies.png": {
+    "name": "images/corgi/twocorgies.png",
+    "filename": "images/corgi/twocorgies.png",
+    "width": 700,
+    "height": 529,
+    "md5sum": "b4499f670e775fed66388b73a251b01e",
+    "origin_x": 2258,
+    "origin_y": 596
+  },
+  "images/samoyed/129500461375869254.jpg": {
+    "name": "images/samoyed/129500461375869254.jpg",
+    "filename": "images/samoyed/129500461375869254.jpg",
+    "width": 1280,
+    "height": 1024,
+    "md5sum": "98ff966c2bc7877bb1453d31d3e409a6",
+    "origin_x": 3008,
+    "origin_y": 101
+  },
+  "images/samoyed/il_fullxfull.331833603.jpg": {
+    "name": "images/samoyed/il_fullxfull.331833603.jpg",
+    "filename": "images/samoyed/il_fullxfull.331833603.jpg",
+    "width": 1500,
+    "height": 1125,
+    "md5sum": "2a4a67fecd28f7e3946728c331972760",
+    "origin_x": 4338,
+    "origin_y": 0
+  },
+  "images/samoyed/Samoyed-3.jpg": {
+    "name": "images/samoyed/Samoyed-3.jpg",
+    "filename": "images/samoyed/Samoyed-3.jpg",
+    "width": 300,
+    "height": 350,
+    "md5sum": "9418022613b32d9dc2b745fffca4d844",
+    "origin_x": 5888,
+    "origin_y": 775
+  }
+}

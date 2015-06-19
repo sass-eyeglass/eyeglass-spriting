@@ -1,0 +1,109 @@
+@import "spriting";
+// Built on top of the asset api
+@import "module-a/assets";
+// app assets
+@import "assets";
+
+// No magic sprite import.
+
+// support for jpg, gif, and png source files.
+// Support for images from different directories
+// control the ouput filename (no need for the hash at the end of the filename)
+// sprite names are their filenames.
+$icon-sprite-map: sprite-map("module-a/sprite-dir/1.jpg",
+                             "module-a/sprite-dir/two.png",
+                             "my-sprite-dir/**/*",
+                             $name: "icons",
+                             $layout: sprite-layout(horizontal, (spacing: 5px, alignment: bottom)),
+                             $exceptions: (
+                               "module-a/sprite-dir/1.jpg": (
+                                 spacing: 40px,
+                                 identifier: "one"
+                               )
+                             ));
+
+@debug $icon-sprite-map;
+// ( sprite-map: true,
+//   name: "icons",
+//   sources: (
+//     "module-a/sprite-dir/1.jpg",
+//     "module-a/sprite-dir/two.png",
+//     "my-sprite-dir/**/*"),
+//   assets: (
+//     "module-a/sprite-dir/1.jpg":
+//       (path: "/Users/chris/Projects/mytestproj/node_modules/module-a/images/sprite-dir/1.jpg",
+//        identifier: one,
+//        position: 0px -10px,
+//        width: 40px,
+//        height: 40px),
+//     "module-a/sprite-dir/two.png":
+//       (path: "/Users/chris/Projects/mytestproj/node_modules/module-a/images/sprite-dir/two.png",
+//        identifier: two,
+//        position: 80px -10px,
+//        width: 40px,
+//        height: 40px),
+//     "my-sprite-dir/foo.png":
+//       (path: "/Users/chris/Projects/mytestproj/my-sprite-dir/foo.png",
+//        identifier: foo,
+//        position: 125px 0px,
+//        width: 40px,
+//        height: 50px),
+//     "my-sprite-dir/bar.gif":
+//       (path: "/Users/chris/Projects/mytestproj/my-sprite-dir/bar.gif",
+//        identifier: bar,
+//        position: 170px -10px,
+//        width: 40px,
+//        height: 40px),
+//     "my-sprite-dir/baz.jpg":
+//       (path: "/Users/chris/Projects/mytestproj/my-sprite-dir/baz.jpg",
+//        identifier: baz,
+//        position: 215px -10px,
+//        width: 40px,
+//        height: 40px)
+//   ),
+//   layout: (
+//     strategy: horizontal,
+//     spacing: 5px,
+//     alignment: bottom,
+//     exceptions: (
+//       "module-a/sprite-dir/1.jpg": (
+//         spacing: 40px
+//       )
+//     )
+//   )
+
+
+@debug sprite-list($icon-sprite-map);
+// => "module-a/sprite-dir/1.jpg", "module-a/sprite-dir/two.png",
+//    "my-sprite-dir/foo.png", "my-sprite-dir/bar.gif", "my-sprite-dir/baz.jpg"
+
+// Calling the sprite-url function causes the sprite image to be constructed and written to disk.
+$url: sprite-url($icon-sprite-map) // => url("/assets/icons.png")
+$pos: sprite-position($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 10px -87px
+$posx: sprite-position-x($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 10px
+$posy: sprite-position-y($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => -87px
+$width: sprite-width($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 35px
+$height: sprite-height($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 28px
+// raises an error if called for an image that has no specified identifer and
+// the base filename is not a legal css ident.
+$id: sprite-identifier($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => one
+
+
+%icon-bg {
+  @include sprite-background($icon-sprite-map); // optional $repeat argument defaults to no-repeat.
+  // background: url("/assets/icons.png") no-repeat;
+}
+
+
+.icon-one {
+  @extend %icon-bg;
+  @include sprite-position($icon-sprite-map, "module-a/sprite-dir/1.jpg");
+  // background-position: 10px -87px;
+}
+
+@each $icon in sprite-list($icon-sprite-map) {
+  .icon-#{sprite-identifier($icon)} {
+    @extend %icon-bg;
+    @include sprite-position($icon-sprite-map, $icon);
+  }
+}

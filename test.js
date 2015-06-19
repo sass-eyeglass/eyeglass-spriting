@@ -1,14 +1,5 @@
-var RSVP = require('rsvp');
+var SpriteMap = require("./SpriteMap");
 
-var promise = new RSVP.Promise(function(resolve, reject) {
-  // succeed
-  resolve(value);
-  // or reject
-  reject(error);
-});
+var imagePaths = ["images/corgi", "images/samoyed", "images/corgi/oliver.jpg"];
 
-promise.then(function(value) {
-  // success
-}, function(value) {
-  // failure
-});
+var sm = new SpriteMap(imagePaths);
