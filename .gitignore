@@ -6,3 +6,5 @@ archives
 .DS_Store
 stuff.js
 test/results
+*.json
+*.png

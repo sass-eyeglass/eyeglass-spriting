@@ -1,1 +1,19 @@
-$eyeglass-spriting : true; 
+
+// $eg-registered-assets: (
+//   "module-a": (
+//     "foo/bar.png": "/Users/chris/...../bar.png"
+//   ),
+//   "module-b": (
+//   )
+// );
+
+
+
+@mixin sprite-background($sprite-map, $repeat: no-repeat) {
+  background: url('"' + sprite-url($sprite-map) + '"') $repeat;
+}
+
+@mixin sprite-position($sprite-map, $sprite-name) {
+  background-position: sprite-position($sprite-map, $sprite-name);
+}
+
