@@ -5,6 +5,17 @@
 
 // TODO: change to object that has a spacing variable?
 
+function Layout(layout, options) {
+
+	this.layout = layout;
+	this.spacing = 0;
+
+	if (options.spacing) this.spacing = options.spacing;
+	if (options.alignment) this.alignment = options.alignment;
+	this.spacing = options.spacing
+
+}
+
 var vertical_left = {
 	pack : function(sprites, spacing) {
 		var width 	= sprites[0].width;
