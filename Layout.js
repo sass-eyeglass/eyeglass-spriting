@@ -6,18 +6,50 @@
 // TODO: change to object that has a spacing variable?
 
 function Layout(layout, options) {
-
 	this.layout = layout;
 	this.spacing = 0;
+	this.alignment = null;
 
-	if (options.spacing) this.spacing = options.spacing;
-	if (options.alignment) this.alignment = options.alignment;
-	this.spacing = options.spacing
+	if (options.spacing) {
+		this.spacing = options.spacing;
+	}
 
+	if (options.alignment) {
+		this.alignment = options.alignment;
+	}
+
+	this.pack = getPackingFunction(this.layout, this.alignment, this.spacing);
 }
 
-var vertical_left = {
-	pack : function(sprites, spacing) {
+
+Layout.prototype.setSpacing = function(spacing) {
+	this.spacing = spacing;
+	this.pack = getLayoutStyle(this.layout, this.alignment, this.spacing);
+}
+
+
+var getPackingFunction = function(layout, alignment, spacing) {
+	if (!spacing) spacing = 0;
+
+	switch (layout) {
+		case "vertical":
+			if (!alignment) return pack_vertical_left(spacing);
+			else if (alignment == "left") return pack_vertical_left(spacing);
+			else if (alignment == "right") return pack_vertical_right(spacing);
+			else return pack_vertical_left(spacing);
+		case "horizontal":
+			if (!alignment) return pack_horizontal_top(spacing);
+			else if (alignment == "top") return pack_horizontal_top(spacing);
+			else if (alignment == "bottom") return pack_horizontal_bottom(spacing);
+			else return horizontal_top(spacing);
+		case "diagonal":
+			return pack_diagonal;
+	}
+}
+
+
+var pack_vertical_left = function(spacing) {
+	return function(sprites) {
 		var width 	= sprites[0].width;
 		var height 	= sprites[0].height;
 		sprites[0].origin_x = 0;
@@ -35,8 +67,9 @@ var vertical_left = {
 	}
 }
 
-var vertical_right = {
-	pack : function(sprites, spacing) {
+
+var pack_vertical_right = function(spacing) {
+	return function(sprites) {
 		var width 	= sprites[0].width;
 		var height 	= sprites[0].height;
 		sprites[0].origin_x = -sprites[0].width;
@@ -57,8 +90,9 @@ var vertical_right = {
 	}
 }
 
-var horizontal_top = {
-	pack : function(sprites, spacing) {
+
+var pack_horizontal_top = function(spacing) {
+	return function(sprites) {
 		var width 	= sprites[0].width;
 		var height 	= sprites[0].height;
 		sprites[0].origin_x = 0;
@@ -76,8 +110,9 @@ var horizontal_top = {
 	}
 }
 
-var horizontal_bottom = {
-	pack : function(sprites, spacing) {
+
+var pack_horizontal_bottom = function(spacing) {
+	return function(sprites) {
 		var width 	= sprites[0].width;
 		var height 	= sprites[0].height;
 		sprites[0].origin_x = 0;
@@ -98,58 +133,175 @@ var horizontal_bottom = {
 	}
 }
 
-var diagonal = {
-	pack : function(sprites, spacing) {
-		var width 	= sprites[0].width;
-		var height 	= sprites[0].height;
-		sprites[0].origin_x = 0;
-		sprites[0].origin_y = 0;
 
-		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width;
-			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height;
+var pack_diagonal = function(sprites) {
+	var width 	= sprites[0].width;
+	var height 	= sprites[0].height;
+	sprites[0].origin_x = 0;
+	sprites[0].origin_y = 0;
 
-			width 	+= sprites[i].width;
-			height 	+= sprites[i].height;
-		}
+	for (var i = 1; i < sprites.length; i++) {
+		sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width;
+		sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height;
 
-		return [width, height];
+		width 	+= sprites[i].width;
+		height 	+= sprites[i].height;
 	}
+
+	return [width, height];
 }
 
-// getLayoutStyle("vertical", {spacing: 5px, alignment: "right"});
-module.exports.getLayoutStyle = function(layout, options) {
-	switch (layout) {
-		case "vertical":
-			if (!options.alignment) return vertical_left;
-			else if (options.alignment == "left") return vertical_left;
-			else if (options.alignment == "right") return vertical_right;
-			else return vertical_left;
-		case "horizontal":
-			if (!options.alignment) return horizontal_top;
-			else if (options.alignment == "top") return horizontal_top;
-			else if (options.alignment == "bottom") return horizontal_bottom;
-			else return horizontal_top;
-		case "diagonal":
-			return diagonal;
-		default:
-			return vertical_left;
-	}
+
+var layout = "vertical";
+var alignment = "right";
+var spacing = 50;
+
+options = {
+	alignment : alignment,
+	spacing : spacing
 }
 
-// module.exports.getPackingStyle = function(str) {
-// 	switch (str) {
-// 		case '-vl' :
-// 			return vertical_left;
-// 		case '-ht' :
-// 			return horizontal_top;
-// 		case '-vr' :
-// 			return vertical_right;
-// 		case '-hb' :
-// 			return horizontal_bottom;
-// 		case '-d'  :
+var l = new Layout(layout, options);
+
+// console.log(l);
+console.log(l.pack.toString());
+
+
+// var vertical_left = {
+// 	pack : function(sprites, spacing) {
+// 		var width 	= sprites[0].width;
+// 		var height 	= sprites[0].height;
+// 		sprites[0].origin_x = 0;
+// 		sprites[0].origin_y = 0;
+
+// 		for (var i = 1; i < sprites.length; i++) {
+// 			sprites[i].origin_x = 0;
+// 			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height + spacing;
+
+// 			width 	= Math.max(width, sprites[i].width);
+// 			height += sprites[i].height + spacing;
+// 		}
+
+// 		return [width, height];
+// 	}
+// }
+
+//
+// var vertical_right = {
+// 	pack : function(sprites, spacing) {
+// 		var width 	= sprites[0].width;
+// 		var height 	= sprites[0].height;
+// 		sprites[0].origin_x = -sprites[0].width;
+// 		sprites[0].origin_y = 0;
+
+// 		for (var i = 1; i < sprites.length; i++) {
+// 			sprites[i].origin_x = -sprites[i].width;
+// 			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height + spacing;
+
+// 			width 	= Math.max(width, sprites[i].width);
+// 			height += sprites[i].height + spacing;
+// 		}
+
+// 		for (var i = 0; i < sprites.length; i++)
+// 			sprites[i].origin_x += width;
+
+// 		return [width, height];
+// 	}
+// }
+
+// var horizontal_top = {
+// 	pack : function(sprites, spacing) {
+// 		var width 	= sprites[0].width;
+// 		var height 	= sprites[0].height;
+// 		sprites[0].origin_x = 0;
+// 		sprites[0].origin_y = 0;
+
+// 		for (var i = 1; i < sprites.length; i++) {
+// 			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width + spacing;
+// 			sprites[i].origin_y = 0;
+
+// 			width += sprites[i].width + spacing;
+// 			height = Math.max(height, sprites[i].height);
+// 		}
+
+// 		return [width, height];
+// 	}
+// }
+
+// var horizontal_bottom = {
+// 	pack : function(sprites, spacing) {
+// 		var width 	= sprites[0].width;
+// 		var height 	= sprites[0].height;
+// 		sprites[0].origin_x = 0;
+// 		sprites[0].origin_y = -sprites[0].height;
+
+// 		for (var i = 1; i < sprites.length; i++) {
+// 			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width + spacing;
+// 			sprites[i].origin_y = -sprites[i].height;
+
+// 			width += sprites[i].width + spacing;
+// 			height = Math.max(height, sprites[i].height);
+// 		}
+
+// 		for (var i = 0; i < sprites.length; i++)
+// 			sprites[i].origin_y += height;
+
+// 		return [width, height];
+// 	}
+// }
+
+// var diagonal = {
+// 	pack : function(sprites, spacing) {
+// 		var width 	= sprites[0].width;
+// 		var height 	= sprites[0].height;
+// 		sprites[0].origin_x = 0;
+// 		sprites[0].origin_y = 0;
+
+// 		for (var i = 1; i < sprites.length; i++) {
+// 			sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width;
+// 			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height;
+
+// 			width 	+= sprites[i].width;
+// 			height 	+= sprites[i].height;
+// 		}
+
+// 		return [width, height];
+// 	}
+// }
+
+// // getLayoutStyle("vertical", {spacing: 5px, alignment: "right"});
+// module.exports.getLayoutStyle = function(layout, options) {
+// 	switch (layout) {
+// 		case "vertical":
+// 			if (!options.alignment) return vertical_left;
+// 			else if (options.alignment == "left") return vertical_left;
+// 			else if (options.alignment == "right") return vertical_right;
+// 			else return vertical_left;
+// 		case "horizontal":
+// 			if (!options.alignment) return horizontal_top;
+// 			else if (options.alignment == "top") return horizontal_top;
+// 			else if (options.alignment == "bottom") return horizontal_bottom;
+// 			else return horizontal_top;
+// 		case "diagonal":
 // 			return diagonal;
-// 		default : // do vertical left-aligned packing by default
+// 		default:
 // 			return vertical_left;
 // 	}
 // }
+
+// // module.exports.getPackingStyle = function(str) {
+// // 	switch (str) {
+// // 		case '-vl' :
+// // 			return vertical_left;
+// // 		case '-ht' :
+// // 			return horizontal_top;
+// // 		case '-vr' :
+// // 			return vertical_right;
+// // 		case '-hb' :
+// // 			return horizontal_bottom;
+// // 		case '-d'  :
+// // 			return diagonal;
+// // 		default : // do vertical left-aligned packing by default
+// // 			return vertical_left;
+// // 	}
+// // }
