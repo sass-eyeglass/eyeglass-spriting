@@ -111,5 +111,21 @@ describe("spriting module", function () {
     testutils.assertCompiles(options, expectedOutput, done);
   });
 
+  // it("sprite-map() works with sprite-layout()", function (done) {
+  //   var options = {
+  //     data: ".test { foo: sprite-map('corgi', '-vr', 'images/corgi', 'images/samoyed', 'images/corgi/oliver.jpg') }"
+  //   };
+  //   var expectedOutput = ".test {\n  foo: corgi.png; }\n";
+  //   testutils.assertCompiles(options, expectedOutput, done);
+  // });
+
+  // it("sprite-map() layout", function (done) {
+  //   var options = {
+  //     data: ".test { foo: sprite-map('corgi', '-vr', 'images/corgi', 'images/samoyed', 'images/corgi/oliver.jpg') }"
+  //   };
+  //   var expectedOutput = ".test {\n  foo: corgi.png; }\n";
+  //   testutils.assertCompiles(options, expectedOutput, done);
+  // });
+
 
 });

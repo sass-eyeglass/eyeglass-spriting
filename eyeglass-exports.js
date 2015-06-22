@@ -1,6 +1,6 @@
 var path = require("path");
 var SpriteMap = require("./SpriteMap");
-var l = require("./Layout");
+var Layout = require("./Layout");
 var fs = require("fs");
 
 var getDataFileName = function(spritemapName) {
@@ -40,17 +40,19 @@ module.exports = function(eyeglass, sass) {
         if (alignment)
           layoutOptions.alignment = alignment;
 
+        var layoutStyle = new Layout(layout, layoutOptions);
+
         var imagePaths = [];
         for (var i = 0; i < paths.getLength(); i++)
           imagePaths.push(paths.getValue(i).getValue());
 
         var sm = new SpriteMap(name, imagePaths);
-        var layoutStyle = l.getLayoutStyle(layout, layoutOptions);
+
 
         sm.getData(function(err, data) {
           if (err) throw err;
 
-          sm.pack(layoutStyle, spacing);
+          sm.pack(layoutStyle);
 
           sm.saveData(getDataFileName(name), function(err, data) {
             if (err) throw err;

@@ -1,4 +1,4 @@
-var ps 			= require('./Layout');
+// var Layout 	= require('./Layout');
 var glob 		= require('glob');
 var fs 			= require('fs');
 var path 		= require('path');
@@ -73,8 +73,8 @@ SpriteMap.prototype.getData = function(cb) {
 }
 
 // get coordinates for each sprite & spritemap dimensions
-SpriteMap.prototype.pack = function(layoutStyle, spacing) {
-	var dimensions = layoutStyle.pack(this.sprites, spacing);
+SpriteMap.prototype.pack = function(layoutStyle) {
+	var dimensions = layoutStyle.pack(this.sprites);
 	this.width 	= dimensions[0];
 	this.height	= dimensions[1];
 }
