@@ -92,8 +92,12 @@ module.exports = function(eyeglass, sass) {
             var sprite = new sassUtils.SassJsMap();
             sprite.coerce.set("path", sm.sprites[i].filename);
             sprite.coerce.set("position", position);
-            sprite.coerce.set("width", sm.sprites[i].width);
-            sprite.coerce.set("height", sm.sprites[i].height);
+
+            var width = new sassUtils.SassDimension(sm.sprites[i].width, "px");
+            sprite.coerce.set("width", width);
+
+            var height = new sassUtils.SassDimension(sm.sprites[i].height, "px");
+            sprite.coerce.set("height", height);
 
             // TOOD: change sprite name after switching to using assets
             assets.coerce.set(sm.sprites[i].name, sprite);
@@ -148,12 +152,9 @@ module.exports = function(eyeglass, sass) {
       },
 
       "sprite-list($spritemap)": function(spritemap, done) {
-        // var filename = getDataFileName(spritemap.getValue());
+        sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
         var outputStr = "";
 
-        sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
-
-        // go through each sprite name
         sprites.forEach(function(i, sprite) {
           sprite = sassUtils.castToJs(sprite);
           outputStr += sprite + "\n";
@@ -163,77 +164,51 @@ module.exports = function(eyeglass, sass) {
       },
 
       "sprite-url($spritemap)": function(spritemap, done) {
-        var url = getImageFileName(spritemap.getValue());
-        done(sassUtils.castToSass(url));
+        var name = sassUtils.castToJs(spritemap).coerce.get("name");
+        done(sassUtils.castToSass(name + ".png"));
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var filename = getDataFileName(spritemap.getValue());
+        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprite = assets.coerce.get(spritename);
 
-        fs.readFile(filename, 'utf8', function(err, data) {
-          if (err) throw err;
-          data = JSON.parse(data);
+        var position = sprite.coerce.get("position");
+        position = sassUtils.castToSass(position);
+        position.setSeparator = false;
 
-          var x = new sassUtils.SassDimension(data[spritename.getValue()]["origin_x"], "px");
-          var y = new sassUtils.SassDimension(data[spritename.getValue()]["origin_y"], "px");
-
-          output = sassUtils.castToSass([x, y]);
-          output.setSeparator(false);
-
-          done(output);
-        });
+        done(position);
       },
 
       "sprite-position-x($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var filename = getDataFileName(spritemap.getValue());
+        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprite = assets.coerce.get(spritename);
+        var position_x = sprite.coerce.get("position")[0];
 
-        fs.readFile(filename, 'utf8', function(err, data) {
-          if (err) throw err;
-          data = JSON.parse(data);
-
-          var output = new sassUtils.SassDimension(data[spritename.getValue()]["origin_x"], "px");
-
-          done(sassUtils.castToSass(output));
-        });
+        done(sassUtils.castToSass(position_x));
       },
 
       "sprite-position-y($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var filename = getDataFileName(spritemap.getValue());
+        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprite = assets.coerce.get(spritename);
+        var position_y = sprite.coerce.get("position")[1];
 
-        fs.readFile(filename, 'utf8', function(err, data) {
-          if (err) throw err;
-          data = JSON.parse(data);
-
-          var output = new sassUtils.SassDimension(data[spritename.getValue()]["origin_y"], "px");
-
-          done(sassUtils.castToSass(output));
-        });
+        done(sassUtils.castToSass(position_y));
       },
 
       "sprite-width($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var filename = getDataFileName(spritemap.getValue());
+        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprite = assets.coerce.get(spritename);
+        var width = sprite.coerce.get("width")
 
-        fs.readFile(filename, 'utf8', function(err, data) {
-          if (err) throw err;
-          data = JSON.parse(data);
-
-          var output = new sassUtils.SassDimension(data[spritename.getValue()]["width"], "px");
-
-          done(sassUtils.castToSass(output));
-        });
+        done(sassUtils.castToSass(width));
       },
 
       "sprite-height($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var filename = getDataFileName(spritemap.getValue());
+        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprite = assets.coerce.get(spritename);
+        var height = sprite.coerce.get("height")
 
-        fs.readFile(filename, 'utf8', function(err, data) {
-          if (err) throw err;
-          data = JSON.parse(data);
-
-          var output = new sassUtils.SassDimension(data[spritename.getValue()]["height"], "px");
-
-          done(sassUtils.castToSass(output));
-        });
+        done(sassUtils.castToSass(height));
       },
 
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
