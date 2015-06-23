@@ -22,6 +22,7 @@
     "crypto": "0.0.3",
     "glob": "^5.0.10",
     "lwip": "0.0.7",
+    "minimatch": "^2.0.8",
     "node-sass-utils": "^1.0.0",
     "rsvp": "^3.0.18"
   },

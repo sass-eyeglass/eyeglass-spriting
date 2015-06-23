@@ -5,8 +5,8 @@
 
 // TODO: change to object that has a spacing variable?
 
-function Layout(layout, options) {
-	this.layout = layout;
+function Layout(strategy, options) {
+	this.strategy = strategy;
 	this.spacing = 0;
 	this.alignment = null;
 
@@ -18,20 +18,20 @@ function Layout(layout, options) {
 		this.alignment = options.alignment;
 	}
 
-	this.pack = getPackingFunction(this.layout, this.alignment, this.spacing);
+	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
 }
 
 
 Layout.prototype.setSpacing = function(spacing) {
 	this.spacing = spacing;
-	this.pack = getLayoutStyle(this.layout, this.alignment, this.spacing);
+	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
 }
 
 
-var getPackingFunction = function(layout, alignment, spacing) {
+var getPackingFunction = function(strategy, alignment, spacing) {
 	if (!spacing) spacing = 0;
 
-	switch (layout) {
+	switch (strategy) {
 		case "vertical":
 			if (!alignment) return pack_vertical_left(spacing);
 			else if (alignment == "left") return pack_vertical_left(spacing);

@@ -12,24 +12,25 @@ var getSpriteName = function(imagesFolder, filePath) {
 }
 
 // imagePaths = array of images and/or folders containing images
-function SpriteMap(name, imagePaths) {
+function SpriteMap(name, imagePaths, sources) {
 	this.name = name;
 	this.sprites = [];
-	this.filenames = [];
+	// this.filenames = [];
+	this.filenames = imagePaths;
 	this.width = 0;
 	this.height = 0;
 
 	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
 	// get all image files
-	for (var i = 0; i < imagePaths.length; i++) {
-		if (imagePaths[i].match(imageFileRegexp)) {
-			this.filenames.push(imagePaths[i]);
-		} else {
-			var newFiles = glob.sync(path.join(imagePaths[i], "**/*.+(png|jpg|jpeg|gif)"))
-			this.filenames = this.filenames.concat(newFiles);
-		}
-	}
+	// for (var i = 0; i < imagePaths.length; i++) {
+	// 	if (imagePaths[i].match(imageFileRegexp)) {
+	// 		this.filenames.push(imagePaths[i]);
+	// 	} else {
+	// 		var newFiles = glob.sync(path.join(imagePaths[i], "**/*.+(png|jpg|jpeg|gif)"))
+	// 		this.filenames = this.filenames.concat(newFiles);
+	// 	}
+	// }
 
 	if (this.filenames.length <= 0)
 		throw new Error("no images found in \'" + imagesFolder + "\' folder!");
@@ -38,7 +39,7 @@ function SpriteMap(name, imagePaths) {
 		this.sprites[i] = {
 			// TODO: decide how to name sprites?
 			// 'name'     : getSpriteName(imagesFolder, this.filenames[i]),
-			'name' : this.filenames[i],
+			'name' : sources[i],
 			'filename' : this.filenames[i]
 		};
 	}

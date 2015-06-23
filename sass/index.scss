@@ -1,12 +1,18 @@
 
-// $eg-registered-assets: (
-//   "module-a": (
-//     "foo/bar.png": "/Users/chris/...../bar.png"
-//   ),
-//   "module-b": (
-//   )
-// );
+$eg-registered-assets: (
+  "module-a": (
+    "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img01.png",
+    "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img02.png"
+  ),
+  "module-b": (
+    "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img03.png"
+  )
+);
 
+
+@function sprite-map($name, $layout, $paths...) {
+  @return sprite-map-assets($name, $layout, $eg-registered-assets, $paths...);
+}
 
 
 @mixin sprite-background($sprite-map, $repeat: no-repeat) {
@@ -16,4 +22,3 @@
 @mixin sprite-position($sprite-map, $sprite-name) {
   background-position: sprite-position($sprite-map, $sprite-name);
 }
-
