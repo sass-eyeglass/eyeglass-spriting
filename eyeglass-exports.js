@@ -61,7 +61,7 @@ module.exports = function(eyeglass, sass) {
               var fullVirtualPath = path.join(module, sassUtils.castToJs(virtualPath));
               if (minimatch(fullVirtualPath, nextPath)) {
                 var realPath = sassUtils.castToJs(assets.coerce.get(virtualPath));
-                imagePaths.push(realPath);
+                imagePaths.push([fullVirtualPath, realPath]);
                 sources.push(fullVirtualPath);
               }
             });
@@ -69,7 +69,7 @@ module.exports = function(eyeglass, sass) {
         }
 
         // create sprite map
-        var sm = new SpriteMap(name, imagePaths, sources);
+        var sm = new SpriteMap(name, imagePaths);
         sm.getData(function(err, data) {
           if (err) throw err;
 
@@ -106,7 +106,7 @@ module.exports = function(eyeglass, sass) {
           spritemap.coerce.set("assets", assets);
           spritemap.coerce.set("layout", layout);
 
-          sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
+          sm.createSpriteMap(function(err, spritemap) {
             if (err) throw err;
             // console.log('*  created spritemap yay');
           });

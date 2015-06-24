@@ -12,13 +12,23 @@ var getSpriteName = function(imagesFolder, filePath) {
 }
 
 // imagePaths = array of images and/or folders containing images
-function SpriteMap(name, imagePaths, sources) {
+function SpriteMap(name, imagePaths) {
 	this.name = name;
 	this.sprites = [];
-	// this.filenames = [];
-	this.filenames = imagePaths;
+	this.filenames = [];
+	this.sources = [];
 	this.width = 0;
 	this.height = 0;
+
+	function sortByRealPaths(a, b) {
+		if (a[1] === b[1]) return 0;
+		else return (a[1] < b[1]) ? -1 : 1;
+	}
+
+	for (var i = 0; i < imagePaths.length; i++) {
+		this.filenames[i] = imagePaths[i][1];
+		this.sources[i] = imagePaths[i][0];
+	}
 
 	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
@@ -37,12 +47,17 @@ function SpriteMap(name, imagePaths, sources) {
 
 	for (var i = 0; i < this.filenames.length; i++) {
 		this.sprites[i] = {
-			// TODO: decide how to name sprites?
-			// 'name'     : getSpriteName(imagesFolder, this.filenames[i]),
-			'name' : sources[i],
+			'name' : this.sources[i],
 			'filename' : this.filenames[i]
 		};
 	}
+}
+
+var getLastModifiedDate = function(filename, cb) {
+	fs.stat(filename, function(err, stats) {
+    if (err) throw err;
+    cb(stats.mtime);
+  })
 }
 
 // get dimensions & hashes
@@ -62,11 +77,17 @@ SpriteMap.prototype.getData = function(cb) {
 					array[index].height = image.height();
 					array[index].md5sum = crypto.createHash("md5").update(buffer).digest('hex');
 
-					aux(array, index + 1);
+
+					getLastModifiedDate(array[index].filename, function(date) {
+						array[index].lastModified = date;
+						aux(array, index + 1);
+					});
+
 				});
 			});
 		} else {
 			cb(null, array);
+			// console.log(array);
 		}
 	}
 
@@ -99,12 +120,13 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 }
 
 // create spritemap according to the last used packing style
-SpriteMap.prototype.createSpriteMap = function(filename, cb) {
+SpriteMap.prototype.createSpriteMap = function(cb) {
 	var self = this;
 
-	if (!filename) {
-		filename = this.name + ".png";
-	}
+	filename = this.name + ".png";
+	// if (!filename) {
+	// 	filename = this.name + ".png";
+	// }
 
 	var pasteImages = function(index, cur_spritemap) {
 		if (index < self.sprites.length) {
