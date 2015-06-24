@@ -2,11 +2,12 @@
 $eg-registered-assets: (
   "module-a": (
     "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img01.png",
-    "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img02.png"
+    "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img02.png",
+    // "img04.png": "/Users/jwang5/linkedin/spritebuilder/test/mocha.opts" //TODO: throw error if this happens
   ),
   "module-b": (
     "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img03.png"
-  )
+  ),
 );
 
 
@@ -22,3 +23,29 @@ $eg-registered-assets: (
 @mixin sprite-position($sprite-map, $sprite-name) {
   background-position: sprite-position($sprite-map, $sprite-name);
 }
+
+  // "test-sprite-list": (
+  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
+  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
+  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
+  // ),
+  // "test-sprite-url": (
+  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-url/img01.png",
+  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-url/img02.png",
+  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-url/img03.png"
+  // ),
+  // "test-sprite-list": (
+  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
+  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
+  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
+  // ),
+  // "test-sprite-list": (
+  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
+  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
+  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
+  // ),
+  // "test-sprite-list": (
+  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
+  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
+  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
+  // ),

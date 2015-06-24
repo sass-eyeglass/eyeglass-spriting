@@ -46,10 +46,19 @@ function SpriteMap(name, imagePaths) {
 		throw new Error("no images found in \'" + imagesFolder + "\' folder!");
 
 	for (var i = 0; i < this.filenames.length; i++) {
-		this.sprites[i] = {
-			'name' : this.sources[i],
-			'filename' : this.filenames[i]
-		};
+		if (!this.filenames[i].match(imageFileRegexp)) {
+			throw new Error("asset \'" + this.sources[i] + "\' cannot be opened!");
+		}
+		else {
+			this.sprites.push({
+				'name' : this.sources[i],
+				'filename' : this.filenames[i]
+			})
+		}
+		// this.sprites[i] = {
+		// 	'name' : this.sources[i],
+		// 	'filename' : this.filenames[i]
+		// };
 	}
 }
 
@@ -120,13 +129,17 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 }
 
 // create spritemap according to the last used packing style
-SpriteMap.prototype.createSpriteMap = function(cb) {
+SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 	var self = this;
 
-	filename = this.name + ".png";
-	// if (!filename) {
-	// 	filename = this.name + ".png";
-	// }
+	// filename = this.name + ".png";
+	if (!filename) {
+		filename = this.name + ".png";
+	}
+
+	// check if spritemap already exist and if so, get last modified date
+	// --> need sprite information saved in spritemap? or save json file?
+	// check if last modified date of any sprites is later than that of spritemap
 
 	var pasteImages = function(index, cur_spritemap) {
 		if (index < self.sprites.length) {

@@ -1,6 +1,6 @@
 "use strict";
 
-var path = require("path");
+// var path = require("path");
 // var fs = require("fs");
 var testutils = require("./testutils");
 
@@ -9,9 +9,9 @@ describe("spriting module", function () {
   it("sprite-map() sanity check", function (done) {
     var options = {
       data: "@import 'spriting'; .test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, "
-        + "alignment: bottom)), 'module-a/*.png', 'module-b/img03.png') }"
+        + "alignment: bottom)), 'module-a/*', 'module-b/img03.png') }"
     };
-    var expectedOutput = ".test {\n  foo: (sprite-map: true, name: test-sprite-map, sources: module-a/*.png, module-b/img03.png, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: (module-a/img01.png: (path: /Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img01.png, position: 0px 200px, width: 100px, height: 100px), module-a/img02.png: (path: /Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img02.png, position: 105px 250px, width: 50px, height: 50px), module-b/img03.png: (path: /Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img03.png, position: 160px 0px, width: 200px, height: 300px))); }\n";
+    var expectedOutput = ".test {\n  foo: (sprite-map: true, name: test-sprite-map, sources: module-a/*, module-b/img03.png, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: (module-a/img01.png: (path: /Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img01.png, position: 0px 200px, width: 100px, height: 100px), module-a/img02.png: (path: /Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img02.png, position: 105px 250px, width: 50px, height: 50px), module-b/img03.png: (path: /Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img03.png, position: 160px 0px, width: 200px, height: 300px))); }\n";
     testutils.assertCompiles(options, expectedOutput, done);
   });
 

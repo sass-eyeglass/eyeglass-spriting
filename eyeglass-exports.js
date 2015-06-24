@@ -5,11 +5,11 @@ var fs = require("fs");
 var minimatch = require("minimatch");
 
 var getDataFileName = function(spritemapName) {
-  return spritemapName + ".json";
+  return path.join("assets", spritemapName + ".json");
 }
 
 var getImageFileName = function(spritemapName) {
-  return spritemapName + ".png";
+  return path.join("assets", spritemapName + ".png");
 }
 
 module.exports = function(eyeglass, sass) {
@@ -19,9 +19,9 @@ module.exports = function(eyeglass, sass) {
     sassDir: path.join(__dirname, "sass"),
     functions: {
 
-      "hello-assets()": function(done) {
-        done(sassUtils.castToSass("hello assets"));
-      },
+      // "hello-assets()": function(done) {
+      //   done(sassUtils.castToSass("hello assets"));
+      // },
 
       // create sprite map and return url
       // layout = sass map of layout style, alignment, spacing
@@ -106,10 +106,10 @@ module.exports = function(eyeglass, sass) {
           spritemap.coerce.set("assets", assets);
           spritemap.coerce.set("layout", layout);
 
-          sm.createSpriteMap(function(err, spritemap) {
-            if (err) throw err;
-            // console.log('*  created spritemap yay');
-          });
+          // sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
+          //   if (err) throw err;
+          //   // console.log('*  created spritemap yay');
+          // });
 
           done(spritemap.toSassMap());
         });
@@ -165,6 +165,41 @@ module.exports = function(eyeglass, sass) {
 
       "sprite-url($spritemap)": function(spritemap, done) {
         var name = sassUtils.castToJs(spritemap).coerce.get("name");
+
+        // get paths
+        var imagePaths = [];
+        var sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
+        sprites.forEach(function(spriteData, spriteName) {
+          spriteData = sassUtils.castToJs(spriteData);
+          var virtualPath = sassUtils.castToJs(spriteName);
+          var realPath = spriteData.coerce.get("path");
+          imagePaths.push([virtualPath, realPath]);
+        });
+
+        var layout = sassUtils.castToJs(spritemap).coerce.get("layout");
+        var spacing = layout.coerce.get("spacing").value;
+        var alignment = layout.coerce.get("alignment");
+        var strategy = layout.coerce.get("strategy");
+
+        var layoutOptions = {};
+        if (spacing)
+          layoutOptions.spacing = spacing;
+        if (alignment)
+          layoutOptions.alignment = alignment;
+
+        var layoutStyle = new Layout(strategy, layoutOptions);
+
+        var sm = new SpriteMap(name, imagePaths);
+
+        sm.getData(function(err, data) {
+          sm.pack(layoutStyle);
+
+          sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
+            if (err) throw err;
+            // console.log('*  created spritemap yay');
+          });
+        })
+
         done(sassUtils.castToSass(name + ".png"));
       },
 
