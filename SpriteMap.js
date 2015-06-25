@@ -64,9 +64,11 @@ function SpriteMap(name, imagePaths) {
 
 var getLastModifiedDate = function(filename, cb) {
 	fs.stat(filename, function(err, stats) {
-    if (err) throw err;
-    cb(stats.mtime);
+    if (err) cb(err, null);
+    else if (!stats) cb ("no file", null);
+    else cb(null, stats.mtime.getTime());
   })
+  // return fs.statSync(filename).mtime.getTime();
 }
 
 // get dimensions & hashes
@@ -86,8 +88,10 @@ SpriteMap.prototype.getData = function(cb) {
 					array[index].height = image.height();
 					array[index].md5sum = crypto.createHash("md5").update(buffer).digest('hex');
 
-
-					getLastModifiedDate(array[index].filename, function(date) {
+					// array[index].lastModified = lastModifiedDate(array[index].filename);
+					// aux(array, index + 1);
+					getLastModifiedDate(array[index].filename, function(err, date) {
+						if (err) cb(err, null);
 						array[index].lastModified = date;
 						aux(array, index + 1);
 					});
@@ -96,7 +100,6 @@ SpriteMap.prototype.getData = function(cb) {
 			});
 		} else {
 			cb(null, array);
-			// console.log(array);
 		}
 	}
 
@@ -130,37 +133,59 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 
 // create spritemap according to the last used packing style
 SpriteMap.prototype.createSpriteMap = function(filename, cb) {
+	var imageFile = path.join("assets", this.name + ".png");
+	var dataFile = path.join("assets", this.name + ".json");
+
 	var self = this;
 
-	// filename = this.name + ".png";
-	if (!filename) {
-		filename = this.name + ".png";
-	}
+	getLastModifiedDate(imageFile, function(err, spritemapDate) {
+		var spritemapExists = true;
 
-	// check if spritemap already exist and if so, get last modified date
-	// --> need sprite information saved in spritemap? or save json file?
-	// check if last modified date of any sprites is later than that of spritemap
-
-	var pasteImages = function(index, cur_spritemap) {
-		if (index < self.sprites.length) {
-			lwip.open(self.sprites[index].filename, function(err, image) {
-				var origin_x = self.sprites[index].origin_x;
-				var origin_y = self.sprites[index].origin_y;
-				cur_spritemap.paste(origin_x, origin_y, image, function(err, new_spritemap) {
-					pasteImages(index + 1, new_spritemap);
-				});
-			});
+		// check if file does not exist
+		if (err) {
+			spritemapExists = false;
 		} else {
-			cur_spritemap.writeFile(filename, function(err) {
+			var data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+
+			// check if motification date of any image has changed, or is after the date of the spritemap
+			for (var i = 0; i < self.sprites.length; i++) {
+				if (self.sprites[i].lastModified != data[self.sprites[i].name]["lastModified"]
+					|| self.sprites[i].lastModified > spritemapDate) {
+					spritemapExists = false;
+				}
+			}
+		}
+
+		// make the spritemap if it doesn't already exist or is out of date
+		if (spritemapExists) {
+			cb(null, null);
+		} else {
+			var pasteImages = function(index, cur_spritemap) {
+				if (index < self.sprites.length) {
+					lwip.open(self.sprites[index].filename, function(err, image) {
+						var origin_x = self.sprites[index].origin_x;
+						var origin_y = self.sprites[index].origin_y;
+						cur_spritemap.paste(origin_x, origin_y, image, function(err, new_spritemap) {
+							pasteImages(index + 1, new_spritemap);
+						});
+					});
+				} else {
+					cur_spritemap.writeFile(filename, function(err) {
+						if (err) cb(err, null);
+						else {
+							self.saveData(path.join("assets", self.name + ".json"), function(err, data) {
+								cb(null, cur_spritemap);
+							})
+						}
+					});
+				}
+			}
+
+			lwip.create(self.width, self.height, function(err, spritemap) {
 				if (err) cb(err, null);
-				else 		 cb(null, cur_spritemap);
+				pasteImages(0, spritemap);
 			});
 		}
-	}
-
-	lwip.create(this.width, this.height, function(err, spritemap) {
-		if (err) cb(err, null);
-		pasteImages(0, spritemap);
 	});
 }
 

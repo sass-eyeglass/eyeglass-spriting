@@ -48,7 +48,7 @@ describe("spriting module", function () {
       + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
       + ".test{ foo: sprite-url($test-sprite-map); }"
     };
-    var expectedOutput = ".test {\n  foo: test-sprite-map.png; }\n";
+    var expectedOutput = ".test {\n  foo: assets/test-sprite-map.png; }\n";
     testutils.assertCompiles(options, expectedOutput, done);
   });
 
@@ -108,7 +108,7 @@ describe("spriting module", function () {
       + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
       + ".test{ @include sprite-background($test-sprite-map); }"
     };
-    var expectedOutput = ".test {\n  background: url(\"test-sprite-map.png\") no-repeat; }\n";
+    var expectedOutput = ".test {\n  background: url(\"assets/test-sprite-map.png\") no-repeat; }\n";
     testutils.assertCompiles(options, expectedOutput, done);
   });
 

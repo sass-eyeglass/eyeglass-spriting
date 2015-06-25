@@ -1,6 +1,8 @@
 
 # eyeglass spriting API
 
+( insert summary/basic usage information here )
+
 ---
 ### sprite-map()
 

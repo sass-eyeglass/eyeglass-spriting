@@ -197,10 +197,9 @@ module.exports = function(eyeglass, sass) {
           sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
             if (err) throw err;
             // console.log('*  created spritemap yay');
+            done(sassUtils.castToSass(getImageFileName(name)));
           });
         })
-
-        done(sassUtils.castToSass(name + ".png"));
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
