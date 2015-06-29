@@ -43,7 +43,7 @@ function SpriteMap(name, imagePaths) {
 	// }
 
 	if (this.filenames.length <= 0)
-		throw new Error("no images found in \'" + imagesFolder + "\' folder!");
+		throw new Error("no images found!");
 
 	for (var i = 0; i < this.filenames.length; i++) {
 		if (!this.filenames[i].match(imageFileRegexp)) {
@@ -131,6 +131,25 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 	});
 }
 
+// currentSprites = array
+// existingSprites = object
+var needsUpdating = function(currentSprites, existingSprites, spritemapDate) {
+	// TODO: check if other parameters have changed
+	if (currentSprites.length != Object.keys(existingSprites).length) {
+		return true;
+	} else {
+		for (var i = 0; i < currentSprites.length; i++) {
+			if (!existingSprites[currentSprites[i].name]
+				|| currentSprites[i].lastModified != existingSprites[currentSprites[i].name]["lastModified"]
+				|| currentSprites[i].lastModified > spritemapDate) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 // create spritemap according to the last used packing style
 SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 	var imageFile = path.join("assets", this.name + ".png");
@@ -139,27 +158,20 @@ SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 	var self = this;
 
 	getLastModifiedDate(imageFile, function(err, spritemapDate) {
-		var spritemapExists = true;
+		var spritemapNeedsUpdating = false;
 
-		// check if file does not exist
+		// file does not exist
 		if (err) {
-			spritemapExists = false;
+			spritemapNeedsUpdating = true;
+		// file exists, but check if any of the source images have been motified / sources added/deleted
 		} else {
+			// TODO: get possible errors from this
 			var data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-
-			// check if motification date of any image has changed, or is after the date of the spritemap
-			for (var i = 0; i < self.sprites.length; i++) {
-				if (self.sprites[i].lastModified != data[self.sprites[i].name]["lastModified"]
-					|| self.sprites[i].lastModified > spritemapDate) {
-					spritemapExists = false;
-				}
-			}
+			spritemapNeedsUpdating = needsUpdating(self.sprites, data, spritemapDate);
 		}
 
 		// make the spritemap if it doesn't already exist or is out of date
-		if (spritemapExists) {
-			cb(null, null);
-		} else {
+		if (spritemapNeedsUpdating) {
 			var pasteImages = function(index, cur_spritemap) {
 				if (index < self.sprites.length) {
 					lwip.open(self.sprites[index].filename, function(err, image) {
@@ -185,7 +197,10 @@ SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 				if (err) cb(err, null);
 				pasteImages(0, spritemap);
 			});
+		} else {
+			cb(null, null);
 		}
+
 	});
 }
 

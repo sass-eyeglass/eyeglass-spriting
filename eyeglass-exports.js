@@ -18,25 +18,21 @@ module.exports = function(eyeglass, sass) {
   return {
     sassDir: path.join(__dirname, "sass"),
     functions: {
-
-      // "hello-assets()": function(done) {
-      //   done(sassUtils.castToSass("hello assets"));
-      // },
-
-      // create sprite map and return url
-      // layout = sass map of layout style, alignment, spacing
-      // TODO check conversion from other units to px?
-      // returns spritemap name (name parameter)
+      // create sprite map and return Sass map of sprites information
       "sprite-map-assets($name, $layout, $registeredAssets, $paths...)": function(name, layout, registeredAssets, paths, done) {
+        sassUtils.assertType(name, "string");
+        sassUtils.assertType(layout, "map");
+        sassUtils.assertType(registeredAssets, "map");
+        sassUtils.assertType(paths, "list");
+
         var name = name.getValue();
 
-        // get Layout
         var layoutJs = sassUtils.castToJs(layout);
-
         var spacing = layoutJs.coerce.get("spacing").value;
         var alignment = layoutJs.coerce.get("alignment");
         var strategy = layoutJs.coerce.get("strategy");
 
+        // TODO: sass cast to object?
         var layoutOptions = {};
         if (spacing)
           layoutOptions.spacing = spacing;
@@ -46,11 +42,11 @@ module.exports = function(eyeglass, sass) {
         var layoutStyle = new Layout(strategy, layoutOptions);
 
         // convert asset paths to real paths
-        // TODO: clean this up?
         var registeredAssets = sassUtils.castToJs(registeredAssets);
         var imagePaths = [];
         var sources = [];
 
+        // TODO: use assets to get real paths
         for (var i = 0; i < paths.getLength(); i++) {
           var nextPath = paths.getValue(i).getValue();
 
@@ -68,48 +64,40 @@ module.exports = function(eyeglass, sass) {
           });
         }
 
-        // create sprite map
+        var spritemap = new sassUtils.SassJsMap();
+        spritemap.coerce.set("sprite-map", true);
+        spritemap.coerce.set("name", name);
+        spritemap.coerce.set("sources", sassUtils.castToSass(paths));
+        spritemap.coerce.set("layout", layout);
+        // TODO: put this into helper function in SpriteMap
         var sm = new SpriteMap(name, imagePaths);
         sm.getData(function(err, data) {
           if (err) throw err;
 
           sm.pack(layoutStyle);
 
-          // build map to return
-          var spritemap = new sassUtils.SassJsMap();
-          spritemap.coerce.set("sprite-map", true);
-          spritemap.coerce.set("name", name);
-          spritemap.coerce.set("sources", sassUtils.castToSass(paths));
-          spritemap.coerce.set("layout", layout);
-
           var assets = new sassUtils.SassJsMap();
+
           for (var i = 0; i < sm.sprites.length; i++) {
-            var x = new sassUtils.SassDimension(sm.sprites[i].origin_x, "px");
-            var y = new sassUtils.SassDimension(sm.sprites[i].origin_y, "px");
-            position = sassUtils.castToSass([x, y]);
+            // TODO: should this be in Layout.js?
+            var x = new sassUtils.SassDimension(-sm.sprites[i].origin_x, "px");
+            var y = new sassUtils.SassDimension(-sm.sprites[i].origin_y, "px");
+            var position = sassUtils.castToSass([x, y]);
             position.setSeparator(false);
+
+            var width = new sassUtils.SassDimension(sm.sprites[i].width, "px");
+            var height = new sassUtils.SassDimension(sm.sprites[i].height, "px");
 
             var sprite = new sassUtils.SassJsMap();
             sprite.coerce.set("path", sm.sprites[i].filename);
             sprite.coerce.set("position", position);
-
-            var width = new sassUtils.SassDimension(sm.sprites[i].width, "px");
             sprite.coerce.set("width", width);
-
-            var height = new sassUtils.SassDimension(sm.sprites[i].height, "px");
             sprite.coerce.set("height", height);
 
-            // TOOD: change sprite name after switching to using assets
             assets.coerce.set(sm.sprites[i].name, sprite);
           }
 
           spritemap.coerce.set("assets", assets);
-          spritemap.coerce.set("layout", layout);
-
-          // sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
-          //   if (err) throw err;
-          //   // console.log('*  created spritemap yay');
-          // });
 
           done(spritemap.toSassMap());
         });
@@ -117,25 +105,40 @@ module.exports = function(eyeglass, sass) {
 
       // sprite-layout(horizontal, (spacing: 5px, alignment: bottom))
       // --> (layout: horizontal, spacing: 50px, alignment: bottom)
+      // TODO:
       "sprite-layout($strategy, $options)": function(strategy, options, done) {
         var options = sassUtils.castToJs(options);
-        var spacing = sassUtils.castToJs(options.coerce.get("spacing"));
-        // if (spacing) spacing = spacing.convertTo("px", "");
-        var alignment = options.coerce.get("alignment");
+        var spacing;
+        var alignment;
+
+        // no options specified
+        // TODO: use handle empty map thing from node-sass-utils
+        if (sassUtils.typeOf(options) != "map") {
+          spacing = new sassUtils.SassDimension(0, "px");
+          alignment = "";
+        } else {
+          spacing = options.coerce.get("spacing");
+          if (!spacing) spacing = new sassUtils.SassDimension(0, "px");
+          // else spacing = spacing.convertTo("px", "");
+          alignment = options.coerce.get("alignment");
+        }
 
         // check if options are valid
         switch (sassUtils.castToJs(strategy)) {
           case "vertical":
             if (!alignment) alignment = "left";
-            else if (alignment != "left" && alignment != right) alignment = "left";
+            // TODO: throw error
+            else if (alignment != "left" && alignment != "right") alignment = "left";
             break;
           case "horizontal":
             if (!alignment) alignment = "top";
+            // TODO: throw error
             else if (alignment != "top" && alignment != "bottom") alignment = "top";
             break;
           case "diagonal":
             break;
           default:
+          // TODO: throw error
             strategy = "vertical";
             alignment = "left";
             break;
@@ -153,14 +156,16 @@ module.exports = function(eyeglass, sass) {
 
       "sprite-list($spritemap)": function(spritemap, done) {
         sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var outputStr = "";
+        var spriteList = [];
 
+        // TODO: make this a list instead of a string
         sprites.forEach(function(i, sprite) {
-          sprite = sassUtils.castToJs(sprite);
-          outputStr += sprite + "\n";
+          // sprite = sassUtils.castToJs(sprite);
+          spriteList.push(sassUtils.castToJs(sprite));
+          // outputStr += sprite + "\n";
         });
 
-        done(sassUtils.castToSass(outputStr));
+        done(sassUtils.castToSass(spriteList));
       },
 
       "sprite-url($spritemap)": function(spritemap, done) {
@@ -176,6 +181,7 @@ module.exports = function(eyeglass, sass) {
           imagePaths.push([virtualPath, realPath]);
         });
 
+        // get layout
         var layout = sassUtils.castToJs(spritemap).coerce.get("layout");
         var spacing = layout.coerce.get("spacing").value;
         var alignment = layout.coerce.get("alignment");
@@ -196,8 +202,10 @@ module.exports = function(eyeglass, sass) {
 
           sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
             if (err) throw err;
-            // console.log('*  created spritemap yay');
-            done(sassUtils.castToSass(getImageFileName(name)));
+            // TODO: wat do
+            var url = path.join("..", getImageFileName(name));
+            // var url = getImageFileName(name);
+            done(sassUtils.castToSass(url));
           });
         })
       },
@@ -245,8 +253,14 @@ module.exports = function(eyeglass, sass) {
         done(sassUtils.castToSass(height));
       },
 
+      // TODO: re-write this later; this is placeholder
+      // TODO: raises an error if called for an image that has no specified identifer and
+      // the base filename is not a legal css ident.
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
+        var name = spritename.getValue();
+        var identifier = path.basename(name, path.extname(name));
 
+        done(sassUtils.castToSass(identifier));
       }
 
   	}

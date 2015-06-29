@@ -1,14 +1,164 @@
 
 $eg-registered-assets: (
   "module-a": (
-    "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img01.png",
-    "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img02.png",
-    // "img04.png": "/Users/jwang5/linkedin/spritebuilder/test/mocha.opts" //TODO: throw error if this happens
+    "img01.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img01.png",
+    "img02.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img02.png",
+    // "img04.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img04.png"
   ),
+
   "module-b": (
-    "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test01/img03.png"
+    "img03.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img03.png"
   ),
+
+  "largeImages": (
+    "img01.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/largeImages/img01.png",
+    "img02.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/largeImages/img02.png",
+    "img03.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/largeImages/img03.png"
+  ),
+
+  "smallImages": (
+    "img01.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/smallImages/img01.png",
+    "img02.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/smallImages/img02.png",
+    "img03.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/smallImages/img03.png"
+  ),
+
+  "lotsOfImages": (
+    "img1.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img1.png",
+    "img2.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img2.png",
+    "img3.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img3.png",
+    "img4.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img4.png",
+    "img5.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img5.png",
+    "img6.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img6.png",
+    "img7.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img7.png",
+    "img8.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img8.png",
+    "img9.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img9.png",
+    "img10.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img10.png",
+    "img11.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img11.png",
+    "img12.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img12.png",
+    "img13.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img13.png",
+    "img14.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img14.png",
+    "img15.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img15.png",
+    "img16.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img16.png",
+    "img17.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img17.png",
+    "img18.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img18.png",
+    "img19.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img19.png",
+    "img20.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img20.png",
+    "img21.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img21.png",
+    "img22.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img22.png",
+    "img23.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img23.png",
+    "img24.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img24.png",
+    "img25.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img25.png",
+    "img26.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img26.png",
+    "img27.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img27.png",
+    "img28.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img28.png",
+    "img29.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img29.png",
+    "img30.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img30.png",
+    "img31.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img31.png",
+    "img32.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img32.png",
+    "img33.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img33.png",
+    "img34.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img34.png",
+    "img35.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img35.png",
+    "img36.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img36.png",
+    "img37.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img37.png",
+    "img38.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img38.png",
+    "img39.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img39.png",
+    "img40.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img40.png",
+    "img41.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img41.png",
+    "img42.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img42.png",
+    "img43.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img43.png",
+    "img44.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img44.png",
+    "img45.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img45.png",
+    "img46.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img46.png",
+    "img47.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img47.png",
+    "img48.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img48.png",
+    "img49.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img49.png",
+    "img50.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img50.png",
+    "img51.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img51.png",
+    "img52.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img52.png",
+    "img53.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img53.png",
+    "img54.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img54.png",
+    "img55.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img55.png",
+    "img56.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img56.png",
+    "img57.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img57.png",
+    "img58.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img58.png",
+    "img59.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img59.png",
+    "img60.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img60.png",
+    "img61.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img61.png",
+    "img62.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img62.png",
+    "img63.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img63.png",
+    "img64.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img64.png",
+    "img65.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img65.png",
+    "img66.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img66.png",
+    "img67.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img67.png",
+    "img68.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img68.png",
+    "img69.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img69.png",
+    "img70.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img70.png",
+    "img71.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img71.png",
+    "img72.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img72.png",
+    "img73.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img73.png",
+    "img74.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img74.png",
+    "img75.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img75.png",
+    "img76.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img76.png",
+    "img77.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img77.png",
+    "img78.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img78.png",
+    "img79.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img79.png",
+    "img80.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img80.png",
+    "img81.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img81.png",
+    "img82.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img82.png",
+    "img83.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img83.png",
+    "img84.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img84.png",
+    "img85.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img85.png",
+    "img86.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img86.png",
+    "img87.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img87.png",
+    "img88.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img88.png",
+    "img89.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img89.png",
+    "img90.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img90.png",
+    "img91.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img91.png",
+    "img92.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img92.png",
+    "img93.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img93.png",
+    "img94.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img94.png",
+    "img95.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img95.png",
+    "img96.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img96.png",
+    "img97.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img97.png",
+    "img98.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img98.png",
+    "img99.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img99.png",
+    "img100.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img100.png"
+  ),
+
+  "icons": (
+    "bell.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/bell.png",
+    "camera.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/camera.png",
+    "chat.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/chat.png",
+    "checkbox.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/checkbox.png",
+    "coffee.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/coffee.png",
+    "facebook.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/facebook.png",
+    "googleplus.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/googleplus.png",
+    "linkedin.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/linkedin.png",
+    "tumblr.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/tumblr.png",
+    "twitter.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/twitter.png",
+)
 );
+
+// $eg-registered-assets: (
+//   "icons": (
+//     "bell.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/bell.png",
+//     "camera.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/camera.png",
+//     "chat.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/chat.png",
+//     "checkbox.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/checkbox.png",
+//     "coffee.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/coffee.png",
+//     "downloading.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/downloading.png",
+//     "facebook.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/facebook.png",
+//     "googleplus.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/googleplus.png",
+//     "lightning.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/lightning.png",
+//     "linkedin.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/linkedin.png",
+//     "music.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/music.png",
+//     "shoppingcart.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/shoppingcart.png",
+//     "stack.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/stack.png",
+//     "tumblr.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/tumblr.png",
+//     "twitter.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/twitter.png",
+//     "uploading.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/uploading.png"
+//   )
+// );
 
 
 @function sprite-map($name, $layout, $paths...) {
@@ -24,28 +174,7 @@ $eg-registered-assets: (
   background-position: sprite-position($sprite-map, $sprite-name);
 }
 
-  // "test-sprite-list": (
-  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
-  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
-  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
-  // ),
-  // "test-sprite-url": (
-  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-url/img01.png",
-  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-url/img02.png",
-  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-url/img03.png"
-  // ),
-  // "test-sprite-list": (
-  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
-  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
-  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
-  // ),
-  // "test-sprite-list": (
-  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
-  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
-  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
-  // ),
-  // "test-sprite-list": (
-  //   "img01.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img01.png",
-  //   "img02.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img02.png",
-  //   "img03.png": "/Users/jwang5/linkedin/spritebuilder/test/fixtures/test-sprite-list/img03.png"
-  // ),
+@mixin sprite-dimensions($sprite-map, $sprite-name) {
+  width: sprite-width($sprite-map, $sprite-name);
+  height: sprite-height($sprite-map, $sprite-name);
+}

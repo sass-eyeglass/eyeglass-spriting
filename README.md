@@ -1,7 +1,9 @@
 
 # eyeglass spriting API
 
-( insert summary/basic usage information here )
+( insert summary/basic usage information here / check out the example project? )
+
+For basic usage, feel free to check out the eyeglass spriting example project at ( insert link here ).
 
 ---
 ### sprite-map()
@@ -44,7 +46,7 @@ Possible strategies and corresponding alignments are:
 
 `"diagonal"` - no alignment needed; spacing does not apply
 
-If the alignment is invalid for the given strategy, sprite-layout() will return either a vertical-left or horizontal-top layout by default. If the strategy is invalid, sprite-layout() will return a vertical-left layout by default.
+If the alignment is invalid for the given strategy, sprite-layout() will return either a vertical-left or horizontal-top layout by default. If the strategy is invalid, sprite-layout() will return a vertical-left layout by default. Spacing and alignment values are both optional.
 
 ---
 ### sprite-list()
@@ -88,21 +90,43 @@ Also causes the sprite map image to be generated.
 ---
 ### sprite-position() *(mixin)*
 
-  sprite-position($sprite-map, $sprite-name);
+	sprite-position($sprite-map, $sprite-name);
 
 A mixin that sets the background position to the position of the given sprite. For example,
 
-  .icon-home {
-    @include sprite-background($icon-sprite-map);
-    @include sprite-position($icon-sprite-map, "icons/home.png");
-  }
+	.icon-home {
+		@include sprite-background($icon-sprite-map);
+		@include sprite-position($icon-sprite-map, "icons/home.png");
+	}
 
 Might compile to the following css:
 
-  .icon-home {
-    background: url("/assets/icon-sprite-map.png");
-    background-position: 50px 100px;
-  }
+	.icon-home {
+		background: url("/assets/icon-sprite-map.png");
+		background-position: 50px 100px;
+	}
+
+---
+### sprite-dimensions() *(mixin)*
+
+  sprite-dimensions($sprite-map, $sprite-name);
+
+A mixin that sets the dimensions of the element to the dimensions of the given sprite. For example,
+
+	.icon-home {
+		@include sprite-background($icon-sprite-map);
+		@include sprite-position($icon-sprite-map, "icons/home.png");
+		@include sprite-dimensions($icon-sprite-map, "icons/home.png");
+	}
+
+Might compile to the following css:
+
+	.icon-home {
+		background: url("/assets/icon-sprite-map.png");
+		background-position: 50px 100px;
+		width: 32px;
+		height: 32px;
+	}
 
 ---
 ### sprite-position() *(function)*
