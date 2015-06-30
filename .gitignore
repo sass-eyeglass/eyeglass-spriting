@@ -9,3 +9,6 @@ test/results
 *.json
 *.png
 junk.js
+
+generateTestFixtures.js
+stuff.md

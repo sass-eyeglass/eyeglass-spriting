@@ -139,36 +139,14 @@ $eg-registered-assets: (
 )
 );
 
-// $eg-registered-assets: (
-//   "icons": (
-//     "bell.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/bell.png",
-//     "camera.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/camera.png",
-//     "chat.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/chat.png",
-//     "checkbox.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/checkbox.png",
-//     "coffee.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/coffee.png",
-//     "downloading.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/downloading.png",
-//     "facebook.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/facebook.png",
-//     "googleplus.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/googleplus.png",
-//     "lightning.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/lightning.png",
-//     "linkedin.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/linkedin.png",
-//     "music.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/music.png",
-//     "shoppingcart.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/shoppingcart.png",
-//     "stack.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/stack.png",
-//     "tumblr.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/tumblr.png",
-//     "twitter.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/twitter.png",
-//     "uploading.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/uploading.png"
-//   )
-// );
-
 
 @function sprite-map($name, $layout, $paths...) {
   @return sprite-map-assets($name, $layout, $eg-registered-assets, $paths...);
 }
 
 @function sprite-url($spritemap) {
-  @return sprite-url-asserts($spritemap, $eg-registered-assets);
+  @return sprite-url-assets($spritemap, $eg-registered-assets);
 }
-
 
 @mixin sprite-background($sprite-map, $repeat: no-repeat) {
   background: url('"' + sprite-url($sprite-map) + '"') $repeat;

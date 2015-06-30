@@ -83,6 +83,23 @@ SpriteMap.prototype.getData = function(cb) {
 	aux(0);
 }
 
+SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
+	this.width = sassSpritemap.coerce.get("width").value;
+  this.height = sassSpritemap.coerce.get("height").value;
+
+  var assets = sassSpritemap.coerce.get("assets");
+  for (var i = 0; i < this.sprites.length; i++) {
+    var sprite = assets.coerce.get(this.sprites[i].name);
+    this.sprites[i].origin_x = -sprite.coerce.get("position")[0].value;
+    this.sprites[i].origin_y = -sprite.coerce.get("position")[1].value;
+    try {
+    	this.sprites[i].lastModified = getLastModifiedDate(this.sprites[i].filename);
+    } catch (err) {
+    	throw err;
+    }
+  }
+}
+
 // should only be called after getData and pack
 SpriteMap.prototype.getSassData = function() {
 	this.sassData = new sassUtils.SassJsMap();
