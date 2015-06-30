@@ -12,8 +12,35 @@ var getImageFileName = function(spritemapName) {
   return path.join("assets", spritemapName + ".png");
 }
 
+
+
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
+
+  var getRealPaths = function(paths, registeredAssets) {
+    imagePaths = [];
+    sources = [];
+    registeredAssets = sassUtils.castToJs(registeredAssets);
+
+    for (var i = 0; i < paths.getLength(); i++) {
+      var nextPath = paths.getValue(i).getValue();
+
+      registeredAssets.forEach(function(i, module) {
+        module = sassUtils.castToJs(module);
+        var assets = registeredAssets.coerce.get(module);
+        assets.forEach(function(j, virtualPath) {
+          var fullVirtualPath = path.join(module, sassUtils.castToJs(virtualPath));
+          if (minimatch(fullVirtualPath, nextPath)) {
+            var realPath = sassUtils.castToJs(assets.coerce.get(virtualPath));
+            imagePaths.push([fullVirtualPath, realPath]);
+            sources.push(fullVirtualPath);
+          }
+        });
+      });
+    }
+
+    return imagePaths;
+  }
 
   return {
     sassDir: path.join(__dirname, "sass"),
@@ -26,81 +53,57 @@ module.exports = function(eyeglass, sass) {
         sassUtils.assertType(paths, "list");
 
         var name = name.getValue();
+        var imagePaths = getRealPaths(paths, registeredAssets);
 
-        var layoutJs = sassUtils.castToJs(layout);
-        var spacing = layoutJs.coerce.get("spacing").value;
-        var alignment = layoutJs.coerce.get("alignment");
-        var strategy = layoutJs.coerce.get("strategy");
+        var sm = new SpriteMap(name, imagePaths, layout, paths);
 
-        // TODO: sass cast to object?
-        var layoutOptions = {};
-        if (spacing)
-          layoutOptions.spacing = spacing;
-        if (alignment)
-          layoutOptions.alignment = alignment;
-
-        var layoutStyle = new Layout(strategy, layoutOptions);
-
-        // convert asset paths to real paths
-        var registeredAssets = sassUtils.castToJs(registeredAssets);
-        var imagePaths = [];
-        var sources = [];
-
-        // TODO: use assets to get real paths
-        for (var i = 0; i < paths.getLength(); i++) {
-          var nextPath = paths.getValue(i).getValue();
-
-          registeredAssets.forEach(function(i, module) {
-            module = sassUtils.castToJs(module);
-            var assets = registeredAssets.coerce.get(module);
-            assets.forEach(function(j, virtualPath) {
-              var fullVirtualPath = path.join(module, sassUtils.castToJs(virtualPath));
-              if (minimatch(fullVirtualPath, nextPath)) {
-                var realPath = sassUtils.castToJs(assets.coerce.get(virtualPath));
-                imagePaths.push([fullVirtualPath, realPath]);
-                sources.push(fullVirtualPath);
-              }
-            });
-          });
-        }
-
-        var spritemap = new sassUtils.SassJsMap();
-        spritemap.coerce.set("sprite-map", true);
-        spritemap.coerce.set("name", name);
-        spritemap.coerce.set("sources", sassUtils.castToSass(paths));
-        spritemap.coerce.set("layout", layout);
-        // TODO: put this into helper function in SpriteMap
-        var sm = new SpriteMap(name, imagePaths);
         sm.getData(function(err, data) {
-          if (err) throw err;
-
-          sm.pack(layoutStyle);
-
-          var assets = new sassUtils.SassJsMap();
-
-          for (var i = 0; i < sm.sprites.length; i++) {
-            // TODO: should this be in Layout.js?
-            var x = new sassUtils.SassDimension(-sm.sprites[i].origin_x, "px");
-            var y = new sassUtils.SassDimension(-sm.sprites[i].origin_y, "px");
-            var position = sassUtils.castToSass([x, y]);
-            position.setSeparator(false);
-
-            var width = new sassUtils.SassDimension(sm.sprites[i].width, "px");
-            var height = new sassUtils.SassDimension(sm.sprites[i].height, "px");
-
-            var sprite = new sassUtils.SassJsMap();
-            sprite.coerce.set("path", sm.sprites[i].filename);
-            sprite.coerce.set("position", position);
-            sprite.coerce.set("width", width);
-            sprite.coerce.set("height", height);
-
-            assets.coerce.set(sm.sprites[i].name, sprite);
-          }
-
-          spritemap.coerce.set("assets", assets);
-
-          done(spritemap.toSassMap());
+          sm.pack();
+          done(sm.sassData.toSassMap());
         });
+
+        // var layoutStyle = new Layout(layout);
+
+        // var spritemap = new sassUtils.SassJsMap();
+        // spritemap.coerce.set("sprite-map", true);
+        // spritemap.coerce.set("name", name);
+        // spritemap.coerce.set("sources", sassUtils.castToSass(paths));
+        // spritemap.coerce.set("layout", layout);
+        // // TODO: put this into helper function in SpriteMap
+        // var sm = new SpriteMap(name, imagePaths);
+        // sm.getData(function(err, data) {
+        //   if (err) throw err;
+
+        //   sm.pack(layoutStyle);
+
+        //   var assets = new sassUtils.SassJsMap();
+
+        //   for (var i = 0; i < sm.sprites.length; i++) {
+        //     // TODO: should this be in Layout.js?
+        //     var x = new sassUtils.SassDimension(-sm.sprites[i].origin_x, "px");
+        //     var y = new sassUtils.SassDimension(-sm.sprites[i].origin_y, "px");
+        //     var position = sassUtils.castToSass([x, y]);
+        //     position.setSeparator(false);
+
+        //     var width = new sassUtils.SassDimension(sm.sprites[i].width, "px");
+        //     var height = new sassUtils.SassDimension(sm.sprites[i].height, "px");
+
+        //     var sprite = new sassUtils.SassJsMap();
+        //     sprite.coerce.set("path", sm.sprites[i].filename);
+        //     sprite.coerce.set("position", position);
+        //     sprite.coerce.set("width", width);
+        //     sprite.coerce.set("height", height);
+
+        //     assets.coerce.set(sm.sprites[i].name, sprite);
+        //   }
+
+        //   spritemap.coerce.set("assets", assets);
+
+        //   done(spritemap.toSassMap());
+        // });
+
+
+
       },
 
       // sprite-layout(horizontal, (spacing: 5px, alignment: bottom))
@@ -183,17 +186,18 @@ module.exports = function(eyeglass, sass) {
 
         // get layout
         var layout = sassUtils.castToJs(spritemap).coerce.get("layout");
-        var spacing = layout.coerce.get("spacing").value;
-        var alignment = layout.coerce.get("alignment");
-        var strategy = layout.coerce.get("strategy");
+        // var spacing = layout.coerce.get("spacing").value;
+        // var alignment = layout.coerce.get("alignment");
+        // var strategy = layout.coerce.get("strategy");
 
-        var layoutOptions = {};
-        if (spacing)
-          layoutOptions.spacing = spacing;
-        if (alignment)
-          layoutOptions.alignment = alignment;
+        // var layoutOptions = {};
+        // if (spacing)
+        //   layoutOptions.spacing = spacing;
+        // if (alignment)
+        //   layoutOptions.alignment = alignment;
 
-        var layoutStyle = new Layout(strategy, layoutOptions);
+        // var layoutStyle = new Layout(strategy, layoutOptions);
+        var layoutStyle = new Layout(layout);
 
         var sm = new SpriteMap(name, imagePaths);
 

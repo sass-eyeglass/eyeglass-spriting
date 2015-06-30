@@ -3,22 +3,47 @@
  * element. It also calculates the spritemap width and height, and returns them in an array.
  */
 
-// TODO: change to object that has a spacing variable?
+var sass = require("node-sass");
+var sassUtils = require("node-sass-utils")(sass);
 
-function Layout(strategy, options) {
-	this.strategy = strategy;
-	this.spacing = 0;
-	this.alignment = null;
+// function Layout(strategy, options) {
+// 	this.strategy = strategy;
+// 	this.spacing = 0;
+// 	this.alignment = null;
 
-	if (options.spacing) {
-		this.spacing = options.spacing;
-	}
+// 	if (options.spacing) {
+// 		this.spacing = options.spacing;
+// 	}
 
-	if (options.alignment) {
-		this.alignment = options.alignment;
-	}
+// 	if (options.alignment) {
+// 		this.alignment = options.alignment;
+// 	}
 
-	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
+// 	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
+// }
+
+// take in sass map (layout: horizontal, spacing: 50px, alignment: bottom);
+function Layout(sassLayout) {
+// Layout.prototype.getLayoutFromSass = function(sassLayout) {
+	var layout = sassUtils.castToJs(sassLayout);
+	var strategy = layout.coerce.get("strategy");
+	var spacing = layout.coerce.get("spacing").value;
+  var alignment = layout.coerce.get("alignment");
+
+  this.strategy = strategy;
+  this.spacing = spacing;
+  this.alignment = alignment;
+
+  this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
+
+  // var layoutOptions = {};
+  // if (spacing)
+  //   layoutOptions.spacing = spacing;
+  // if (alignment)
+  //   layoutOptions.alignment = alignment;
+
+  // return new Layout(strategy, layoutOptions);
+
 }
 
 

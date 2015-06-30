@@ -1,9 +1,12 @@
 // var Layout 	= require('./Layout');
-var glob 		= require('glob');
-var fs 			= require('fs');
-var path 		= require('path');
-var lwip 		= require('lwip');
-var crypto	= require('crypto');
+var glob = require("glob");
+var fs = require("fs");
+var path = require("path");
+var lwip = require("lwip");
+var crypto = require("crypto");
+var sass = require("node-sass");
+var sassUtils = require("node-sass-utils")(sass);
+var Layout = require("./Layout");
 
 var getSpriteName = function(imagesFolder, filePath) {
 	var prefix = path.basename(imagesFolder);
@@ -12,13 +15,23 @@ var getSpriteName = function(imagesFolder, filePath) {
 }
 
 // imagePaths = array of images and/or folders containing images
-function SpriteMap(name, imagePaths) {
+// TODO: do I really need to pass in sources
+function SpriteMap(name, imagePaths, sassLayout, sources) {
+	// function SpriteMap(name, imagePaths) {
 	this.name = name;
 	this.sprites = [];
 	this.filenames = [];
 	this.sources = [];
 	this.width = 0;
 	this.height = 0;
+	this.sassLayout = sassLayout;
+	this.layout = new Layout(sassLayout);
+
+	this.sassData = new sassUtils.SassJsMap();
+	this.sassData.coerce.set("sprite-map", true);
+	this.sassData.coerce.set("name", this.name);
+	this.sassData.coerce.set("sources", sources);
+	this.sassData.coerce.set("layout", this.sassLayout);
 
 	function sortByRealPaths(a, b) {
 		if (a[1] === b[1]) return 0;
@@ -55,10 +68,6 @@ function SpriteMap(name, imagePaths) {
 				'filename' : this.filenames[i]
 			})
 		}
-		// this.sprites[i] = {
-		// 	'name' : this.sources[i],
-		// 	'filename' : this.filenames[i]
-		// };
 	}
 }
 
@@ -73,44 +82,70 @@ var getLastModifiedDate = function(filename, cb) {
 
 // get dimensions & hashes
 SpriteMap.prototype.getData = function(cb) {
+	var self = this;
 	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
-	var aux = function(array, index) {
-		if (index < array.length) {
-			lwip.open(array[index].filename, function(err, image) {
+	var aux = function(index) {
+		if (index < self.sprites.length) {
+			lwip.open(self.sprites[index].filename, function(err, image) {
 				if (err) cb(err, null);
 
-				var encodingFormat = array[index].filename.match(imageFileRegexp)[1];
+				var encodingFormat = self.sprites[index].filename.match(imageFileRegexp)[1];
 				image.toBuffer(encodingFormat, function(err, buffer) {
 					if (err) cb(err, null);
 
-					array[index].width 	= image.width();
-					array[index].height = image.height();
-					array[index].md5sum = crypto.createHash("md5").update(buffer).digest('hex');
+					self.sprites[index].width = image.width();
+					self.sprites[index].height = image.height();
+					self.sprites[index].md5sum = crypto.createHash("md5").update(buffer).digest('hex');
 
-					// array[index].lastModified = lastModifiedDate(array[index].filename);
-					// aux(array, index + 1);
-					getLastModifiedDate(array[index].filename, function(err, date) {
+					getLastModifiedDate(self.sprites[index].filename, function(err, date) {
 						if (err) cb(err, null);
-						array[index].lastModified = date;
-						aux(array, index + 1);
+						self.sprites[index].lastModified = date;
+						aux(index + 1);
 					});
 
 				});
 			});
 		} else {
-			cb(null, array);
+			cb(null, self.sprites);
 		}
 	}
 
-	aux(this.sprites, 0);
+	aux(0);
+}
+
+// should only be called after getData and pack
+SpriteMap.prototype.getSassData = function() {
+	var assets = new sassUtils.SassJsMap();
+
+	for (var i = 0; i < this.sprites.length; i++) {
+		var x = new sassUtils.SassDimension(-this.sprites[i].origin_x, "px");
+    var y = new sassUtils.SassDimension(-this.sprites[i].origin_y, "px");
+    var position = sassUtils.castToSass([x, y]);
+    position.setSeparator(false);
+
+    var width = new sassUtils.SassDimension(this.sprites[i].width, "px");
+    var height = new sassUtils.SassDimension(this.sprites[i].height, "px");
+
+    var sprite = new sassUtils.SassJsMap();
+    sprite.coerce.set("path", this.sprites[i].filename);
+    sprite.coerce.set("position", position);
+    sprite.coerce.set("width", width);
+    sprite.coerce.set("height", height);
+
+    assets.coerce.set(this.sprites[i].name, sprite);
+	}
+
+	this.sassData.coerce.set("assets", assets);
 }
 
 // get coordinates for each sprite & spritemap dimensions
-SpriteMap.prototype.pack = function(layoutStyle) {
-	var dimensions = layoutStyle.pack(this.sprites);
+SpriteMap.prototype.pack = function() {
+// SpriteMap.prototype.pack = function(layoutStyle) {
+	var dimensions = this.layout.pack(this.sprites);
 	this.width 	= dimensions[0];
 	this.height	= dimensions[1];
+	this.getSassData();
 }
 
 // save sprites data to file in json format
