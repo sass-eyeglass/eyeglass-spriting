@@ -61,6 +61,8 @@ $icon-sprite-map: sprite-map("module-a/sprite-dir/1.jpg",
 //        width: 40px,
 //        height: 40px)
 //   ),
+//   width: 260px,
+//   height: 50px,
 //   layout: (
 //     strategy: horizontal,
 //     spacing: 5px,
@@ -84,6 +86,8 @@ $posx: sprite-position-x($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 10
 $posy: sprite-position-y($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => -87px
 $width: sprite-width($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 35px
 $height: sprite-height($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => 28px
+$total-width: sprite-map-width($icon-sprite-map) // => 260px
+$total-height: sprite-map-height($icon-sprite-map) // => 50px
 // raises an error if called for an image that has no specified identifer and
 // the base filename is not a legal css ident.
 $id: sprite-identifier($icon-sprite-map, "module-a/sprite-dir/1.jpg") // => one

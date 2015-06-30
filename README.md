@@ -169,3 +169,16 @@ Returns the width of the sprite. $sprite-map is returned from sprite-map(), and 
 
 Returns the height of the sprite. $sprite-map is returned from sprite-map(), and $sprite-name is the original asset url of the sprite.
 
+---
+### sprite-map-width()
+
+	sprite-map-width($sprite-map);
+
+Returns the total width of the spritemap.
+
+---
+### sprite-map-height()
+
+	sprite-map-height($sprite-map);
+
+Returns the total height of the spritemap.

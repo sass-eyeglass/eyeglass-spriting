@@ -1,4 +1,3 @@
-
 /* The pack function modifies the sprites array passed in and adds coordinates to each
  * element. It also calculates the spritemap width and height, and returns them in an array.
  */
@@ -6,25 +5,8 @@
 var sass = require("node-sass");
 var sassUtils = require("node-sass-utils")(sass);
 
-// function Layout(strategy, options) {
-// 	this.strategy = strategy;
-// 	this.spacing = 0;
-// 	this.alignment = null;
-
-// 	if (options.spacing) {
-// 		this.spacing = options.spacing;
-// 	}
-
-// 	if (options.alignment) {
-// 		this.alignment = options.alignment;
-// 	}
-
-// 	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
-// }
-
 // take in sass map (layout: horizontal, spacing: 50px, alignment: bottom);
 function Layout(sassLayout) {
-// Layout.prototype.getLayoutFromSass = function(sassLayout) {
 	var layout = sassUtils.castToJs(sassLayout);
 	var strategy = layout.coerce.get("strategy");
 	var spacing = layout.coerce.get("spacing").value;
@@ -35,21 +17,6 @@ function Layout(sassLayout) {
   this.alignment = alignment;
 
   this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
-
-  // var layoutOptions = {};
-  // if (spacing)
-  //   layoutOptions.spacing = spacing;
-  // if (alignment)
-  //   layoutOptions.alignment = alignment;
-
-  // return new Layout(strategy, layoutOptions);
-
-}
-
-
-Layout.prototype.setSpacing = function(spacing) {
-	this.spacing = spacing;
-	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
 }
 
 
@@ -77,8 +44,8 @@ var getPackingFunction = function(strategy, alignment, spacing) {
 
 var pack_vertical_left = function(spacing) {
 	return function(sprites) {
-		var width 	= sprites[0].width;
-		var height 	= sprites[0].height;
+		var width = sprites[0].width;
+		var height = sprites[0].height;
 		sprites[0].origin_x = 0;
 		sprites[0].origin_y = 0;
 
@@ -86,7 +53,7 @@ var pack_vertical_left = function(spacing) {
 			sprites[i].origin_x = 0;
 			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height + spacing;
 
-			width 	= Math.max(width, sprites[i].width);
+			width = Math.max(width, sprites[i].width);
 			height += sprites[i].height + spacing;
 		}
 
@@ -97,8 +64,8 @@ var pack_vertical_left = function(spacing) {
 
 var pack_vertical_right = function(spacing) {
 	return function(sprites) {
-		var width 	= sprites[0].width;
-		var height 	= sprites[0].height;
+		var width = sprites[0].width;
+		var height = sprites[0].height;
 		sprites[0].origin_x = -sprites[0].width;
 		sprites[0].origin_y = 0;
 
@@ -106,7 +73,7 @@ var pack_vertical_right = function(spacing) {
 			sprites[i].origin_x = -sprites[i].width;
 			sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height + spacing;
 
-			width 	= Math.max(width, sprites[i].width);
+			width = Math.max(width, sprites[i].width);
 			height += sprites[i].height + spacing;
 		}
 
@@ -120,8 +87,8 @@ var pack_vertical_right = function(spacing) {
 
 var pack_horizontal_top = function(spacing) {
 	return function(sprites) {
-		var width 	= sprites[0].width;
-		var height 	= sprites[0].height;
+		var width = sprites[0].width;
+		var height = sprites[0].height;
 		sprites[0].origin_x = 0;
 		sprites[0].origin_y = 0;
 
@@ -140,8 +107,8 @@ var pack_horizontal_top = function(spacing) {
 
 var pack_horizontal_bottom = function(spacing) {
 	return function(sprites) {
-		var width 	= sprites[0].width;
-		var height 	= sprites[0].height;
+		var width = sprites[0].width;
+		var height = sprites[0].height;
 		sprites[0].origin_x = 0;
 		sprites[0].origin_y = -sprites[0].height;
 
@@ -162,8 +129,8 @@ var pack_horizontal_bottom = function(spacing) {
 
 
 var pack_diagonal = function(sprites) {
-	var width 	= sprites[0].width;
-	var height 	= sprites[0].height;
+	var width = sprites[0].width;
+	var height = sprites[0].height;
 	sprites[0].origin_x = 0;
 	sprites[0].origin_y = 0;
 
@@ -171,11 +138,18 @@ var pack_diagonal = function(sprites) {
 		sprites[i].origin_x = sprites[i-1].origin_x + sprites[i-1].width;
 		sprites[i].origin_y = sprites[i-1].origin_y + sprites[i-1].height;
 
-		width 	+= sprites[i].width;
-		height 	+= sprites[i].height;
+		width += sprites[i].width;
+		height += sprites[i].height;
 	}
 
 	return [width, height];
 }
+
+
+Layout.prototype.setSpacing = function(spacing) {
+	this.spacing = spacing;
+	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
+}
+
 
 module.exports = Layout;

@@ -12,8 +12,6 @@ var getImageFileName = function(spritemapName) {
   return path.join("assets", spritemapName + ".png");
 }
 
-
-
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
 
@@ -59,7 +57,7 @@ module.exports = function(eyeglass, sass) {
 
         sm.getData(function(err, data) {
           sm.pack();
-          done(sm.sassData.toSassMap());
+          done(sm.getSassData().toSassMap());
         });
       },
 
@@ -87,20 +85,20 @@ module.exports = function(eyeglass, sass) {
         switch (sassUtils.castToJs(strategy)) {
           case "vertical":
             if (!alignment) alignment = "left";
-            // TODO: throw error
-            else if (alignment != "left" && alignment != "right") alignment = "left";
+            else if (alignment != "left" && alignment != "right") {
+              throw Error("Invalid layout alignment");
+            }
             break;
           case "horizontal":
             if (!alignment) alignment = "top";
-            // TODO: throw error
-            else if (alignment != "top" && alignment != "bottom") alignment = "top";
+            else if (alignment != "top" && alignment != "bottom") {
+              throw Error("Invalid layout alignment");
+            }
             break;
           case "diagonal":
             break;
           default:
-          // TODO: throw error
-            strategy = "vertical";
-            alignment = "left";
+            throw Error("Invalid layout strategy");
             break;
         }
 
@@ -118,20 +116,17 @@ module.exports = function(eyeglass, sass) {
         sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
         var spriteList = [];
 
-        // TODO: make this a list instead of a string
         sprites.forEach(function(i, sprite) {
-          // sprite = sassUtils.castToJs(sprite);
           spriteList.push(sassUtils.castToJs(sprite));
-          // outputStr += sprite + "\n";
         });
 
         done(sassUtils.castToSass(spriteList));
       },
 
       "sprite-url($spritemap)": function(spritemap, done) {
+        // console.log(sassUtils.sassString(spritemap));
         var name = sassUtils.castToJs(spritemap).coerce.get("name");
 
-        // get paths
         var imagePaths = [];
         var sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
         sprites.forEach(function(spriteData, spriteName) {
@@ -141,26 +136,10 @@ module.exports = function(eyeglass, sass) {
           imagePaths.push([virtualPath, realPath]);
         });
 
-
-
-        // get layout
         var layout = sassUtils.castToJs(spritemap).coerce.get("layout");
         var sources = sassUtils.castToJs(spritemap).coerce.get("sources");
-        // var spacing = layout.coerce.get("spacing").value;
-        // var alignment = layout.coerce.get("alignment");
-        // var strategy = layout.coerce.get("strategy");
-
-        // var layoutOptions = {};
-        // if (spacing)
-        //   layoutOptions.spacing = spacing;
-        // if (alignment)
-        //   layoutOptions.alignment = alignment;
-
-        // var layoutStyle = new Layout(strategy, layoutOptions);
-        // var layoutStyle = new Layout(layout);
 
         var sm = new SpriteMap(name, imagePaths, layout, sources);
-
         sm.getData(function(err, data) {
           sm.pack();
           sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
@@ -169,17 +148,6 @@ module.exports = function(eyeglass, sass) {
             done(sassUtils.castToSass(url));
           });
         });
-        // sm.getData(function(err, data) {
-        //   sm.pack(layoutStyle);
-
-        //   sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
-        //     if (err) throw err;
-        //     // TODO: wat do
-        //     var url = path.join("..", getImageFileName(name));
-        //     // var url = getImageFileName(name);
-        //     done(sassUtils.castToSass(url));
-        //   });
-        // })
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
@@ -225,8 +193,19 @@ module.exports = function(eyeglass, sass) {
         done(sassUtils.castToSass(height));
       },
 
-      // TODO: re-write this later; this is placeholder
-      // TODO: raises an error if called for an image that has no specified identifer and
+      "sprite-map-width($spritemap)": function(spritemap, done) {
+        var width = sassUtils.castToJs(spritemap).coerce.get("width");
+        done(sassUtils.castToSass(width));
+      },
+
+      "sprite-map-height($spritemap)": function(spritemap, done) {
+        var height = sassUtils.castToJs(spritemap).coerce.get("height");
+        done(sassUtils.castToSass(height));
+      },
+
+      // TODO: re-write this later; this is placeholder to make example project work
+      // "module-a/icons/home.png" -> returns "home"
+      // TODO: raise an error if called for an image that has no specified identifer and
       // the base filename is not a legal css ident.
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
         var name = spritename.getValue();
