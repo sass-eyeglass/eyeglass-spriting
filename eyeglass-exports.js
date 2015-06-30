@@ -71,45 +71,25 @@ module.exports = function(eyeglass, sass) {
 
         // no options specified
         // TODO: use handle empty map thing from node-sass-utils
-        if (sassUtils.typeOf(options) != "map") {
-          spacing = new sassUtils.SassDimension(0, "px");
-          alignment = "";
-        } else {
+        if (sassUtils.typeOf(options) == "map") {
           spacing = options.coerce.get("spacing");
-          if (!spacing) spacing = new sassUtils.SassDimension(0, "px");
-          // else spacing = spacing.convertTo("px", "");
           alignment = options.coerce.get("alignment");
         }
 
-        // check if options are valid
-        switch (sassUtils.castToJs(strategy)) {
-          case "vertical":
-            if (!alignment) alignment = "left";
-            else if (alignment != "left" && alignment != "right") {
-              throw Error("Invalid layout alignment");
-            }
-            break;
-          case "horizontal":
-            if (!alignment) alignment = "top";
-            else if (alignment != "top" && alignment != "bottom") {
-              throw Error("Invalid layout alignment");
-            }
-            break;
-          case "diagonal":
-            break;
-          default:
-            throw Error("Invalid layout strategy");
-            break;
-        }
+        if (!spacing) spacing = new sassUtils.SassDimension(0, "px");
+        else spacing = spacing.convertTo("px", "");
 
-        var layoutSettings = new sassUtils.SassJsMap();
-        layoutSettings.coerce.set("strategy", strategy);
+        var layout = new sassUtils.SassJsMap();
+        layout.coerce.set("strategy", strategy);
         if (spacing)
-          layoutSettings.coerce.set("spacing", spacing);
+          layout.coerce.set("spacing", spacing);
         if (alignment)
-          layoutSettings.coerce.set("alignment", alignment);
+          layout.coerce.set("alignment", alignment);
 
-        done(sassUtils.castToSass(layoutSettings));
+        // TODO: a better way to do this?
+        var checkValid = new Layout(layout);
+
+        done(sassUtils.castToSass(layout));
       },
 
       "sprite-list($spritemap)": function(spritemap, done) {
@@ -123,31 +103,42 @@ module.exports = function(eyeglass, sass) {
         done(sassUtils.castToSass(spriteList));
       },
 
-      "sprite-url($spritemap)": function(spritemap, done) {
-        // console.log(sassUtils.sassString(spritemap));
+      "sprite-url-assets($spritemap, $registeredAssets)": function(spritemap, registeredAssets, done) {
         var name = sassUtils.castToJs(spritemap).coerce.get("name");
-
-        var imagePaths = [];
-        var sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
-        sprites.forEach(function(spriteData, spriteName) {
-          spriteData = sassUtils.castToJs(spriteData);
-          var virtualPath = sassUtils.castToJs(spriteName);
-          var realPath = spriteData.coerce.get("path");
-          imagePaths.push([virtualPath, realPath]);
-        });
-
-        var layout = sassUtils.castToJs(spritemap).coerce.get("layout");
         var sources = sassUtils.castToJs(spritemap).coerce.get("sources");
 
+        var imagePaths = getRealPaths(sources, registeredAssets);
+
+        // var imagePaths = [];
+        // var sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
+        // sprites.forEach(function(spriteData, spriteName) {
+        //   spriteData = sassUtils.castToJs(spriteData);
+        //   var virtualPath = sassUtils.castToJs(spriteName);
+        //   var realPath = spriteData.coerce.get("path");
+        //   imagePaths.push([virtualPath, realPath]);
+        // });
+
+        var layout = sassUtils.castToJs(spritemap).coerce.get("layout");
+        // var sources = sassUtils.castToJs(spritemap).coerce.get("sources");
+
         var sm = new SpriteMap(name, imagePaths, layout, sources);
-        sm.getData(function(err, data) {
-          sm.pack();
-          sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
-            if (err) throw err;
-            var url = path.join("..", getImageFileName(name));
-            done(sassUtils.castToSass(url));
-          });
-        });
+
+        // get sprites data from $spritemap
+
+        sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
+          if (err) throw err;
+          var url = path.join("..", getImageFileName(name));
+          done(sassUtils.castToSass(url));
+        })
+
+        // sm.getData(function(err, data) {
+        //   sm.pack();
+        //   sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
+        //     if (err) throw err;
+        //     var url = path.join("..", getImageFileName(name));
+        //     done(sassUtils.castToSass(url));
+        //   });
+        // });
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {

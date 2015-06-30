@@ -36,7 +36,7 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizontal, ()) }"
     };
-    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px, alignment: top); }"
+    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px); }"
     + "\n";
     testutils.assertCompiles(options, expectedOutput, done);
   });
@@ -185,12 +185,17 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizontal, (alignment: right, spacing: 5px)) }"
     };
-    var expectedError = "invalid layout alignment";
-    testutils.assertCompiles(options, expectedError, done);
+    var expectedError = "error in C function sprite-layout: Invalid layout alignment\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+    testutils.assertCompilationError(options, expectedError, done);
   });
 
-  assertCompilationError
-
+  it("sprite-layout() throws error for invalid strategy", function (done) {
+    var options = {
+      data: ".test { foo: sprite-layout(horizntal, (alignment: right, spacing: 5px)) }"
+    };
+    var expectedError = "error in C function sprite-layout: Invalid layout strategy\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+    testutils.assertCompilationError(options, expectedError, done);
+  });
 
 
 

@@ -28,16 +28,19 @@ var getPackingFunction = function(strategy, alignment, spacing) {
 			if (!alignment) return pack_vertical_left(spacing);
 			else if (alignment == "left") return pack_vertical_left(spacing);
 			else if (alignment == "right") return pack_vertical_right(spacing);
-			else return pack_vertical_left(spacing);
+			else throw Error("Invalid layout alignment");
+			break;
 		case "horizontal":
 			if (!alignment) return pack_horizontal_top(spacing);
 			else if (alignment == "top") return pack_horizontal_top(spacing);
 			else if (alignment == "bottom") return pack_horizontal_bottom(spacing);
-			else return horizontal_top(spacing);
+			else throw Error("Invalid layout alignment");
+			break;
 		case "diagonal":
 			return pack_diagonal;
 		default:
-			return pack_vertical_left(spacing);
+			throw Error("Invalid layout strategy");
+			break;
 	}
 }
 

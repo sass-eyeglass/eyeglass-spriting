@@ -165,6 +165,10 @@ $eg-registered-assets: (
   @return sprite-map-assets($name, $layout, $eg-registered-assets, $paths...);
 }
 
+@function sprite-url($spritemap) {
+  @return sprite-url-asserts($spritemap, $eg-registered-assets);
+}
+
 
 @mixin sprite-background($sprite-map, $repeat: no-repeat) {
   background: url('"' + sprite-url($sprite-map) + '"') $repeat;
