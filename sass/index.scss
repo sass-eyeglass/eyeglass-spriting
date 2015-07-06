@@ -1,5 +1,26 @@
+@function sprite-map($name, $layout, $paths...) {
+  @return sprite-map-assets($name, $layout, $eg-registered-assets, $paths...);
+}
+
+@function sprite-url($spritemap) {
+  @return sprite-url-assets($spritemap, $eg-registered-assets);
+}
+
+@mixin sprite-background($sprite-map, $repeat: no-repeat) {
+  background: url('"' + sprite-url($sprite-map) + '"') $repeat;
+}
+
+@mixin sprite-position($sprite-map, $sprite-name) {
+  background-position: sprite-position($sprite-map, $sprite-name);
+}
+
+@mixin sprite-dimensions($sprite-map, $sprite-name) {
+  width: sprite-width($sprite-map, $sprite-name);
+  height: sprite-height($sprite-map, $sprite-name);
+}
 
 // this is dummy assets map used for testing until integration with eyeglass assets
+// note: this module will not actually work.
 $eg-registered-assets: (
   "module-a": (
     "img01.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img01.png",
@@ -127,16 +148,16 @@ $eg-registered-assets: (
 
   // for the eyeglass spriting example project
   "icons": (
-    "bell.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/bell.png",
-    "camera.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/camera.png",
-    "chat.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/chat.png",
-    "checkbox.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/checkbox.png",
-    "coffee.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/coffee.png",
-    "facebook.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/facebook.png",
-    "googleplus.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/googleplus.png",
-    "linkedin.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/linkedin.png",
-    "tumblr.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/tumblr.png",
-    "twitter.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/twitter.png",
+    "bell.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/bell.png",
+    "camera.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/camera.png",
+    "chat.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/chat.png",
+    "checkbox.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/checkbox.png",
+    "coffee.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/coffee.png",
+    "facebook.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/facebook.png",
+    "googleplus.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/googleplus.png",
+    "linkedin.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/linkedin.png",
+    "tumblr.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/tumblr.png",
+    "twitter.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/icons/twitter.png",
   ),
 
   "buttons": (
@@ -145,25 +166,3 @@ $eg-registered-assets: (
     "blue_active.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/buttons/blue_active.png",
   )
 );
-
-
-@function sprite-map($name, $layout, $paths...) {
-  @return sprite-map-assets($name, $layout, $eg-registered-assets, $paths...);
-}
-
-@function sprite-url($spritemap) {
-  @return sprite-url-assets($spritemap, $eg-registered-assets);
-}
-
-@mixin sprite-background($sprite-map, $repeat: no-repeat) {
-  background: url('"' + sprite-url($sprite-map) + '"') $repeat;
-}
-
-@mixin sprite-position($sprite-map, $sprite-name) {
-  background-position: sprite-position($sprite-map, $sprite-name);
-}
-
-@mixin sprite-dimensions($sprite-map, $sprite-name) {
-  width: sprite-width($sprite-map, $sprite-name);
-  height: sprite-height($sprite-map, $sprite-name);
-}
