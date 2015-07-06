@@ -41,8 +41,6 @@ module.exports = function(eyeglass, sass) {
     return imagePaths;
   }
 
-
-
   return {
     sassDir: path.join(__dirname, "sass"),
     functions: {
@@ -81,6 +79,12 @@ module.exports = function(eyeglass, sass) {
           spacing = options.coerce.get("spacing");
           alignment = options.coerce.get("alignment");
         }
+
+        // if (!sassUtils.isEmptyMap(options)) {
+        //   // options = sassUtils.castToJs(options);
+        //   // spacing = options.coerce.get("spacing");
+        //   // alignment = options.coerce.get("alignment");
+        // }
 
         if (!spacing) spacing = new sassUtils.SassDimension(0, "px");
         else spacing = spacing.convertTo("px", "");

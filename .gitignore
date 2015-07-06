@@ -1,14 +1,4 @@
 node_modules
 images
-spritedata
-spritemaps
-archives
+stuff
 .DS_Store
-stuff.js
-test/results
-*.json
-*.png
-junk.js
-
-generateTestFixtures.js
-stuff.md
