@@ -41,6 +41,8 @@ module.exports = function(eyeglass, sass) {
     return imagePaths;
   }
 
+
+
   return {
     sassDir: path.join(__dirname, "sass"),
     functions: {
@@ -185,6 +187,7 @@ module.exports = function(eyeglass, sass) {
 
       // TODO: re-write this later; this is placeholder to make example project work
       // "module-a/icons/home.png" -> returns "home"
+      // TODO: get identifier from map passed in
       // TODO: raise an error if called for an image that has no specified identifer and
       // the base filename is not a legal css ident.
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {

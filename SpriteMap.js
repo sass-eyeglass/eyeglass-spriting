@@ -100,6 +100,10 @@ SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
   }
 }
 
+var getIdentifier = function(filename) {
+  return path.basename(filename, path.extname(filename));
+}
+
 // should only be called after getData and pack
 SpriteMap.prototype.getSassData = function() {
 	this.sassData = new sassUtils.SassJsMap();
@@ -122,6 +126,7 @@ SpriteMap.prototype.getSassData = function() {
 
     var sprite = new sassUtils.SassJsMap();
     sprite.coerce.set("path", this.sprites[i].filename);
+    sprite.coerce.set("identifier", getIdentifier(this.sprites[i].name));
     sprite.coerce.set("position", position);
     sprite.coerce.set("width", width);
     sprite.coerce.set("height", height);
