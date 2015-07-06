@@ -1,9 +1,9 @@
 
+// this is dummy assets map used for testing until integration with eyeglass assets
 $eg-registered-assets: (
   "module-a": (
     "img01.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img01.png",
-    "img02.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img02.png",
-    // "img04.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img04.png"
+    "img02.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img02.png"
   ),
 
   "module-b": (
@@ -125,6 +125,7 @@ $eg-registered-assets: (
     "img100.png": "/Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/lotsOfImages/img100.png"
   ),
 
+  // for the eyeglass spriting example project
   "icons": (
     "bell.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/bell.png",
     "camera.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/camera.png",
@@ -136,7 +137,7 @@ $eg-registered-assets: (
     "linkedin.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/linkedin.png",
     "tumblr.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/tumblr.png",
     "twitter.png": "/Users/jwang5/linkedin/eyeglass-spriting-example/images/twitter.png",
-)
+  )
 );
 
 

@@ -1,3 +1,8 @@
+/*
+ * Functions for creating a SpriteMap object, getting information about sprites,
+ * and creating the spritemap image
+ */
+
 // var crypto = require("crypto");
 var fs = require("fs");
 var path = require("path");
@@ -10,8 +15,12 @@ var getLastModifiedDate = function(filename) {
   return fs.statSync(filename).mtime.getTime();
 }
 
+var getIdentifier = function(filename) {
+  return path.basename(filename, path.extname(filename));
+}
+
 // imagePaths = 2D array of image asset paths and real paths
-// TODO: do I really need to pass in sources
+// sassLayout and sources are Sass maps
 function SpriteMap(name, imagePaths, sassLayout, sources) {
 	this.name = name;
 	this.sassLayout = sassLayout;
@@ -53,8 +62,7 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 	}
 }
 
-
-// get sprite width, height, last modified date
+// get width, height, last modified date for each sprite
 SpriteMap.prototype.getData = function(cb) {
 	var self = this;
 	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
@@ -83,6 +91,7 @@ SpriteMap.prototype.getData = function(cb) {
 	aux(0);
 }
 
+// extract width, height, last modified date for each sprite given a Sass map with this information
 SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
 	this.width = sassSpritemap.coerce.get("width").value;
   this.height = sassSpritemap.coerce.get("height").value;
@@ -100,10 +109,7 @@ SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
   }
 }
 
-var getIdentifier = function(filename) {
-  return path.basename(filename, path.extname(filename));
-}
-
+// construct a Sass map containing information for this sprite map
 // should only be called after getData and pack
 SpriteMap.prototype.getSassData = function() {
 	this.sassData = new sassUtils.SassJsMap();
@@ -157,7 +163,7 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 		sprites: {},
 		layout: this.layout
 	};
-	// data : { sprites: [], layout: } ?
+
 	for (var i = 0; i < this.sprites.length; i++) {
 		data.sprites[this.sprites[i].name] = this.sprites[i];
 	}
@@ -168,7 +174,7 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 	});
 }
 
-// TODO: what if current sprites have duplicates that exist in json file?
+// check if spritemap image needs to be updated
 SpriteMap.prototype.needsUpdating = function() {
 	var imageFile = path.join("assets", this.name + ".png");
 	var dataFile = path.join("assets", this.name + ".json");
@@ -207,7 +213,7 @@ SpriteMap.prototype.needsUpdating = function() {
 }
 
 
-// create spritemap image
+// create spritemap image, only it does not already exist or is out of date
 SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 	var self = this;
 
@@ -222,11 +228,10 @@ SpriteMap.prototype.createSpriteMap = function(filename, cb) {
 					});
 				});
 			} else {
-				// all images have been pasted; save image to file
 				cur_spritemap.writeFile(filename, function(err) {
 					if (err) cb(err, null);
 					else {
-						// TODO: what file path to use?
+						// TODO: change this after integrating with assets
 						self.saveData(path.join("assets", self.name + ".json"), function(err, data) {
 							cb(null, cur_spritemap);
 						})

@@ -20,14 +20,11 @@
     "should": "^6.0.3"
   },
   "dependencies": {
-    "crypto": "0.0.3",
-    "glob": "^5.0.10",
     "lwip": "0.0.7",
     "minimatch": "^2.0.8",
     "rsvp": "^3.0.18"
   },
   "scripts": {
-    "test": "./node_modules/.bin/gulp test",
-    "start": "node SpriteMap.js"
+    "test": "./node_modules/.bin/gulp test"
   }
 }

@@ -151,6 +151,7 @@ describe("spriting module", function () {
     testutils.assertCompiles(options, expectedOutput, done);
   });
 
+  // // this will take a long time to run
   // it("large images", function (done) {
   //   var options = {
   //     data: "@import 'spriting';"

@@ -1,5 +1,7 @@
-/* The pack function modifies the sprites array passed in and adds coordinates to each
+/*
+ * The pack function modifies the sprites array passed in and adds coordinates to each
  * element. It also calculates the spritemap width and height, and returns them in an array.
+ * This file will be refactored.
  */
 
 var sass = require("node-sass");
@@ -18,7 +20,6 @@ function Layout(sassLayout) {
 
   this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
 }
-
 
 var getPackingFunction = function(strategy, alignment, spacing) {
 	if (!spacing) spacing = 0;
@@ -44,7 +45,6 @@ var getPackingFunction = function(strategy, alignment, spacing) {
 	}
 }
 
-
 var pack_vertical_left = function(spacing) {
 	return function(sprites) {
 		var width = sprites[0].width;
@@ -63,7 +63,6 @@ var pack_vertical_left = function(spacing) {
 		return [width, height];
 	}
 }
-
 
 var pack_vertical_right = function(spacing) {
 	return function(sprites) {
@@ -87,7 +86,6 @@ var pack_vertical_right = function(spacing) {
 	}
 }
 
-
 var pack_horizontal_top = function(spacing) {
 	return function(sprites) {
 		var width = sprites[0].width;
@@ -106,7 +104,6 @@ var pack_horizontal_top = function(spacing) {
 		return [width, height];
 	}
 }
-
 
 var pack_horizontal_bottom = function(spacing) {
 	return function(sprites) {
@@ -130,7 +127,6 @@ var pack_horizontal_bottom = function(spacing) {
 	}
 }
 
-
 var pack_diagonal = function(sprites) {
 	var width = sprites[0].width;
 	var height = sprites[0].height;
@@ -148,11 +144,9 @@ var pack_diagonal = function(sprites) {
 	return [width, height];
 }
 
-
 Layout.prototype.setSpacing = function(spacing) {
 	this.spacing = spacing;
 	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
 }
-
 
 module.exports = Layout;

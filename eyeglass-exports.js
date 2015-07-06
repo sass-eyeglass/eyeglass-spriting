@@ -1,13 +1,14 @@
-var path = require("path");
 var SpriteMap = require("./SpriteMap");
 var Layout = require("./Layout");
+var path = require("path");
 var fs = require("fs");
 var minimatch = require("minimatch");
 
-var getDataFileName = function(spritemapName) {
-  return path.join("assets", spritemapName + ".json");
-}
+// var getDataFileName = function(spritemapName) {
+//   return path.join("assets", spritemapName + ".json");
+// }
 
+// TODO: integrate with eyeglass assets
 var getImageFileName = function(spritemapName) {
   return path.join("assets", spritemapName + ".png");
 }
@@ -15,7 +16,7 @@ var getImageFileName = function(spritemapName) {
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
 
-  // TODO: use assets to do this
+  // TODO: integrate with eyeglass assets
   var getRealPaths = function(paths, registeredAssets) {
     imagePaths = [];
     sources = [];
@@ -67,24 +68,15 @@ module.exports = function(eyeglass, sass) {
 
       // sprite-layout(horizontal, (spacing: 5px, alignment: bottom))
       // --> (layout: horizontal, spacing: 50px, alignment: bottom)
-      // TODO:
       "sprite-layout($strategy, $options)": function(strategy, options, done) {
-        var options = sassUtils.castToJs(options);
         var spacing;
         var alignment;
 
-        // no options specified
-        // TODO: use handle empty map thing from node-sass-utils
-        if (sassUtils.typeOf(options) == "map") {
+        if (!sassUtils.isEmptyMap(options)) {
+          options = sassUtils.castToJs(options);
           spacing = options.coerce.get("spacing");
           alignment = options.coerce.get("alignment");
         }
-
-        // if (!sassUtils.isEmptyMap(options)) {
-        //   // options = sassUtils.castToJs(options);
-        //   // spacing = options.coerce.get("spacing");
-        //   // alignment = options.coerce.get("alignment");
-        // }
 
         if (!spacing) spacing = new sassUtils.SassDimension(0, "px");
         else spacing = spacing.convertTo("px", "");
@@ -96,7 +88,6 @@ module.exports = function(eyeglass, sass) {
         if (alignment)
           layout.coerce.set("alignment", alignment);
 
-        // TODO: a better way to do this?
         try {
           new Layout(layout);
         } catch (e) {
@@ -117,6 +108,7 @@ module.exports = function(eyeglass, sass) {
         done(sassUtils.castToSass(spriteList));
       },
 
+      // creates the sprite map image
       "sprite-url-assets($spritemap, $registeredAssets)": function(spritemap, registeredAssets, done) {
         spritemap = sassUtils.castToJs(spritemap);
 
@@ -131,9 +123,10 @@ module.exports = function(eyeglass, sass) {
 
         sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
           if (err) throw err;
+          // TODO: change this after integrating with assets
           var url = path.join("..", getImageFileName(name));
           done(sassUtils.castToSass(url));
-        })
+        });
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
@@ -166,7 +159,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-width($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
-        var width = sprite.coerce.get("width")
+        var width = sprite.coerce.get("width");
 
         done(sassUtils.castToSass(width));
       },
@@ -174,7 +167,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-height($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
-        var height = sprite.coerce.get("height")
+        var height = sprite.coerce.get("height");
 
         done(sassUtils.castToSass(height));
       },
