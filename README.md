@@ -1,9 +1,7 @@
 
 # eyeglass spriting API
 
-( insert summary/basic usage information here / check out the example project? )
-
-For basic usage, feel free to check out the eyeglass spriting example project at ( insert link here ).
+For basic usage, check out the [eyeglass spriting example project](https://github.com/sass-eyeglass/spriting-example).
 
 ---
 ### sprite-map()
