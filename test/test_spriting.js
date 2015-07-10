@@ -9,20 +9,7 @@ var testutils = require("./testutils");
 
 describe("spriting module", function () {
 
-  // it("asset integration sanity check", function (done) {
-  //   var rootDir = testutils.fixtureDirectory("app_assets");
-
-  //   var options = {
-  //     // root: rootDir,
-  //     data: "@import 'assets'; @import 'spriting'; @import 'assets'; .test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, "
-  //       + "alignment: bottom)), 'module-a/*', 'module-b/img03.png') }"
-  //   };
-
-  //   var expectedOutput = ".test {\n  foo: (sprite-map: true, name: test-sprite-map, sources: module-a/*, module-b/img03.png, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: (module-a/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img01.png, identifier: img01, position: 0px -200px, width: 100px, height: 100px), module-a/img02.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img02.png, identifier: img02, position: -105px -250px, width: 50px, height: 50px), module-b/img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img03.png, identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, height: 300px); }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
-
-  it("makes sprite map using app assets", function (done) {
+  it("gets sprite map data using app assets", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
                 ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'images/*'); }";
@@ -35,13 +22,12 @@ describe("spriting module", function () {
       data: input
     }, sass);
 
-    // asset-url("images/foo.png") => url(public/assets/images/foo.png);
     eg.assets.addSource(rootDir, {pattern: "images/**/*"});
 
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("makes sprite map using module assets", function (done) {
+  it("gets sprite map data using module assets", function (done) {
     var input = "@import 'assets'; @import 'mod-one/assets'; @import 'spriting'; " +
                 ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'mod-one/*'); }";
@@ -54,11 +40,34 @@ describe("spriting module", function () {
       data: input
     }, sass);
 
-    // asset-url("images/foo.png") => url(public/assets/images/foo.png);
     eg.assets.addSource(rootDir, {pattern: "images/**/*"});
 
     testutils.assertCompiles(eg, expected, done);
   });
+
+  it("creates the sprite map image", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test { foo: sprite-url($test-sprite-map); }";
+    var expected = ".test {\n  foo: meep; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  // it("gets sprite map data using app & module assets with conflicting names", function (done) {
+  //   // TODO: test this
+  //   done();
+  // });
 
   // it("sprite-map() sanity check", function (done) {
   //   var options = {

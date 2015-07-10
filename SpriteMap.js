@@ -22,6 +22,10 @@ var getIdentifier = function(filename) {
 // imagePaths = 2D array of image asset paths and real paths
 // sassLayout and sources are Sass maps
 function SpriteMap(name, imagePaths, sassLayout, sources) {
+	if (imagePaths.size <= 0) {
+		throw new Error("no images found!");
+	}
+
 	this.name = name;
 	this.sassLayout = sassLayout;
 	this.layout = new Layout(sassLayout);
@@ -31,35 +35,34 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 	this.width = 0;
 	this.height = 0;
 
-	imagePaths.sort(function(a, b) {
-		if (a[1] === b[1]) return 0;
-		else return (a[1] < b[1]) ? -1 : 1;
+	// sort imagePaths to make sprite map creation stable
+	// use Array.from(imagePaths) ?
+
+	var imagePathsArray = [];
+	imagePaths.forEach(function(filepath, source) {
+		imagePathsArray.push([source, filepath]);
 	});
 
-	var spriteNames = [];
-	var spritePaths = [];
+	imagePathsArray.sort(function(a, b) {
+		if (a[0] === b[0]) return 0;
+		else return (a[0] < b[0]) ? -1 : 1;
+	});
 
-	for (var i = 0; i < imagePaths.length; i++) {
-		spriteNames[i] = imagePaths[i][0];
-		spritePaths[i] = imagePaths[i][1];
-	}
+	imagePaths = new Map(imagePathsArray);
 
-	if (spritePaths.length <= 0)
-		throw new Error("no images found!");
-
+	var self = this;
 	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
-	for (var i = 0; i < spritePaths.length; i++) {
-		if (!spritePaths[i].match(imageFileRegexp)) {
+	imagePaths.forEach(function(filepath, source) {
+		if (!filepath.match(imageFileRegexp)) {
 			throw new Error("asset \'" + spriteNames[i] + "\' cannot be opened!");
+		} else {
+			self.sprites.push({
+				'name' : source,
+				'filename' : filepath
+			});
 		}
-		else {
-			this.sprites.push({
-				'name' : spriteNames[i],
-				'filename' : spritePaths[i]
-			})
-		}
-	}
+	});
 }
 
 // get width, height, last modified date for each sprite

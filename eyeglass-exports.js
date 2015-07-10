@@ -27,17 +27,21 @@ module.exports = function(eyeglass, sass) {
 
       if (minimatch(assetName, pattern)) {
         var filepath = assetData.coerce.get("filepath");
-        imagePaths.push([assetName, filepath])
+
+        // app assets take precedence
+        if (imagePaths.has(assetName)) {
+          var filepath = moduleName ? imagePaths.get(assetName) : filepath;
+        }
+
+        imagePaths.set(assetName, filepath);
       }
-    })
+    });
   }
 
-  // function
-  // TODO: integrate with eyeglass assets
-  // app assets should override any module assets with conflicting names
   // paths = glob patterns
   function getRealPaths(paths, registeredAssets) {
-    imagePaths = [];
+    var imagePaths = new Map();
+
     registeredAssets = sassUtils.castToJs(registeredAssets);
 
     for (var i = 0; i < paths.getLength(); i++) {
@@ -47,21 +51,10 @@ module.exports = function(eyeglass, sass) {
       registeredAssets.forEach(function(moduleAssets, moduleName) {
         moduleName = sassUtils.castToJs(moduleName);
         moduleAssets = sassUtils.castToJs(moduleAssets);
-        if (moduleName != null) {
-          addAssets(imagePaths, moduleAssets, pattern, moduleName);
-        }
+        addAssets(imagePaths, moduleAssets, pattern, moduleName);
       });
-
-      // check for main app assets that match this pattern
-      // TODO: must override any module assets with the same name
-      var appAssets = registeredAssets.coerce.get(null);
-      if (appAssets) {
-        addAssets(imagePaths, appAssets, pattern, null);
-      }
-
     }
 
-    // console.log(imagePaths);
     return imagePaths;
   }
 
@@ -74,6 +67,8 @@ module.exports = function(eyeglass, sass) {
         sassUtils.assertType(layout, "map");
         sassUtils.assertType(registeredAssets, "map");
         sassUtils.assertType(paths, "list");
+
+        // console.log(sassUtils.sassString(registeredAssets));
 
         var name = name.getValue();
         var imagePaths = getRealPaths(paths, registeredAssets);
@@ -148,7 +143,8 @@ module.exports = function(eyeglass, sass) {
           if (err) throw err;
           // TODO: change this after integrating with assets
           var url = path.join("..", getImageFileName(name));
-          done(sassUtils.castToSass(url));
+          // done(sassUtils.castToSass(url));
+          done(sassUtils.castToSass("meep"));
         });
       },
 
