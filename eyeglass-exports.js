@@ -16,29 +16,52 @@ var getImageFileName = function(spritemapName) {
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
 
+  function addAssets(imagePaths, assets, pattern, moduleName) {
+    assets.forEach(function(assetData, assetName) {
+      assetName = sassUtils.castToJs(assetName);
+      assetData = sassUtils.castToJs(assetData);
+
+      if (moduleName) {
+        assetName = path.join(moduleName, assetName);
+      }
+
+      if (minimatch(assetName, pattern)) {
+        var filepath = assetData.coerce.get("filepath");
+        imagePaths.push([assetName, filepath])
+      }
+    })
+  }
+
+  // function
   // TODO: integrate with eyeglass assets
-  var getRealPaths = function(paths, registeredAssets) {
+  // app assets should override any module assets with conflicting names
+  // paths = glob patterns
+  function getRealPaths(paths, registeredAssets) {
     imagePaths = [];
-    sources = [];
     registeredAssets = sassUtils.castToJs(registeredAssets);
 
     for (var i = 0; i < paths.getLength(); i++) {
-      var nextPath = paths.getValue(i).getValue();
+      var pattern = paths.getValue(i).getValue();
 
-      registeredAssets.forEach(function(i, module) {
-        module = sassUtils.castToJs(module);
-        var assets = registeredAssets.coerce.get(module);
-        assets.forEach(function(j, virtualPath) {
-          var fullVirtualPath = path.join(module, sassUtils.castToJs(virtualPath));
-          if (minimatch(fullVirtualPath, nextPath)) {
-            var realPath = sassUtils.castToJs(assets.coerce.get(virtualPath));
-            imagePaths.push([fullVirtualPath, realPath]);
-            sources.push(fullVirtualPath);
-          }
-        });
+      // check for modules with assets that match this pattern
+      registeredAssets.forEach(function(moduleAssets, moduleName) {
+        moduleName = sassUtils.castToJs(moduleName);
+        moduleAssets = sassUtils.castToJs(moduleAssets);
+        if (moduleName != null) {
+          addAssets(imagePaths, moduleAssets, pattern, moduleName);
+        }
       });
+
+      // check for main app assets that match this pattern
+      // TODO: must override any module assets with the same name
+      var appAssets = registeredAssets.coerce.get(null);
+      if (appAssets) {
+        addAssets(imagePaths, appAssets, pattern, null);
+      }
+
     }
 
+    // console.log(imagePaths);
     return imagePaths;
   }
 
@@ -90,11 +113,11 @@ module.exports = function(eyeglass, sass) {
 
         try {
           new Layout(layout);
+          done(sassUtils.castToSass(layout));
         } catch (e) {
           done(sass.types.Error(e.toString()));
         }
 
-        done(sassUtils.castToSass(layout));
       },
 
       "sprite-list($spritemap)": function(spritemap, done) {
