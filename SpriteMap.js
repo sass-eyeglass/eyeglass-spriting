@@ -22,8 +22,8 @@ var getIdentifier = function(filename) {
 
 // imagePaths = 2D array of image asset paths and real paths
 // sassLayout and sources are Sass maps
-function SpriteMap(name, imagePaths, sassLayout, sources) {
-	if (imagePaths.size <= 0) {
+function SpriteMap(name, paths, sassLayout, sources) {
+	if (paths.size <= 0) {
 		throw new Error("no images found!");
 	}
 
@@ -36,38 +36,31 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 	this.width = 0;
 	this.height = 0;
 
-	// sort imagePaths to make sprite map creation stable
-	// use Array.from(imagePaths) ?
-	// TODO: sort keys and access them in sorted order instead of creating new array
+	// sort imagePaths keys to make sprite map creation stable
+  var pathsIter = paths.keys();
+  var pathsKeys = [];
+  var nextPath = pathsIter.next();
 
-	var imagePathsArray = [];
-	imagePaths.forEach(function(filepath, source) {
-		imagePathsArray.push([source, filepath]);
-	});
+  for (nextPath; !nextPath.done; nextPath = pathsIter.next()) {
+    pathsKeys.push(nextPath.value);
+  }
 
-	imagePathsArray.sort(function(a, b) {
-		if (a[0] === b[0]) {
-			return 0;
-		} else {
-			return (a[0] < b[0]) ? -1 : 1;
-		}
-	});
+  pathsKeys.sort();
 
-	imagePaths = new Map(imagePathsArray);
+  var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
+  for (var i = 0; i < pathsKeys.length; i++) {
+    var source = pathsKeys[i];
+    var filepath = paths.get(source);
 
-	var self = this;
-	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
-
-	imagePaths.forEach(function(filepath, source) {
-		if (!filepath.match(imageFileRegexp)) {
-			throw new Error("asset \'" + source + "\' cannot be opened!");
-		} else {
-			self.sprites.push({
-				"name": source,
-				"filename": filepath
-			});
-		}
-	});
+    if (!filepath.match(imageFileRegexp)) {
+      throw new Error("asset \'" + source + "\' cannot be opened!");
+    } else {
+      this.sprites.push({
+        "name": source,
+        "filename": filepath
+      });
+    }
+  }
 }
 
 // get width, height, last modified date for each sprite
