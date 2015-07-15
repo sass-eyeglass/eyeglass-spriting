@@ -3,12 +3,19 @@
 
 For basic usage, check out the [eyeglass spriting example project](https://github.com/sass-eyeglass/spriting-example).
 
+To use spriting, install eyeglass and eyeglass-spriting:
+
+	npm install eyeglass --save-dev
+	npm install eyeglass-spriting --save-dev
+
+Register your sprite source images as [eyeglass assets](link-to-assets-docs), and `@import 'spriting'` in your sass files.
+
 ---
 ### sprite-map()
 
 	sprite-map($name, $layout, $paths...);
 
-Generates a sprite map image and returns a Sass map containing information about individual sprites, which can be passed into other spriting functions. It can take multiple sprite sources, which can be paths or glob patterns. PNG, JPG, and GIF files can be made into sprites. Sprites are named using their original asset source paths. Note that sprite-map() does not actually generate the sprite map image.
+Returns a Sass map containing information about the sprite map and individual sprites, which can be passed into other spriting functions. It can take multiple sprite sources, which can be paths or glob patterns, and can be from different modules. PNG, JPG, and GIF files can be made into sprites. Sprites are named using their original asset source paths. Note that sprite-map() does not actually generate the sprite map image.
 
 For example, given the following assets directory structure:
 
@@ -25,7 +32,9 @@ For example, given the following assets directory structure:
 
 You might generate spritemap data using the following:
 
-	$icon-sprite-map: sprite-map($name: "icons", $layout: sprite-layout(horizontal, (spacing: 5px; alignment: bottom)), "module-a/icon-home.png", "module-b/icons/*");
+	$icon-sprite-map: sprite-map($name: "icons-sprite-map",
+								 $layout: sprite-layout(horizontal, (spacing: 5px; alignment: bottom)),
+								 "module-a/icon-home.png", "module-b/icons/*");
 
 `$icon-sprite-map` is now a Sass map which can be passed into the other spriting functions to get information about your sprites.
 
@@ -34,17 +43,17 @@ You might generate spritemap data using the following:
 
 	sprite-layout(($strategy), (spacing : 5px, alignment: $alignment));
 
-Returns a map of sprite layout settings which can be passed directly into sprite-map(). It is recommended that you pass the output of sprite-layout() into sprite-map(), rather than generating your own layout.
+Validates the given layout options, and returns a map of sprite layout settings which can be passed directly into sprite-map(). It is recommended that you pass the output of sprite-layout() into sprite-map(), rather than generating your own layout.
 
 Possible strategies and corresponding alignments are:
 
-`"vertical"` - alignment `"left"` or `"right"`
+`"vertical"` - alignment `"left"` or `"right"` (defaults to `"left"` if unspecified)
 
-`"horizontal"` - alignment `"top"` or `"bottom"`
+`"horizontal"` - alignment `"top"` or `"bottom"` (defaults to `"top"` if unspecified)
 
 `"diagonal"` - no alignment needed; spacing does not apply
 
-If the alignment is invalid for the given strategy, sprite-layout() will return either a vertical-left or horizontal-top layout by default. If the strategy is invalid, sprite-layout() will return a vertical-left layout by default. Spacing and alignment values are both optional.
+Will return an error if the alignment is invalid for the given strategy, or the strategy is invalid. Spacing and alignment values are both optional.
 
 ---
 ### sprite-list()
@@ -64,7 +73,7 @@ For example,
 
  	sprite-url($icon-sprite-map);
 
-might generate a sprite map image at `assets/icons.png`.
+might generate a sprite map image at `assets/icons-sprite-map.png`.
 
 ---
 ### sprite-background() *(mixin)*
@@ -180,3 +189,14 @@ Returns the total width of the spritemap.
 	sprite-map-height($sprite-map);
 
 Returns the total height of the spritemap.
+
+---
+### sprite-identifier()
+
+	sprite-identifier($sprite-map, $sprite-name);
+
+Returns the sprite identifier, which is by default the basename of the source image. For example,
+
+	sprite-identifier($icon-sprite-map, "icons/home.png")
+
+might return `home`, if the original asset source path for this sprite was `icons/home.png`. This is useful for naming your css selectors for sprites. The option to set custom identifiers will be available in a future release.

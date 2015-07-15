@@ -59,25 +59,26 @@ module.exports = function(eyeglass, sass) {
     sassDir: path.join(__dirname, "sass"),
     functions: {
       // create sprite map and return Sass map of sprites information
-      "sprite-map-assets($name, $layout, $registeredAssets, $paths...)": function(name, layout, registeredAssets, paths, done) {
-        sassUtils.assertType(name, "string");
-        sassUtils.assertType(layout, "map");
-        sassUtils.assertType(registeredAssets, "map");
-        sassUtils.assertType(paths, "list");
+      "sprite-map-assets($name, $layout, $registeredAssets, $paths...)":
+        function(name, layout, registeredAssets, paths, done) {
+          sassUtils.assertType(name, "string");
+          sassUtils.assertType(layout, "map");
+          sassUtils.assertType(registeredAssets, "map");
+          sassUtils.assertType(paths, "list");
 
-        name = name.getValue();
-        var imagePaths = getRealPaths(paths, registeredAssets);
+          name = name.getValue();
+          var imagePaths = getRealPaths(paths, registeredAssets);
 
-        var sm = new SpriteMap(name, imagePaths, layout, paths);
+          var sm = new SpriteMap(name, imagePaths, layout, paths);
 
-        sm.getData(function(err, data) {
-          if (err) {
-            done(sass.types.Error(err.toString()));
-          }
+          sm.getData(function(err, data) {
+            if (err) {
+              done(sass.types.Error(err.toString()));
+            }
 
-          sm.pack();
-          done(sm.getSassData().toSassMap());
-        });
+            sm.pack();
+            done(sm.getSassData().toSassMap());
+          });
       },
 
       // sprite-layout(horizontal, (spacing: 5px, alignment: bottom))
@@ -128,35 +129,36 @@ module.exports = function(eyeglass, sass) {
       },
 
       // creates the sprite map image
-      "sprite-url-assets($spritemap, $registeredAssets)": function(spritemap, registeredAssets, done) {
-        spritemap = sassUtils.castToJs(spritemap);
+      "sprite-url-assets($spritemap, $registeredAssets)":
+        function(spritemap, registeredAssets, done) {
+          spritemap = sassUtils.castToJs(spritemap);
 
-        var name = spritemap.coerce.get("name");
-        var layout = spritemap.coerce.get("layout");
-        var sources = spritemap.get(sass.types.String("sources"));
-        var imagePaths = getRealPaths(sources, registeredAssets);
+          var name = spritemap.coerce.get("name");
+          var layout = spritemap.coerce.get("layout");
+          var sources = spritemap.get(sass.types.String("sources"));
+          var imagePaths = getRealPaths(sources, registeredAssets);
 
-        var sm = new SpriteMap(name, imagePaths, layout, sources);
+          var sm = new SpriteMap(name, imagePaths, layout, sources);
 
-        sm.getDataFromSass(spritemap);
+          sm.getDataFromSass(spritemap);
 
-        // create the image in the eyeglass cache
-        var spritemapsDir = path.join(eyeglass.options.cacheDir, "spritemaps");
-        if (!existsSync(spritemapsDir)) {
-          fs.mkdirSync(spritemapsDir);
-        }
-
-        sm.createSpriteMap(spritemapsDir, function(err, spritemapImg) {
-          if (err) {
-            throw err;
+          // create the image in the eyeglass cache
+          var spritemapsDir = path.join(eyeglass.options.cacheDir, "spritemaps");
+          if (!existsSync(spritemapsDir)) {
+            fs.mkdirSync(spritemapsDir);
           }
 
-          var spritemapUrlData = new sassUtils.SassJsMap();
-          spritemapUrlData.coerce.set("source", path.join("spritemaps", name + ".png"));
-          spritemapUrlData.coerce.set("filepath", path.join(spritemapsDir, name + ".png"));
+          sm.createSpriteMap(spritemapsDir, function(err, spritemapImg) {
+            if (err) {
+              throw err;
+            }
 
-          done(spritemapUrlData.toSassMap());
-        });
+            var spritemapUrlData = new sassUtils.SassJsMap();
+            spritemapUrlData.coerce.set("source", path.join("spritemaps", name + ".png"));
+            spritemapUrlData.coerce.set("filepath", path.join(spritemapsDir, name + ".png"));
+
+            done(spritemapUrlData.toSassMap());
+          });
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
