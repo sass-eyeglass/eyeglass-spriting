@@ -11,7 +11,7 @@
   $filepath: map-get($spritemap-data, filepath);
 
   // TODO: only register asset if spritemap is not already registered?
-  $discarded-value: register-asset(null, $source, $filepath);
+  $discarded-value: asset-register(null, $source, $filepath);
   // @debug asset-uri($url);
   // @debug map-get($eg-registered-assets, null);
   @return asset-url($source);
