@@ -165,7 +165,9 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 	};
 
 	for (var i = 0; i < this.sprites.length; i++) {
-		data.sprites[this.sprites[i].name] = this.sprites[i];
+    var spriteData = this.sprites[i];
+    delete spriteData.filename;
+		data.sprites[this.sprites[i].name] = spriteData;
 	}
 
 	fs.writeFile(filename, JSON.stringify(data, null, 2), function(err) {
