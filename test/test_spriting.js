@@ -2,6 +2,7 @@
 
 var Eyeglass = require("eyeglass").Eyeglass;
 var sass = require("node-sass");
+var path = require("path");
 
 // var path = require("path");
 // var fs = require("fs");
@@ -14,15 +15,15 @@ describe("spriting module", function () {
                 ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'images/*'); }";
     var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
-                   " images/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), " +
-                   "assets: (images/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/" +
-                   "test/fixtures/app_assets/images/img01.png, identifier: img01, position: 0px" +
-                   " -200px, width: 100px, height: 100px), images/img02.png: (path: /Users/" +
-                   "jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/images/img02.png, " +
-                   "identifier: img02, position: -105px -250px, width: 50px, height: 50px), " +
-                   "images/img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/" +
-                   "fixtures/app_assets/images/img03.png, identifier: img03, position: -160px " +
-                   "0px, width: 200px, height: 300px)), width: 360px, height: 300px); }\n";
+      " images/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: " +
+      "(images/img01.png: (path: "
+      + testutils.fixtureDirectory(path.join("app_assets", "images", "img01.png")) + ", " +
+      "identifier: img01, position: 0px -200px, width: 100px, height: 100px), images/img02.png: " +
+      "(path: " + testutils.fixtureDirectory(path.join("app_assets", "images", "img02.png")) + "," +
+      " identifier: img02, position: -105px -250px, width: 50px, height: 50px), images/img03.png:" +
+      " (path: " + testutils.fixtureDirectory(path.join("app_assets", "images", "img03.png")) +
+      ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, " +
+      "height: 300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
 
@@ -41,17 +42,16 @@ describe("spriting module", function () {
                 ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'mod-one/*'); }";
     var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
-                   " mod-one/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), " +
-                   "assets: (mod-one/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/" +
-                   "test/fixtures/app_assets/node_modules/asset_mod_1/images/img01.png, " +
-                   "identifier: img01, position: 0px -200px, width: 100px, height: 100px), " +
-                   "mod-one/img02.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/" +
-                   "fixtures/app_assets/node_modules/asset_mod_1/images/img02.png, identifier: " +
-                   "img02, position: -105px -250px, width: 50px, height: 50px), mod-one/" +
-                   "img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/" +
-                   "app_assets/node_modules/asset_mod_1/images/img03.png, identifier: img03, " +
-                   "position: -160px 0px, width: 200px, height: 300px)), width: 360px, height: " +
-                   "300px); }\n";
+      " mod-one/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: " +
+      "(mod-one/img01.png: (path: "
+      + testutils.fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
+      "img01.png")) + ", identifier: img01, position: 0px -200px, width: 100px, height: 100px), " +
+      "mod-one/img02.png: (path: " + testutils.fixtureDirectory(path.join("app_assets",
+      "node_modules", "asset_mod_1", "images", "img02.png")) + ", identifier: img02, position: " +
+      "-105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: "
+      + testutils.fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
+        "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
+      "300px)), width: 360px, height: 300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
 
