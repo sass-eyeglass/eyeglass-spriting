@@ -108,7 +108,7 @@ module.exports = function(eyeglass, sass) {
         }
 
         try {
-          var discard = new Layout(layout);
+          Layout.validate(layout);
           done(sassUtils.castToSass(layout));
         } catch (e) {
           done(sass.types.Error(e.toString()));
@@ -173,17 +173,17 @@ module.exports = function(eyeglass, sass) {
       "sprite-position-x($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
-        var position_x = sprite.coerce.get("position")[0];
+        var positionX = sprite.coerce.get("position")[0];
 
-        done(sassUtils.castToSass(position_x));
+        done(sassUtils.castToSass(positionX));
       },
 
       "sprite-position-y($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
-        var position_y = sprite.coerce.get("position")[1];
+        var positionY = sprite.coerce.get("position")[1];
 
-        done(sassUtils.castToSass(position_y));
+        done(sassUtils.castToSass(positionY));
       },
 
       "sprite-width($spritemap, $spritename)": function(spritemap, spritename, done) {

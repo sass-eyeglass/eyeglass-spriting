@@ -29,7 +29,7 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 
 	this.name = name;
 	this.sassLayout = sassLayout;
-	this.layout = new Layout(sassLayout);
+	this.layout = new Layout.Layout(sassLayout);
 	this.sources = sources;
 
 	this.sprites = [];
@@ -85,7 +85,8 @@ SpriteMap.prototype.getData = function(cb) {
 				self.sprites[index].height = image.height();
 
 				try {
-					self.sprites[index].lastModified = getLastModifiedDate(self.sprites[index].filename);
+					self.sprites[index].lastModified
+            = getLastModifiedDate(self.sprites[index].filename);
 					aux(index + 1);
 				} catch (error) {
 					cb(error, null);
@@ -108,8 +109,8 @@ SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
   var assets = sassSpritemap.coerce.get("assets");
   for (var i = 0; i < this.sprites.length; i++) {
     var sprite = assets.coerce.get(this.sprites[i].name);
-    this.sprites[i].origin_x = -sprite.coerce.get("position")[0].value;
-    this.sprites[i].origin_y = -sprite.coerce.get("position")[1].value;
+    this.sprites[i].originX = -sprite.coerce.get("position")[0].value;
+    this.sprites[i].originY = -sprite.coerce.get("position")[1].value;
     try {
       this.sprites[i].lastModified = getLastModifiedDate(this.sprites[i].filename);
     } catch (err) {
@@ -131,8 +132,8 @@ SpriteMap.prototype.getSassData = function() {
 	var assets = new sassUtils.SassJsMap();
 
 	for (var i = 0; i < this.sprites.length; i++) {
-		var x = new sassUtils.SassDimension(-this.sprites[i].origin_x, "px");
-    var y = new sassUtils.SassDimension(-this.sprites[i].origin_y, "px");
+		var x = new sassUtils.SassDimension(-this.sprites[i].originX, "px");
+    var y = new sassUtils.SassDimension(-this.sprites[i].originY, "px");
     var position = sassUtils.castToSass([x, y]);
     position.setSeparator(false);
 
@@ -227,23 +228,23 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
 	var self = this;
 
 	if (this.needsUpdating(dir)) {
-		var pasteImages = function(index, cur_spritemap) {
+		var pasteImages = function(index, curSpritemap) {
 			if (index < self.sprites.length) {
 				lwip.open(self.sprites[index].filename, function(err, image) {
           if (err) {
             throw err;
           }
-					var origin_x = self.sprites[index].origin_x;
-					var origin_y = self.sprites[index].origin_y;
-					cur_spritemap.paste(origin_x, origin_y, image, function(pasteErr, new_spritemap) {
+					var originX = self.sprites[index].originX;
+					var originY = self.sprites[index].originY;
+					curSpritemap.paste(originX, originY, image, function(pasteErr, newSpritemap) {
             if (pasteErr) {
               throw err;
             }
-						pasteImages(index + 1, new_spritemap);
+						pasteImages(index + 1, newSpritemap);
 					});
 				});
 			} else {
-				cur_spritemap.writeFile(path.join(dir, self.name + ".png"), function(err) {
+				curSpritemap.writeFile(path.join(dir, self.name + ".png"), function(err) {
 					if (err) {
             cb(err, null);
           } else {
@@ -252,7 +253,7 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
               if (saveErr) {
                 throw saveErr;
               }
-							cb(null, cur_spritemap);
+							cb(null, curSpritemap);
 						});
 					}
 				});

@@ -2,4 +2,4 @@ node_modules
 images
 stuff
 .DS_Store
-test/fixtures/app_assets/.eyeglass-cache
+test/fixtures/app_assets/.eyeglass_cache/

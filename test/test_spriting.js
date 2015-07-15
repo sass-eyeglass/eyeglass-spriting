@@ -13,7 +13,16 @@ describe("spriting module", function () {
     var input = "@import 'assets'; @import 'spriting'; " +
                 ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'images/*'); }";
-    var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources: images/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: (images/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/images/img01.png, identifier: img01, position: 0px -200px, width: 100px, height: 100px), images/img02.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/images/img02.png, identifier: img02, position: -105px -250px, width: 50px, height: 50px), images/img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/images/img03.png, identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, height: 300px); }\n";
+    var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
+                   " images/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), " +
+                   "assets: (images/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/" +
+                   "test/fixtures/app_assets/images/img01.png, identifier: img01, position: 0px" +
+                   " -200px, width: 100px, height: 100px), images/img02.png: (path: /Users/" +
+                   "jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/images/img02.png, " +
+                   "identifier: img02, position: -105px -250px, width: 50px, height: 50px), " +
+                   "images/img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/" +
+                   "fixtures/app_assets/images/img03.png, identifier: img03, position: -160px " +
+                   "0px, width: 200px, height: 300px)), width: 360px, height: 300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
 
@@ -31,7 +40,18 @@ describe("spriting module", function () {
     var input = "@import 'assets'; @import 'mod-one/assets'; @import 'spriting'; " +
                 ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'mod-one/*'); }";
-    var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources: mod-one/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: (mod-one/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/node_modules/asset_mod_1/images/img01.png, identifier: img01, position: 0px -200px, width: 100px, height: 100px), mod-one/img02.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/node_modules/asset_mod_1/images/img02.png, identifier: img02, position: -105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/app_assets/node_modules/asset_mod_1/images/img03.png, identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, height: 300px); }\n";
+    var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
+                   " mod-one/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), " +
+                   "assets: (mod-one/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/" +
+                   "test/fixtures/app_assets/node_modules/asset_mod_1/images/img01.png, " +
+                   "identifier: img01, position: 0px -200px, width: 100px, height: 100px), " +
+                   "mod-one/img02.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/" +
+                   "fixtures/app_assets/node_modules/asset_mod_1/images/img02.png, identifier: " +
+                   "img02, position: -105px -250px, width: 50px, height: 50px), mod-one/" +
+                   "img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/" +
+                   "app_assets/node_modules/asset_mod_1/images/img03.png, identifier: img03, " +
+                   "position: -160px 0px, width: 200px, height: 300px)), width: 360px, height: " +
+                   "300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
 
@@ -69,15 +89,6 @@ describe("spriting module", function () {
   //   done();
   // });
 
-  // it("sprite-map() sanity check", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting'; .test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, "
-  //       + "alignment: bottom)), 'module-a/*', 'module-b/img03.png') }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: (sprite-map: true, name: test-sprite-map, sources: module-a/*, module-b/img03.png, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: (module-a/img01.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img01.png, identifier: img01, position: 0px -200px, width: 100px, height: 100px), module-a/img02.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img02.png, identifier: img02, position: -105px -250px, width: 50px, height: 50px), module-b/img03.png: (path: /Users/jwang5/linkedin/eyeglass-spriting/test/fixtures/test01/img03.png, identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, height: 300px); }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
-
   it("sprite-layout() sanity check", function (done) {
     var options = {
       data: ".test { foo: sprite-layout(horizontal, (spacing: 50px, alignment: bottom)) }"
@@ -93,7 +104,8 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizontal, (alignment: bottom)) }"
     };
-    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px, alignment: bottom); }\n";
+    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px, " +
+                         "alignment: bottom); }\n";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompiles(eg, expectedOutput, done);
@@ -323,7 +335,8 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizontal, (alignment: right, spacing: 5px)) }"
     };
-    var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+    var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment\n\n" +
+                        "Backtrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompilationError(eg, expectedError, done);
@@ -333,7 +346,8 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizntal, (alignment: right, spacing: 5px)) }"
     };
-    var expectedError = "error in C function sprite-layout: Error: Invalid layout strategy\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+    var expectedError = "error in C function sprite-layout: Error: Invalid layout strategy\n\n" +
+                        "Backtrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompilationError(eg, expectedError, done);
@@ -357,34 +371,42 @@ describe("spriting module", function () {
 
     testutils.assertCompiles(eg, expected, done);
   });
-  // // // this will take a long time to run
-  // // it("large images", function (done) {
-  // //   var options = {
-  // //     data: "@import 'spriting';"
-  // //     + "$large-images-sm: sprite-map('test-large-images', sprite-layout(diagonal, ()), 'largeImages/*');"
-  // //     + ".test{ foo: sprite-url($large-images-sm) }"
-  // //   };
-  // //   var expectedOutput = ".test {\n  background-position: 105px 250px; }\n";
-  // //   testutils.assertCompiles(options, expectedOutput, done);
-  // // });
 
-  // it("small images", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$small-images-sm: sprite-map('test-small-images', sprite-layout(diagonal, ()), 'smallImages/*');"
-  //     + ".test{ foo: sprite-url($small-images-sm) }; "
-  //   };
-  //   var expectedOutput = ".test {\n  foo: ../assets/test-small-images.png; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+  it("small images", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'smallimages/*');" +
+                ".test { foo: sprite-url($test-sprite-map); }";
+    var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
-  // it("lots of images", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$lots-of-images-sm: sprite-map('test-lots-of-images', sprite-layout(diagonal, ()), 'lotsOfImages/*');"
-  //     + ".test{ foo: sprite-url($lots-of-images-sm) }; "
-  //   };
-  //   var expectedOutput = ".test {\n  foo: ../assets/test-lots-of-images.png; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "smallimages/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("lots of images", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'lotsofimages/*');" +
+                ".test { foo: sprite-url($test-sprite-map); }";
+    var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "lotsofimages/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
 });
