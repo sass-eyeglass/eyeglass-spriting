@@ -1,20 +1,18 @@
+"use strict";
+
 var SpriteMap = require("./SpriteMap");
 var Layout = require("./Layout");
 var path = require("path");
 var fs = require("fs");
 var minimatch = require("minimatch");
 
-// var getDataFileName = function(spritemapName) {
-//   return path.join("assets", spritemapName + ".json");
-// }
-
-// TODO: integrate with eyeglass assets
-var getImageFileName = function(spritemapName) {
-  return path.join("assets", spritemapName + ".png");
-}
-
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
+
+  function existsSync(file) {
+    // This fs method is going to be deprecated but can be re-implemented with fs.accessSync later.
+    return fs.existsSync(file);
+  }
 
   function addAssets(imagePaths, assets, pattern, moduleName) {
     assets.forEach(function(assetData, assetName) {
@@ -28,9 +26,9 @@ module.exports = function(eyeglass, sass) {
       if (minimatch(assetName, pattern)) {
         var filepath = assetData.coerce.get("filepath");
 
-        // app assets take precedence
+        // app assets take precedence over modules with conflicting names
         if (imagePaths.has(assetName)) {
-          var filepath = moduleName ? imagePaths.get(assetName) : filepath;
+          filepath = moduleName ? imagePaths.get(assetName) : filepath;
         }
 
         imagePaths.set(assetName, filepath);
@@ -44,16 +42,15 @@ module.exports = function(eyeglass, sass) {
 
     registeredAssets = sassUtils.castToJs(registeredAssets);
 
-    for (var i = 0; i < paths.getLength(); i++) {
-      var pattern = paths.getValue(i).getValue();
+    paths = sassUtils.castToJs(paths);
 
-      // check for modules with assets that match this pattern
-      registeredAssets.forEach(function(moduleAssets, moduleName) {
+    paths.forEach(function(pattern) {
+        registeredAssets.forEach(function(moduleAssets, moduleName) {
         moduleName = sassUtils.castToJs(moduleName);
         moduleAssets = sassUtils.castToJs(moduleAssets);
         addAssets(imagePaths, moduleAssets, pattern, moduleName);
       });
-    }
+    });
 
     return imagePaths;
   }
@@ -68,16 +65,15 @@ module.exports = function(eyeglass, sass) {
         sassUtils.assertType(registeredAssets, "map");
         sassUtils.assertType(paths, "list");
 
-        // console.log(sassUtils.sassString(registeredAssets));
-
-        var name = name.getValue();
+        name = name.getValue();
         var imagePaths = getRealPaths(paths, registeredAssets);
 
         var sm = new SpriteMap(name, imagePaths, layout, paths);
 
         sm.getData(function(err, data) {
-          if (err)
+          if (err) {
             done(sass.types.Error(err.toString()));
+          }
 
           sm.pack();
           done(sm.getSassData().toSassMap());
@@ -96,18 +92,23 @@ module.exports = function(eyeglass, sass) {
           alignment = options.coerce.get("alignment");
         }
 
-        if (!spacing) spacing = new sassUtils.SassDimension(0, "px");
-        else spacing = spacing.convertTo("px", "");
+        if (!spacing) {
+          spacing = new sassUtils.SassDimension(0, "px");
+        } else {
+          spacing = spacing.convertTo("px", "");
+        }
 
         var layout = new sassUtils.SassJsMap();
         layout.coerce.set("strategy", strategy);
-        if (spacing)
+        if (spacing) {
           layout.coerce.set("spacing", spacing);
-        if (alignment)
+        }
+        if (alignment) {
           layout.coerce.set("alignment", alignment);
+        }
 
         try {
-          new Layout(layout);
+          var discard = new Layout(layout);
           done(sassUtils.castToSass(layout));
         } catch (e) {
           done(sass.types.Error(e.toString()));
@@ -116,7 +117,7 @@ module.exports = function(eyeglass, sass) {
       },
 
       "sprite-list($spritemap)": function(spritemap, done) {
-        sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprites = sassUtils.castToJs(spritemap).coerce.get("assets");
         var spriteList = [];
 
         sprites.forEach(function(i, sprite) {
@@ -139,12 +140,22 @@ module.exports = function(eyeglass, sass) {
 
         sm.getDataFromSass(spritemap);
 
-        sm.createSpriteMap(getImageFileName(name), function(err, spritemap) {
-          if (err) throw err;
-          // TODO: change this after integrating with assets
-          var url = path.join("..", getImageFileName(name));
-          // done(sassUtils.castToSass(url));
-          done(sassUtils.castToSass("meep"));
+        // create the image in the eyeglass cache
+        var spritemapsDir = path.join(eyeglass.options.cacheDir, "spritemaps");
+        if (!existsSync(spritemapsDir)) {
+          fs.mkdirSync(spritemapsDir);
+        }
+
+        sm.createSpriteMap(spritemapsDir, function(err, spritemapImg) {
+          if (err) {
+            throw err;
+          }
+
+          var spritemapUrlData = new sassUtils.SassJsMap();
+          spritemapUrlData.coerce.set("source", path.join("spritemaps", name + ".png"));
+          spritemapUrlData.coerce.set("filepath", path.join(spritemapsDir, name + ".png"));
+
+          done(spritemapUrlData.toSassMap());
         });
       },
 
@@ -201,19 +212,18 @@ module.exports = function(eyeglass, sass) {
         done(sassUtils.castToSass(height));
       },
 
-      // TODO: re-write this later; this is placeholder to make example project work
       // "module-a/icons/home.png" -> returns "home"
-      // TODO: get identifier from map passed in
-      // TODO: raise an error if called for an image that has no specified identifer and
-      // the base filename is not a legal css ident.
+      // TODO: raise an error if called for an image that has no specified identifer or
+      // the base filename is not a legal css identifier
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var name = spritename.getValue();
-        var identifier = path.basename(name, path.extname(name));
+        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
+        var sprite = assets.coerce.get(spritename);
+        var identifier = sprite.coerce.get("identifier");
 
         done(sassUtils.castToSass(identifier));
       }
 
-  	}
-	}
+    }
+	};
 
 };

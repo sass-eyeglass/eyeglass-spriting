@@ -1,3 +1,4 @@
+"use strict";
 /*
  * Functions for creating a SpriteMap object, getting information about sprites,
  * and creating the spritemap image
@@ -13,11 +14,11 @@ var sassUtils = require("node-sass-utils")(sass);
 
 var getLastModifiedDate = function(filename) {
   return fs.statSync(filename).mtime.getTime();
-}
+};
 
 var getIdentifier = function(filename) {
   return path.basename(filename, path.extname(filename));
-}
+};
 
 // imagePaths = 2D array of image asset paths and real paths
 // sassLayout and sources are Sass maps
@@ -37,6 +38,7 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 
 	// sort imagePaths to make sprite map creation stable
 	// use Array.from(imagePaths) ?
+	// TODO: sort keys and access them in sorted order instead of creating new array
 
 	var imagePathsArray = [];
 	imagePaths.forEach(function(filepath, source) {
@@ -44,8 +46,11 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 	});
 
 	imagePathsArray.sort(function(a, b) {
-		if (a[0] === b[0]) return 0;
-		else return (a[0] < b[0]) ? -1 : 1;
+		if (a[0] === b[0]) {
+			return 0;
+		} else {
+			return (a[0] < b[0]) ? -1 : 1;
+		}
 	});
 
 	imagePaths = new Map(imagePathsArray);
@@ -55,11 +60,11 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 
 	imagePaths.forEach(function(filepath, source) {
 		if (!filepath.match(imageFileRegexp)) {
-			throw new Error("asset \'" + spriteNames[i] + "\' cannot be opened!");
+			throw new Error("asset \'" + source + "\' cannot be opened!");
 		} else {
 			self.sprites.push({
-				'name' : source,
-				'filename' : filepath
+				"name": source,
+				"filename": filepath
 			});
 		}
 	});
@@ -68,12 +73,13 @@ function SpriteMap(name, imagePaths, sassLayout, sources) {
 // get width, height, last modified date for each sprite
 SpriteMap.prototype.getData = function(cb) {
 	var self = this;
-	var imageFileRegexp = /\.(gif|jpg|jpeg|png)$/i;
 
 	var aux = function(index) {
 		if (index < self.sprites.length) {
 			lwip.open(self.sprites[index].filename, function(err, image) {
-				if (err) cb(err, null);
+				if (err) {
+					cb(err, null);
+				}
 
 				self.sprites[index].width = image.width();
 				self.sprites[index].height = image.height();
@@ -81,18 +87,18 @@ SpriteMap.prototype.getData = function(cb) {
 				try {
 					self.sprites[index].lastModified = getLastModifiedDate(self.sprites[index].filename);
 					aux(index + 1);
-				} catch (err) {
-					cb(err, null)
+				} catch (error) {
+					cb(error, null);
 				}
 
 			});
 		} else {
 			cb(null, self.sprites);
 		}
-	}
+	};
 
 	aux(0);
-}
+};
 
 // extract width, height, last modified date for each sprite given a Sass map with this information
 SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
@@ -105,12 +111,12 @@ SpriteMap.prototype.getDataFromSass = function(sassSpritemap) {
     this.sprites[i].origin_x = -sprite.coerce.get("position")[0].value;
     this.sprites[i].origin_y = -sprite.coerce.get("position")[1].value;
     try {
-    	this.sprites[i].lastModified = getLastModifiedDate(this.sprites[i].filename);
+      this.sprites[i].lastModified = getLastModifiedDate(this.sprites[i].filename);
     } catch (err) {
-    	throw err;
+      throw err;
     }
   }
-}
+};
 
 // construct a Sass map containing information for this sprite map
 // should only be called after getData and pack
@@ -148,20 +154,17 @@ SpriteMap.prototype.getSassData = function() {
 	this.sassData.coerce.set("height", new sassUtils.SassDimension(this.height, "px"));
 
 	return this.sassData;
-}
+};
 
 // get coordinates for each sprite & spritemap dimensions
 SpriteMap.prototype.pack = function() {
 	var dimensions = this.layout.pack(this.sprites);
 	this.width 	= dimensions[0];
 	this.height	= dimensions[1];
-}
+};
 
 // save sprites data to file in json format
 SpriteMap.prototype.saveData = function(filename, cb) {
-	// if (!filename) {
-	// 	filename = this.name + "_data.json";
-	// }
 	var data = {
 		sprites: {},
 		layout: this.layout
@@ -172,36 +175,39 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 	}
 
 	fs.writeFile(filename, JSON.stringify(data, null, 2), function(err) {
-		if (err)	cb(err, null);
-		else  		cb(null, data);
+		if (err) {
+      cb(err, null);
+    } else {
+      cb(null, data);
+    }
 	});
-}
+};
 
 // check if spritemap image needs to be updated
-SpriteMap.prototype.needsUpdating = function() {
-	var imageFile = path.join("assets", this.name + ".png");
-	var dataFile = path.join("assets", this.name + ".json");
+SpriteMap.prototype.needsUpdating = function(dir) {
+	var imageFile = path.join(dir, this.name + ".png");
+	var dataFile = path.join(dir, this.name + ".json");
 
 	try {
-		spritemapDate = getLastModifiedDate(imageFile);
-		var data = JSON.parse(fs.readFileSync(dataFile), 'utf8');
+		var spritemapDate = getLastModifiedDate(imageFile);
+		var data = JSON.parse(fs.readFileSync(dataFile), "utf8");
 
 		// check if layout has changed
-		if (data.layout.strategy != this.layout.strategy
-			|| data.layout.spacing != this.layout.spacing
-			|| data.layout.alignment != this.layout.alignment) {
+		if (data.layout.strategy !== this.layout.strategy
+			|| data.layout.spacing !== this.layout.spacing
+			|| data.layout.alignment !== this.layout.alignment) {
 			return true;
 		}
 
 		// check if number sprites is different
-		if (this.sprites.length != Object.keys(data.sprites).length) {
+		if (this.sprites.length !== Object.keys(data.sprites).length) {
 			return true;
 		}
 
 		// check if source images have been modified
 		for (var i = 0; i < this.sprites.length; i++) {
 			if (!data.sprites[this.sprites[i].name]
-				|| this.sprites[i].lastModified != data.sprites[this.sprites[i].name]["lastModified"]
+				|| this.sprites[i].lastModified !== data.sprites[this.sprites[i].name].lastModified
 				|| this.sprites[i].lastModified > spritemapDate) {
 				return true;
 			}
@@ -213,43 +219,55 @@ SpriteMap.prototype.needsUpdating = function() {
 	}
 
 	return false;
-}
+};
 
 
 // create spritemap image, only it does not already exist or is out of date
-SpriteMap.prototype.createSpriteMap = function(filename, cb) {
+SpriteMap.prototype.createSpriteMap = function(dir, cb) {
 	var self = this;
 
-	if (this.needsUpdating()) {
+	if (this.needsUpdating(dir)) {
 		var pasteImages = function(index, cur_spritemap) {
 			if (index < self.sprites.length) {
 				lwip.open(self.sprites[index].filename, function(err, image) {
+          if (err) {
+            throw err;
+          }
 					var origin_x = self.sprites[index].origin_x;
 					var origin_y = self.sprites[index].origin_y;
-					cur_spritemap.paste(origin_x, origin_y, image, function(err, new_spritemap) {
+					cur_spritemap.paste(origin_x, origin_y, image, function(pasteErr, new_spritemap) {
+            if (pasteErr) {
+              throw err;
+            }
 						pasteImages(index + 1, new_spritemap);
 					});
 				});
 			} else {
-				cur_spritemap.writeFile(filename, function(err) {
-					if (err) cb(err, null);
-					else {
+				cur_spritemap.writeFile(path.join(dir, self.name + ".png"), function(err) {
+					if (err) {
+            cb(err, null);
+          } else {
 						// TODO: change this after integrating with assets
-						self.saveData(path.join("assets", self.name + ".json"), function(err, data) {
+						self.saveData(path.join(dir, self.name + ".json"), function(saveErr, data) {
+              if (saveErr) {
+                throw saveErr;
+              }
 							cb(null, cur_spritemap);
-						})
+						});
 					}
 				});
 			}
-		}
+		};
 
 		lwip.create(self.width, self.height, function(err, spritemap) {
-			if (err) cb(err, null);
+			if (err) {
+        cb(err, null);
+      }
 			pasteImages(0, spritemap);
 		});
 	} else {
 		cb(null, null); // spritemap is already up to date
 	}
-}
+};
 
 module.exports = SpriteMap;

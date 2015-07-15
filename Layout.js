@@ -3,26 +3,15 @@
  * element. It also calculates the spritemap width and height, and returns them in an array.
  * This file will be refactored.
  */
+"use strict";
 
 var sass = require("node-sass");
 var sassUtils = require("node-sass-utils")(sass);
 
-// take in sass map (layout: horizontal, spacing: 50px, alignment: bottom);
-function Layout(sassLayout) {
-	var layout = sassUtils.castToJs(sassLayout);
-	var strategy = layout.coerce.get("strategy");
-	var spacing = layout.coerce.get("spacing").value;
-  var alignment = layout.coerce.get("alignment");
-
-  this.strategy = strategy;
-  this.spacing = spacing;
-  this.alignment = alignment;
-
-  this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
-}
-
 var getPackingFunction = function(strategy, alignment, spacing) {
-	if (!spacing) spacing = 0;
+	if (!spacing) {
+		spacing = 0;
+	}
 
 	switch (strategy) {
 		case "vertical":
@@ -43,6 +32,20 @@ var getPackingFunction = function(strategy, alignment, spacing) {
 			throw Error("Invalid layout strategy");
 			break;
 	}
+}
+
+// take in sass map (layout: horizontal, spacing: 50px, alignment: bottom);
+function Layout(sassLayout) {
+	var layout = sassUtils.castToJs(sassLayout);
+	var strategy = layout.coerce.get("strategy");
+	var spacing = layout.coerce.get("spacing").value;
+  var alignment = layout.coerce.get("alignment");
+
+  this.strategy = strategy;
+  this.spacing = spacing;
+  this.alignment = alignment;
+
+  this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
 }
 
 var pack_vertical_left = function(spacing) {

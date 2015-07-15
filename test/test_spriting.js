@@ -1,6 +1,6 @@
 "use strict";
 
-var Eyeglass = require("eyeglass");
+var Eyeglass = require("eyeglass").Eyeglass;
 var sass = require("node-sass");
 
 // var path = require("path");
@@ -45,12 +45,12 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("creates the sprite map image", function (done) {
+  it("creates the sprite map image and gets url", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
                 "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'images/*');" +
                 ".test { foo: sprite-url($test-sprite-map); }";
-    var expected = ".test {\n  foo: meep; }\n";
+    var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
 
@@ -78,142 +78,285 @@ describe("spriting module", function () {
   //   testutils.assertCompiles(options, expectedOutput, done);
   // });
 
-  // it("sprite-layout() sanity check", function (done) {
-  //   var options = {
-  //     data: ".test { foo: sprite-layout(horizontal, (spacing: 50px, alignment: bottom)) }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 50px, alignment: bottom); }"
-  //   + "\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+  it("sprite-layout() sanity check", function (done) {
+    var options = {
+      data: ".test { foo: sprite-layout(horizontal, (spacing: 50px, alignment: bottom)) }"
+    };
+    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 50px, alignment: " +
+      "bottom); }\n";
 
-  // it("sprite-layout() check missing parameters", function (done) {
-  //   var options = {
-  //     data: ".test { foo: sprite-layout(horizontal, (alignment: bottom)) }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px, alignment: bottom); }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var eg = new Eyeglass(options, sass);
+    testutils.assertCompiles(eg, expectedOutput, done);
+  });
 
-  // it("sprite-layout() no options", function (done) {
-  //   var options = {
-  //     data: ".test { foo: sprite-layout(horizontal, ()) }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px); }"
-  //   + "\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+  it("sprite-layout() check missing parameters", function (done) {
+    var options = {
+      data: ".test { foo: sprite-layout(horizontal, (alignment: bottom)) }"
+    };
+    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px, alignment: bottom); }\n";
 
-  // it("sprite-list()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-list($test-sprite-map); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: module-a/img01.png, module-a/img02.png, module-b/img03.png; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var eg = new Eyeglass(options, sass);
+    testutils.assertCompiles(eg, expectedOutput, done);
+  });
 
-  // it("sprite-url()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-url($test-sprite-map); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: ../assets/test-sprite-map.png; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+  it("sprite-layout() no options", function (done) {
+    var options = {
+      data: ".test { foo: sprite-layout(horizontal, ()) }"
+    };
+    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px); }"
+    + "\n";
 
-  // it("sprite-position()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-position($test-sprite-map, 'module-a/img02.png'); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: -105px -250px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var eg = new Eyeglass(options, sass);
+    testutils.assertCompiles(eg, expectedOutput, done);
+  });
 
-  // it("sprite-position-x()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-position-x($test-sprite-map, 'module-a/img02.png'); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: -105px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+  it("sprite-list()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-list($test-sprite-map) }";
+    var expected = ".test {\n  foo: images/img01.png, images/img02.png, images/img03.png; }\n";
 
-  // it("sprite-position-y()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-position-y($test-sprite-map, 'module-a/img02.png'); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: -250px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var rootDir = testutils.fixtureDirectory("app_assets");
 
-  // it("sprite-width()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-width($test-sprite-map, 'module-a/img02.png'); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: 50px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
 
-  // it("sprite-height()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-height($test-sprite-map, 'module-a/img02.png'); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: 50px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
 
-  // it("sprite-map-width()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-map-width($test-sprite-map); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: 360px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    testutils.assertCompiles(eg, expected, done);
+  });
 
-  // it("sprite-map-height()", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ foo: sprite-map-height($test-sprite-map); }"
-  //   };
-  //   var expectedOutput = ".test {\n  foo: 300px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+  it("sprite-url()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-url($test-sprite-map) }";
+    var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
-  // it("sprite-background mixin", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ @include sprite-background($test-sprite-map); }"
-  //   };
-  //   var expectedOutput = ".test {\n  background: url(\"../assets/test-sprite-map.png\") no-repeat; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var rootDir = testutils.fixtureDirectory("app_assets");
 
-  // it("sprite-position mixin", function (done) {
-  //   var options = {
-  //     data: "@import 'spriting';"
-  //     + "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, (spacing: 5px, alignment: bottom)), 'module-a/*.png', 'module-b/img03.png');"
-  //     + ".test{ @include sprite-position($test-sprite-map, 'module-a/img02.png'); }"
-  //   };
-  //   var expectedOutput = ".test {\n  background-position: -105px -250px; }\n";
-  //   testutils.assertCompiles(options, expectedOutput, done);
-  // });
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
 
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-position()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-position($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  foo: -105px -250px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-position-x()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-position-x($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  foo: -105px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-position-y()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-position-y($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  foo: -250px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-width()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-width($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  foo: 50px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-height()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-height($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  foo: 50px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-map-width()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-map-width($test-sprite-map) }";
+    var expected = ".test {\n  foo: 360px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-map-height()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-map-height($test-sprite-map) }";
+    var expected = ".test {\n  foo: 300px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-background mixin", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ @include sprite-background($test-sprite-map) }";
+    var expected = ".test {\n  background: url(/spritemaps/test-sprite-map.png) no-repeat; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-position mixin", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ @include sprite-position($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  background-position: -105px -250px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("sprite-layout() throws error for invalid layout", function (done) {
+    var options = {
+      data: ".test { foo: sprite-layout(horizontal, (alignment: right, spacing: 5px)) }"
+    };
+    var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+
+    var eg = new Eyeglass(options, sass);
+    testutils.assertCompilationError(eg, expectedError, done);
+  });
+
+  it("sprite-layout() throws error for invalid strategy", function (done) {
+    var options = {
+      data: ".test { foo: sprite-layout(horizntal, (alignment: right, spacing: 5px)) }"
+    };
+    var expectedError = "error in C function sprite-layout: Error: Invalid layout strategy\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+
+    var eg = new Eyeglass(options, sass);
+    testutils.assertCompilationError(eg, expectedError, done);
+  });
+
+  it("sprite-identifier()", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-identifier($test-sprite-map, 'images/img02.png') }";
+    var expected = ".test {\n  foo: img02; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
   // // // this will take a long time to run
   // // it("large images", function (done) {
   // //   var options = {
@@ -244,25 +387,4 @@ describe("spriting module", function () {
   //   var expectedOutput = ".test {\n  foo: ../assets/test-lots-of-images.png; }\n";
   //   testutils.assertCompiles(options, expectedOutput, done);
   // });
-
-  // it("sprite-layout() throws error for invalid layout", function (done) {
-  //   var options = {
-  //     data: ".test { foo: sprite-layout(horizontal, (alignment: right, spacing: 5px)) }"
-  //   };
-  //   var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
-  //   testutils.assertCompilationError(options, expectedError, done);
-  // });
-
-  // it("sprite-layout() throws error for invalid strategy", function (done) {
-  //   var options = {
-  //     data: ".test { foo: sprite-layout(horizntal, (alignment: right, spacing: 5px)) }"
-  //   };
-  //   var expectedError = "error in C function sprite-layout: Error: Invalid layout strategy\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
-  //   testutils.assertCompilationError(options, expectedError, done);
-  // });
-
-
-
-
-
 });
