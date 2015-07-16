@@ -50,7 +50,7 @@ describe("spriting module", function () {
       "node_modules", "asset_mod_1", "images", "img02.png")) + ", identifier: img02, position: " +
       "-105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: "
       + testutils.fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
-        "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
+      "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
       "300px)), width: 360px, height: 300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
@@ -335,8 +335,8 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizontal, (alignment: right, spacing: 5px)) }"
     };
-    var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment\n\n" +
-                        "Backtrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+    var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment: " +
+                        "'right'.\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompilationError(eg, expectedError, done);
@@ -346,8 +346,9 @@ describe("spriting module", function () {
     var options = {
       data: ".test { foo: sprite-layout(horizntal, (alignment: right, spacing: 5px)) }"
     };
-    var expectedError = "error in C function sprite-layout: Error: Invalid layout strategy\n\n" +
-                        "Backtrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
+    var expectedError = "error in C function sprite-layout: Error: Invalid layout strategy: " +
+                        "'horizntal'.\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`" +
+                        "\n\tstdin:1";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompilationError(eg, expectedError, done);

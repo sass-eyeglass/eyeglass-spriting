@@ -1,7 +1,7 @@
 "use strict";
 
 var SpriteMap = require("./SpriteMap");
-var Layout = require("./Layout");
+var ly = require("./Layout");
 var path = require("path");
 var fs = require("fs");
 var minimatch = require("minimatch");
@@ -109,7 +109,7 @@ module.exports = function(eyeglass, sass) {
         }
 
         try {
-          Layout.validate(layout);
+          ly.validate(layout);
           done(sassUtils.castToSass(layout));
         } catch (e) {
           done(sass.types.Error(e.toString()));

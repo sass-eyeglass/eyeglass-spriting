@@ -3,173 +3,181 @@
  * element. It also calculates the spritemap width and height, and returns them in an array.
  * This file will be refactored.
  */
+
 "use strict";
 
 var sass = require("node-sass");
 var sassUtils = require("node-sass-utils")(sass);
 
-var packVerticalLeft = function(spacing) {
-	return function(sprites) {
-		var width = sprites[0].width;
-		var height = sprites[0].height;
-		sprites[0].originX = 0;
-		sprites[0].originY = 0;
-
-		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].originX = 0;
-			sprites[i].originY = sprites[i - 1].originY + sprites[i - 1].height + spacing;
-
-			width = Math.max(width, sprites[i].width);
-			height += sprites[i].height + spacing;
-		}
-
-		return [width, height];
-	};
+var verticalValidate = function(options) {
+  if (options.alignment && options.alignment !== "left" && options.alignment !== "right") {
+    throw new Error("Invalid layout alignment: \'" + options.alignment + "\'.");
+  }
+  if (options.spacing && options.spacing < 0) {
+    throw new Error("Invalid layout spacing: \'" + options.spacing + " px\'.");
+  }
+  return true;
 };
 
-var packVerticalRight = function(spacing) {
-	return function(sprites) {
-		var width = sprites[0].width;
-		var height = sprites[0].height;
-		sprites[0].originX = -sprites[0].width;
-		sprites[0].originY = 0;
+function verticalLayout(options) {
+  var spacing = options.spacing || 0;
+  var alignment = options.alignment || "left";
 
-		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].originX = -sprites[i].width;
-			sprites[i].originY = sprites[i - 1].originY + sprites[i - 1].height + spacing;
+  this.pack = function(sprites) {
+    var width = sprites[0].width;
+    var height = sprites[0].height;
+    sprites[0].originX = (alignment === "left") ? 0 : -sprites[0].width;
+    sprites[0].originY = 0;
 
-			width = Math.max(width, sprites[i].width);
-			height += sprites[i].height + spacing;
-		}
+    for (var i = 1; i < sprites.length; i++) {
+      sprites[i].originX = (alignment === "left") ? 0 : -sprites[i].width;
+      sprites[i].originY = sprites[i - 1].originY + sprites[i - 1].height + spacing;
 
-		for (var j = 0; j < sprites.length; j++) {
-			sprites[j].originX += width;
-		}
+      width = Math.max(width, sprites[i].width);
+      height += sprites[i].height + spacing;
+    }
 
-		return [width, height];
-	};
-};
+    if (alignment === "right") {
+      for (var j = 0; j < sprites.length; j++) {
+        sprites[j].originX += width;
+      }
+    }
 
-var packHorizontalTop = function(spacing) {
-	return function(sprites) {
-		var width = sprites[0].width;
-		var height = sprites[0].height;
-		sprites[0].originX = 0;
-		sprites[0].originY = 0;
-
-		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].originX = sprites[i - 1].originX + sprites[i - 1].width + spacing;
-			sprites[i].originY = 0;
-
-			width += sprites[i].width + spacing;
-			height = Math.max(height, sprites[i].height);
-		}
-
-		return [width, height];
-	};
-};
-
-var packHorizontalBottom = function(spacing) {
-	return function(sprites) {
-		var width = sprites[0].width;
-		var height = sprites[0].height;
-		sprites[0].originX = 0;
-		sprites[0].originY = -sprites[0].height;
-
-		for (var i = 1; i < sprites.length; i++) {
-			sprites[i].originX = sprites[i - 1].originX + sprites[i - 1].width + spacing;
-			sprites[i].originY = -sprites[i].height;
-
-			width += sprites[i].width + spacing;
-			height = Math.max(height, sprites[i].height);
-		}
-
-		for (var j = 0; j < sprites.length; j++) {
-			sprites[j].originY += height;
-		}
-
-		return [width, height];
-	};
-};
-
-var packDiagonal = function(sprites) {
-	var width = sprites[0].width;
-	var height = sprites[0].height;
-	sprites[0].originX = 0;
-	sprites[0].originY = 0;
-
-	for (var i = 1; i < sprites.length; i++) {
-		sprites[i].originX = sprites[i - 1].originX + sprites[i - 1].width;
-		sprites[i].originY = sprites[i - 1].originY + sprites[i - 1].height;
-
-		width += sprites[i].width;
-		height += sprites[i].height;
-	}
-
-	return [width, height];
-};
-
-// returns packing function, also does error checking on options
-var getPackingFunction = function(strategy, alignment, spacing) {
-	if (!spacing) {
-		spacing = 0;
-	}
-
-	switch (strategy) {
-		case "vertical":
-			if (!alignment) {
-				return packVerticalLeft(spacing);
-			} else if (alignment === "left") {
-				return packVerticalLeft(spacing);
-			} else if (alignment === "right") {
-				return packVerticalRight(spacing);
-			} else {
-				throw Error("Invalid layout alignment");
-			}
-			break;
-		case "horizontal":
-			if (!alignment) {
-				return packHorizontalTop(spacing);
-			} else if (alignment === "top") {
-				return packHorizontalTop(spacing);
-			} else if (alignment === "bottom") {
-				return packHorizontalBottom(spacing);
-			} else {
-				throw Error("Invalid layout alignment");
-			}
-			break;
-		case "diagonal":
-			return packDiagonal;
-		default:
-			throw Error("Invalid layout strategy");
-	}
-};
-
-// take in sass map (layout: horizontal, spacing: 50px, alignment: bottom);
-function Layout(sassLayout) {
-	var layout = sassUtils.castToJs(sassLayout);
-
-  this.strategy = layout.coerce.get("strategy");
-  this.spacing = layout.coerce.get("spacing").value;
-  this.alignment = layout.coerce.get("alignment");
-
-  this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
+    return [width, height];
+  };
 }
 
-var validate = function(sassLayout) {
-	var layout = sassUtils.castToJs(sassLayout);
-  var strategy = layout.coerce.get("strategy");
-  var spacing = layout.coerce.get("spacing").value;
-  var alignment = layout.coerce.get("alignment");
-  getPackingFunction(strategy, alignment, spacing);
+var horizontalValidate = function(options) {
+  if (options.alignment && options.alignment !== "top" && options.alignment !== "bottom") {
+    throw new Error("Invalid layout alignment: \'" + options.alignment + "\'.");
+  }
+  if (options.spacing && options.spacing < 0) {
+    throw new Error("Invalid layout spacing: \'" + options.spacing + " px\'.");
+  }
+  return true;
 };
 
-// Layout.prototype.setSpacing = function(spacing) {
-// 	this.spacing = spacing;
-// 	this.pack = getPackingFunction(this.strategy, this.alignment, this.spacing);
-// };
+function horizontalLayout(options) {
+  var spacing = options.spacing || 0;
+  var alignment = options.alignment || "top";
+
+  this.pack = function(sprites) {
+    // console.log("*** spacing:\n" + spacing);
+    var width = sprites[0].width;
+    var height = sprites[0].height;
+    sprites[0].originX = 0;
+    sprites[0].originY = (alignment === "top") ? 0 : -sprites[0].height;
+
+    for (var i = 1; i < sprites.length; i++) {
+      sprites[i].originX = sprites[i - 1].originX + sprites[i - 1].width + spacing;
+      sprites[i].originY = (alignment === "top") ? 0 : -sprites[i].height;
+
+      width += sprites[i].width + spacing;
+      height = Math.max(height, sprites[i].height);
+    }
+
+    if (alignment === "bottom") {
+      for (var j = 0; j < sprites.length; j++) {
+        sprites[j].originY += height;
+      }
+    }
+
+    return [width, height];
+  };
+}
+
+var diagonalValidate = function(options) {
+  return true;
+};
+
+function diagonalLayout(options) {
+  // spacing and alignment don't apply
+  // TODO: should we throw error if user tries to specify spacing/alignment?
+
+  this.pack = function(sprites) {
+    var width = sprites[0].width;
+    var height = sprites[0].height;
+    sprites[0].originX = 0;
+    sprites[0].originY = 0;
+
+    for (var i = 1; i < sprites.length; i++) {
+      sprites[i].originX = sprites[i - 1].originX + sprites[i - 1].width;
+      sprites[i].originY = sprites[i - 1].originY + sprites[i - 1].height;
+
+      width += sprites[i].width;
+      height += sprites[i].height;
+    }
+
+    return [width, height];
+  };
+}
+
+var registeredLayouts = {
+  "vertical": {
+    validate: verticalValidate,
+    constructor: verticalLayout
+  },
+  "horizontal": {
+    validate: horizontalValidate,
+    constructor: horizontalLayout
+  },
+  "diagonal": {
+    validate: diagonalValidate,
+    constructor: diagonalLayout
+  }
+};
+
 
 module.exports = {
-	Layout: Layout,
-	validate: validate
+  getLayout: function(options) {
+    options = sassUtils.castToJs(options);
+
+    var unpackedOptions = {
+      strategy: options.coerce.get("strategy"),
+      spacing: options.coerce.get("spacing").value,
+      alignment: options.coerce.get("alignment")
+    };
+
+    var strategy = unpackedOptions.strategy;
+
+    if (registeredLayouts[strategy]) {
+      registeredLayouts[strategy].validate(unpackedOptions);
+
+      var newLayout = new registeredLayouts[strategy].constructor(unpackedOptions);
+      newLayout.strategy = unpackedOptions.strategy;
+      newLayout.spacing = unpackedOptions.spacing;
+      newLayout.alignment = unpackedOptions.alignment;
+
+      return newLayout;
+    } else {
+      throw new Error("Invalid layout strategy: \'" + strategy + "\'.");
+    }
+  },
+
+  registerLayout: function(name, validate, pack) {
+    registeredLayouts[name] = {
+      validate: validate,
+      constructor: function(options) {
+        this.pack = pack;
+      }
+    };
+  },
+
+  validate: function(options) {
+    options = sassUtils.castToJs(options);
+
+    var unpackedOptions = {
+      strategy: options.coerce.get("strategy"),
+      spacing: options.coerce.get("spacing").value,
+      alignment: options.coerce.get("alignment")
+    };
+
+    if (!registeredLayouts[unpackedOptions.strategy]) {
+      throw new Error("Invalid layout strategy: \'" + unpackedOptions.strategy + "\'.");
+    } else {
+      return registeredLayouts[unpackedOptions.strategy].validate(unpackedOptions);
+    }
+  },
+
+  registeredLayouts: registeredLayouts
 };
