@@ -172,7 +172,7 @@ Might compile to the following css:
 .icon-bg {
   background: url("/assets/icon-sprite-map.png") no-repeat;
 }
-```scss
+```
 
 Also causes the sprite map image to be generated.
 
