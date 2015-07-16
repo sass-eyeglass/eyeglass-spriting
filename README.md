@@ -1,5 +1,5 @@
 
-# eyeglass spriting API
+# Eyeglass Spriting
 
 For basic usage, check out the [eyeglass spriting example project](https://github.com/sass-eyeglass/spriting-example).
 
@@ -10,12 +10,74 @@ To use spriting, install eyeglass and eyeglass-spriting:
 
 Register your sprite source images as [eyeglass assets](link-to-assets-docs), and `@import 'spriting'` in your sass files.
 
----
+# Quick Start
+
+When working with a large number of sprites, you can generate css selectors by iterating through them:
+
+```scss
+@import "spriting";
+@import "assets";
+
+// icon sprites
+$icon-sprite-map: sprite-map('icon-sprite-map',
+                              sprite-layout(horizontal, (spacing: 5px, alignment: bottom)),
+                             'images/icons/*');
+
+
+%icon-bg {
+  // calling sprite-background generates the sprite map image
+  @include sprite-background($icon-sprite-map);
+}
+
+@each $icon in sprite-list($icon-sprite-map) {
+  .icon-#{sprite-identifier($icon-sprite-map, $icon)} {
+    @extend %icon-bg;
+    @include sprite-position($icon-sprite-map, $icon);
+    // If all of your sprites are the same size, include sprite-dimensions() in %icon-bg
+    @include sprite-dimensions($icon-sprite-map, $icon);
+  }
+}
+```
+
+When you need to refer to all your sprites individually, it is recommended that you do not use globbing to create your sprite map.
+
+```scss
+$button-sprite-map: sprite-map('buttons-sprite-map',
+                                sprite-layout(horizontal, (spacing: 0px, alignment: bottom)),
+                               "images/buttons/blue.png",
+                               "images/buttons/blue_hover.png",
+                               "images/buttons/blue_active.png");
+
+%button-bg {
+  @include sprite-background($button-sprite-map);
+}
+
+.blue-button {
+  @extend %button-bg;
+  @include sprite-position($button-sprite-map, "images/buttons/blue.png");
+  @include sprite-dimensions($button-sprite-map, "images/buttons/blue.png");
+  color: white;
+  text-align: center;
+}
+
+.blue-button:hover {
+  @include sprite-position($button-sprite-map, "images/buttons/blue_hover.png");
+}
+
+.blue-button:active {
+  @include sprite-position($button-sprite-map, "images/buttons/blue_active.png");
+}
+```
+
+# Eyeglass Spriting Sass API
+
 ### sprite-map()
 
 	sprite-map($name, $layout, $paths...);
 
-Returns a Sass map containing information about the sprite map and individual sprites, which can be passed into other spriting functions. It can take multiple sprite sources, which can be paths or glob patterns, and can be from different modules. PNG, JPG, and GIF files can be made into sprites. Sprites are named using their original asset source paths. Note that sprite-map() does not actually generate the sprite map image.
+Returns a Sass map containing information about the sprite map and individual sprites, which can be passed into other spriting functions. It can take multiple sprite sources, which can be paths or glob patterns, and can be from different modules. PNG, JPG, and GIF files can be made into sprites. Sprites are named using their original asset source paths.
+
+Note that sprite-map() does not actually generate the sprite map image. Instead, this happens when the sprite-url() function or sprite-background() mixin are used.
 
 For example, given the following assets directory structure:
 
@@ -41,7 +103,7 @@ You might generate spritemap data using the following:
 ---
 ### sprite-layout()
 
-	sprite-layout(($strategy), (spacing : 5px, alignment: $alignment));
+	sprite-layout($strategy, (spacing : 5px, alignment: $alignment));
 
 Validates the given layout options, and returns a map of sprite layout settings which can be passed directly into sprite-map(). It is recommended that you pass the output of sprite-layout() into sprite-map(), rather than generating your own layout.
 
@@ -116,7 +178,7 @@ Might compile to the following css:
 ---
 ### sprite-dimensions() *(mixin)*
 
-  sprite-dimensions($sprite-map, $sprite-name);
+	sprite-dimensions($sprite-map, $sprite-name);
 
 A mixin that sets the dimensions of the element to the dimensions of the given sprite. For example,
 
