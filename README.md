@@ -11,6 +11,8 @@ To use spriting, install eyeglass and eyeglass-spriting:
 
 Register your sprite source images as [eyeglass assets](https://github.com/sass-eyeglass/eyeglass#working-with-assets), and `@import 'spriting'` in your sass files.
 
+Please also note this requires use of `node` version `0.12` or newer. (Check with `node -v`.)
+
 # Quick Start
 
 When working with a large number of sprites, you can generate css selectors by iterating through them:
