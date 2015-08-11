@@ -14,7 +14,7 @@ Register your sprite source images as [eyeglass assets](https://github.com/sass-
 Please also note this requires either:
 
   - `node` version `0.12` or newer (check with `node -v`), or
-  - the [Babel polyfill] for node `0.10` compatibility (`npm install --save-dev babel` and add `require("babel/polyfill");` to the top of your build file (like `Brocfile.js` or `ember-cli-build.js`).
+  - the [Babel polyfill] for node `0.10` compatibility (`npm install --save-dev babel-core` and add `require("babel-core/polyfill");` to the top of your build file (like `Brocfile.js` or `ember-cli-build.js`).
 
 [Babel polyfill]: http://babeljs.io/docs/usage/polyfill/ "Babel.js polyfill information"
 
