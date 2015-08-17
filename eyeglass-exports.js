@@ -46,10 +46,10 @@ module.exports = function(eyeglass, sass) {
 
     paths.forEach(function(pattern) {
         registeredAssets.forEach(function(moduleAssets, moduleName) {
-        moduleName = sassUtils.castToJs(moduleName);
-        moduleAssets = sassUtils.castToJs(moduleAssets);
-        addAssets(imagePaths, moduleAssets, pattern, moduleName);
-      });
+          moduleName = sassUtils.castToJs(moduleName);
+          moduleAssets = sassUtils.castToJs(moduleAssets);
+          addAssets(imagePaths, moduleAssets, pattern, moduleName);
+        });
     });
 
     return imagePaths;

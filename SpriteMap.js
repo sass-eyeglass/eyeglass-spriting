@@ -158,8 +158,7 @@ SpriteMap.prototype.pack = function() {
   this.height = dimensions[1];
 };
 
-// save sprites data to file in json format
-SpriteMap.prototype.saveData = function(filename, cb) {
+SpriteMap.prototype.getSpritesDataStr = function() {
   var data = {
     sprites: {},
     layout: this.layout
@@ -171,100 +170,135 @@ SpriteMap.prototype.saveData = function(filename, cb) {
     data.sprites[this.sprites[i].name] = spriteData;
   }
 
-  fs.writeFile(filename, JSON.stringify(data, null, 2), function(err) {
+  return JSON.stringify(data, null, 2);
+};
+
+// save sprites data to file in json format
+SpriteMap.prototype.saveData = function(filename, cb) {
+  // var data = {
+  //   sprites: {},
+  //   layout: this.layout
+  // };
+
+  // for (var i = 0; i < this.sprites.length; i++) {
+  //   var spriteData = this.sprites[i];
+  //   delete spriteData.filename;
+  //   data.sprites[this.sprites[i].name] = spriteData;
+  // }
+  var dataStr = this.getSpritesDataStr();
+
+  fs.writeFile(filename, dataStr, function(err) {
     if (err) {
       cb(err, null);
     } else {
-      cb(null, data);
+      cb(null, dataStr);
     }
   });
 };
 
 // check if spritemap image needs to be updated
-SpriteMap.prototype.needsUpdating = function(dir) {
+SpriteMap.prototype.needsUpdating = function(dir, cb) {
   var imageFile = path.join(dir, this.name + ".png");
   var dataFile = path.join(dir, this.name + ".json");
 
   try {
     var spritemapDate = getLastModifiedDate(imageFile);
-    var data = JSON.parse(fs.readFileSync(dataFile), "utf8");
+    var self = this;
 
-    // check if layout has changed
-    if (data.layout.strategy !== this.layout.strategy
-      || data.layout.spacing !== this.layout.spacing
-      || data.layout.alignment !== this.layout.alignment) {
-      return true;
-    }
-
-    // check if number sprites is different
-    if (this.sprites.length !== Object.keys(data.sprites).length) {
-      return true;
-    }
-
-    // check if source images have been modified
-    for (var i = 0; i < this.sprites.length; i++) {
-      if (!data.sprites[this.sprites[i].name]
-        || this.sprites[i].lastModified !== data.sprites[this.sprites[i].name].lastModified
-        || this.sprites[i].lastModified > spritemapDate) {
-        return true;
+    lwip.open(imageFile, function(err, image) {
+      if (err) {
+        // console.log("*** problem opening sprite map image");
+        cb(true);
       }
-    }
 
-  } catch (err) {
-    // spritemap image does not already exist
-    return true;
+      var metadata = image.getMetadata();
+      if (!metadata) {
+        // console.log("*** no metadata found");
+        cb(true);
+      }
+
+      var data = JSON.parse(metadata, "utf8");
+
+      // check if number sprites is different
+      if (self.sprites.length !== Object.keys(data.sprites).length) {
+        // console.log("*** sprites added/deleted");
+        cb(true);
+      }
+
+      // check if layout has changed
+      if (data.layout.strategy !== self.layout.strategy
+        || data.layout.spacing !== self.layout.spacing
+        || data.layout.alignment !== self.layout.alignment) {
+        // console.log("*** layout has changed");
+        cb(true);
+      }
+
+      // check if source images have been modified
+      for (var i = 0; i < self.sprites.length; i++) {
+        if (!data.sprites[self.sprites[i].name]
+          || self.sprites[i].lastModified !== data.sprites[self.sprites[i].name].lastModified
+          || self.sprites[i].lastModified > spritemapDate) {
+          // console.log("*** sources modified");
+          cb(true);
+        }
+      }
+
+      cb(false);
+
+    });
+  } catch(err) {
+    // console.log("*** spritemap does not already exist");
+    cb(true);
   }
-
-  return false;
 };
 
-
-// create spritemap image, only it does not already exist or is out of date
+// create spritemap image, only if it does not already exist or is out of date
 SpriteMap.prototype.createSpriteMap = function(dir, cb) {
   var self = this;
+  this.needsUpdating(dir, function(result) {
+    if (result) {
 
-  if (this.needsUpdating(dir)) {
-    var pasteImages = function(index, curSpritemap) {
-      if (index < self.sprites.length) {
-        lwip.open(self.sprites[index].filename, function(err, image) {
-          if (err) {
-            throw err;
-          }
-          var originX = self.sprites[index].originX;
-          var originY = self.sprites[index].originY;
-          curSpritemap.paste(originX, originY, image, function(pasteErr, newSpritemap) {
-            if (pasteErr) {
-              throw err;
+      console.log("spritemap \'" + self.name + "\' needs updating");
+
+      var pasteImages = function(index, curSpritemap) {
+        if (index < self.sprites.length) {
+          lwip.open(self.sprites[index].filename, function(err, image) {
+            if (err) {
+              cb(err, null);
             }
-            pasteImages(index + 1, newSpritemap);
-          });
-        });
-      } else {
-        curSpritemap.writeFile(path.join(dir, self.name + ".png"), function(err) {
-          if (err) {
-            cb(err, null);
-          } else {
-            // TODO: change this after integrating with assets
-            self.saveData(path.join(dir, self.name + ".json"), function(saveErr, data) {
-              if (saveErr) {
-                throw saveErr;
+            var originX = self.sprites[index].originX;
+            var originY = self.sprites[index].originY;
+            curSpritemap.paste(originX, originY, image, function(pasteErr, newSpritemap) {
+              if (pasteErr) {
+                cb(err, null);
               }
-              cb(null, curSpritemap);
+              pasteImages(index + 1, newSpritemap);
             });
-          }
-        });
-      }
-    };
+          });
+        } else {
+          // save image with metadata
+          curSpritemap.setMetadata(self.getSpritesDataStr());
+          curSpritemap.writeFile(path.join(dir, self.name + ".png"), function(err) {
+            if (err) {
+              cb(err, null);
+            } else {
+              cb(null, curSpritemap);
+            }
+          });
+        }
+      };
 
-    lwip.create(self.width, self.height, function(err, spritemap) {
-      if (err) {
-        cb(err, null);
-      }
-      pasteImages(0, spritemap);
-    });
-  } else {
-    cb(null, null); // spritemap is already up to date
-  }
+      lwip.create(self.width, self.height, function(err, spritemap) {
+        if (err) {
+          cb(err, null);
+        }
+        pasteImages(0, spritemap);
+      });
+    } else {
+      cb(null, null); // spritemap is already up to date
+    }
+  });
+
 };
 
 module.exports = SpriteMap;
