@@ -5,6 +5,7 @@
  */
 
  // TODO: add documentation for registering custom layouts
+ // TOOO: refactor registering layouts thing
 
 "use strict";
 
@@ -328,110 +329,46 @@ function smartKorfLayout(options) {
         return spriteHeight <= this.rows[row].height;
       };
 
+      // check all cells below and to the right of the current cell
       this.fits = function(row, col, spriteWidth, spriteHeight) {
-        var fits = true;
+
         var startRow = row;
         var startCol = col;
         var endRow = startRow;
         var endCol = startCol;
 
-        // check all cells below and to the right of the current cell
-        // TODO: only check in the directions we need to
-        // increment endRow until totalHeight > spriteHeight
         // increment endCol until totalWidth > spriteWidth
-        // then check if covers any occupied cells
-
         var totalWidth = this.cols[endCol].width;
-        var totalHeight = this.rows[endRow].height;
-
-        while (totalWidth < spriteWidth) {
+        while (totalWidth < spriteWidth && endCol < this.cols.length - 1) {
           endCol++;
-          if (endCol >= this.cols.length) {
-            fits = false;
-            break;
-          }
-
           totalWidth += this.cols[endCol].width;
         }
 
-        if (!fits) {
+        if (totalWidth < spriteWidth) {
           return false;
         }
 
-        while (totalHeight < spriteHeight) {
+        // increment endRow until totalHeight > spriteHeight
+        var totalHeight = this.rows[endRow].height;
+        while (totalHeight < spriteHeight && endRow < this.rows.length - 1) {
           endRow++;
-          if (endRow >= this.rows.length) {
-            fits = false;
-            break;
-          }
-
           totalHeight += this.rows[endRow].height;
         }
 
-        if (!fits) {
+        if (totalHeight < spriteHeight) {
           return false;
         }
 
-        for (row = startRow; row <= endRow && fits; row++) {
-          for (col = startCol; col <= endCol && fits; col++) {
+        // check if covers any occupied cells
+        for (row = startRow; row <= endRow; row++) {
+          for (col = startCol; col <= endCol; col++) {
             if (this.occupied[row][col]) {
-              fits = false;
+              return false;
             }
           }
         }
 
-        if (fits) {
-          return [endRow, endCol];
-        }
-
-        return false;
-
-        // ===
-
-        // for (endRow = startRow; endRow < this.rows.length; endRow++) {
-        //   for (endCol = startCol; endCol < this.cols.length; endCol++) {
-        //     var fits = true;
-
-        //     // check if any of the cells are occupied
-        //     // TODO: if an occupied cell is found, stop checking cell combinations that include it
-        //     // waow N^4 good job
-        //     for (var x = startCol; x <= endCol && fits; x++) {
-        //       for (var y = startRow; y <= endRow && fits; y++) {
-        //         if (this.occupied[y][x]) {
-        //           fits = false;
-        //         }
-        //       }
-        //     }
-
-        //     // cells are all unoccupied, check if sprite actually fits
-        //     if (fits) {
-        //       var totalWidth = this.cols[endCol].position + this.cols[endCol].width - this.cols[startCol].position;
-        //       var totalHeight = this.rows[endRow].position + this.rows[endRow].height - this.rows[startRow].position;
-
-        //       if (spriteWidth > totalWidth || spriteHeight > totalHeight) {
-        //         fits = false;
-        //       }
-
-        //       if (fits) {
-        //         return [endRow, endCol];
-        //       }
-        //     }
-
-        //     // if (endRow < this.rows.length - 1) {
-        //     //   endRow++;
-        //     // } else if (endCol < this.cols.length - 1) {
-        //     //   endCol++;
-        //     // }
-        //   }
-        // }
-
-        // return false;
-
-        // if (this.occupied[row][col]) {
-        //   return false;
-        // }
-
-        // return this.fitsRow(row, spriteHeight) && this.fitsCol(col, spriteWidth);
+        return [endRow, endCol];
       };
 
       // TODO: check if surrounding cells allow sprite to fit
@@ -461,6 +398,8 @@ function smartKorfLayout(options) {
       };
     }
 
+    // TODO: optimize by sufficiently increasing height when decreasing width
+
     // sort sprites by height from biggest to smallest
     sprites.sort(function(sprite1, sprite2) {
       return sprite2.height - sprite1.height;
@@ -472,6 +411,8 @@ function smartKorfLayout(options) {
     var cellsHeight = sprites[0].height;
     var smallestAreaSoFar = Number.POSITIVE_INFINITY;
     var bestSoFar = [];
+    var bestWidth, bestHeight;
+    var i;
 
     var numTrials = 0;
 
@@ -485,7 +426,7 @@ function smartKorfLayout(options) {
       var cells = new Cells(cellsWidth, cellsHeight);
 
       var allSpritesAdded = true;
-      for (var i = 0; i < sprites.length; i++) {
+      for (i = 0; i < sprites.length; i++) {
         if (!cells.addSprite(sprites[i])) {
           allSpritesAdded = false;
           break;
@@ -496,15 +437,18 @@ function smartKorfLayout(options) {
         spritemapWidth = 0;
         spritemapHeight = 0;
 
-        for (var j = 0; j < sprites.length; j++) {
-          spritemapWidth = Math.max(spritemapWidth, sprites[j].originX + sprites[j].width);
-          spritemapHeight = Math.max(spritemapHeight, sprites[j].originY + sprites[j].height);
+        for (i = 0; i < sprites.length; i++) {
+          spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
+          spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
         }
 
         // TODO: use some sort of fit function
         if (spritemapWidth * spritemapHeight < smallestAreaSoFar) {
           smallestAreaSoFar = spritemapWidth * spritemapHeight;
-          bestSoFar = sprites.slice();
+          bestSoFar = JSON.parse(JSON.stringify(sprites));
+          bestWidth = spritemapWidth;
+          bestHeight = spritemapHeight;
+          console.log("found smaller enclosing rectangle: " + smallestAreaSoFar + " " + bestWidth + " " + bestHeight);
         }
       }
 
@@ -526,22 +470,23 @@ function smartKorfLayout(options) {
       //   done = true;
       // }
 
-      // if (numTrials >= 500) {
+      // if (numTrials >= 5000) {
       //   done = true;
       // }
 
-      if (numTrials >= 121) {
-        done = true;
-      }
+      // if (numTrials >= 121) {
+      //   done = true;
+      // }
 
       // done = true;
     }
 
-    // console.log(spritemapWidth, spritemapHeight);
-    // console.log(bestSoFar);
+    for (i = 0; i < sprites.length; i++) {
+      sprites[i].originX = bestSoFar[i].originX;
+      sprites[i].originY = bestSoFar[i].originY;
+    }
 
-    sprites = bestSoFar;
-    return [spritemapWidth, spritemapHeight];
+    return [bestWidth, bestHeight];
   };
 }
 
