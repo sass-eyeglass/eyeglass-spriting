@@ -265,6 +265,7 @@ function smartKorfLayout(options) {
       this.insertSprite = function(startRow, startCol, endRow, endCol, spriteWidth, spriteHeight) {
         // what if endRow === startRow or something ugh ok
         var row, col, remainingWidth, remainingHeight;
+        // console.log(startCol, startCol, endRow, endCol);
 
         if (startRow === endRow && startCol === endCol) {
           this.insertRow(startRow, spriteHeight);
@@ -328,7 +329,7 @@ function smartKorfLayout(options) {
       };
 
       this.fits = function(row, col, spriteWidth, spriteHeight) {
-        // var fits = true;
+        var fits = true;
         var startRow = row;
         var startCol = col;
         var endRow = startRow;
@@ -340,91 +341,91 @@ function smartKorfLayout(options) {
         // increment endCol until totalWidth > spriteWidth
         // then check if covers any occupied cells
 
-        // var totalWidth = this.cols[endCol].width;
-        // var totalHeight = this.rows[endRow].height;
+        var totalWidth = this.cols[endCol].width;
+        var totalHeight = this.rows[endRow].height;
 
-        // while (totalWidth < spriteWidth) {
-        //   endCol++;
-        //   if (endCol >= this.cols.length) {
-        //     fits = false;
-        //     break;
-        //   }
+        while (totalWidth < spriteWidth) {
+          endCol++;
+          if (endCol >= this.cols.length) {
+            fits = false;
+            break;
+          }
 
-        //   totalWidth += this.cols[endCol].width;
-        // }
+          totalWidth += this.cols[endCol].width;
+        }
 
-        // if (!fits) {
-        //   return false;
-        // }
+        if (!fits) {
+          return false;
+        }
 
-        // while (totalHeight < spriteHeight) {
-        //   endRow++;
-        //   if (endRow >= this.rows.length) {
-        //     fits = false;
-        //     break;
-        //   }
+        while (totalHeight < spriteHeight) {
+          endRow++;
+          if (endRow >= this.rows.length) {
+            fits = false;
+            break;
+          }
 
-        //   totalHeight += this.rows[endRow].height;
-        // }
+          totalHeight += this.rows[endRow].height;
+        }
 
-        // if (!fits) {
-        //   return false;
-        // }
+        if (!fits) {
+          return false;
+        }
 
-        // for (row = startRow; row < endRow && fits; row++) {
-        //   for (col = startCol; col < endCol && fits; col++) {
-        //     if (this.occupied[row][col]) {
-        //       fits = false;
-        //     }
-        //   }
-        // }
-
-        // if (fits) {
-        //   return [endRow, endCol];
-        // } else {
-        //   return null;
-        // }
-
-        // ===
-
-        for (endRow = startRow; endRow < this.rows.length; endRow++) {
-          for (endCol = startCol; endCol < this.cols.length; endCol++) {
-            var fits = true;
-
-            // check if any of the cells are occupied
-            // TODO: if an occupied cell is found, stop checking cell combinations that include it
-            // waow N^4 good job
-            for (var x = startCol; x <= endCol && fits; x++) {
-              for (var y = startRow; y <= endRow && fits; y++) {
-                if (this.occupied[y][x]) {
-                  fits = false;
-                }
-              }
+        for (row = startRow; row <= endRow && fits; row++) {
+          for (col = startCol; col <= endCol && fits; col++) {
+            if (this.occupied[row][col]) {
+              fits = false;
             }
-
-            // cells are all unoccupied, check if sprite actually fits
-            if (fits) {
-              var totalWidth = this.cols[endCol].position + this.cols[endCol].width - this.cols[startCol].position;
-              var totalHeight = this.rows[endRow].position + this.rows[endRow].height - this.rows[startRow].position;
-
-              if (spriteWidth > totalWidth || spriteHeight > totalHeight) {
-                fits = false;
-              }
-
-              if (fits) {
-                return [endRow, endCol];
-              }
-            }
-
-            // if (endRow < this.rows.length - 1) {
-            //   endRow++;
-            // } else if (endCol < this.cols.length - 1) {
-            //   endCol++;
-            // }
           }
         }
 
+        if (fits) {
+          return [endRow, endCol];
+        }
+
         return false;
+
+        // ===
+
+        // for (endRow = startRow; endRow < this.rows.length; endRow++) {
+        //   for (endCol = startCol; endCol < this.cols.length; endCol++) {
+        //     var fits = true;
+
+        //     // check if any of the cells are occupied
+        //     // TODO: if an occupied cell is found, stop checking cell combinations that include it
+        //     // waow N^4 good job
+        //     for (var x = startCol; x <= endCol && fits; x++) {
+        //       for (var y = startRow; y <= endRow && fits; y++) {
+        //         if (this.occupied[y][x]) {
+        //           fits = false;
+        //         }
+        //       }
+        //     }
+
+        //     // cells are all unoccupied, check if sprite actually fits
+        //     if (fits) {
+        //       var totalWidth = this.cols[endCol].position + this.cols[endCol].width - this.cols[startCol].position;
+        //       var totalHeight = this.rows[endRow].position + this.rows[endRow].height - this.rows[startRow].position;
+
+        //       if (spriteWidth > totalWidth || spriteHeight > totalHeight) {
+        //         fits = false;
+        //       }
+
+        //       if (fits) {
+        //         return [endRow, endCol];
+        //       }
+        //     }
+
+        //     // if (endRow < this.rows.length - 1) {
+        //     //   endRow++;
+        //     // } else if (endCol < this.cols.length - 1) {
+        //     //   endCol++;
+        //     // }
+        //   }
+        // }
+
+        // return false;
 
         // if (this.occupied[row][col]) {
         //   return false;
