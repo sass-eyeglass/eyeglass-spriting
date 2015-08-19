@@ -256,9 +256,10 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
 SpriteMap.prototype.createSpriteMap = function(dir, cb) {
   var self = this;
   this.needsUpdating(dir, function(result) {
+    result = true;
     if (result) {
 
-      console.log("spritemap \'" + self.name + "\' needs updating");
+      console.log("spritemap \'" + self.name + "\' is being regenerated");
 
       var pasteImages = function(index, curSpritemap) {
         if (index < self.sprites.length) {

@@ -9,6 +9,205 @@ var path = require("path");
 var testutils = require("./testutils");
 
 describe("spriting module", function () {
+
+  // it("smart packing korf 22", function (done) {
+  //   this.timeout(5000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkorf22-sprite-map', sprite-layout(smartKorf, " +
+  //               // "()), 'squarepacking/*');" +
+  //               "(spacing: 50px, alignment: bottom)), 'squarepacking22/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkorf22-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking22/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  it("smart packing korf", function (done) {
+    this.timeout(5000);
+
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$sp-sprite-map: sprite-map('spkorf-sprite-map', sprite-layout(smartKorf, " +
+                // "()), 'squarepacking/*');" +
+                "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+                ".test { foo: sprite-url($sp-sprite-map); }";
+    var expected = ".test {\n  foo: url(/spritemaps/spkorf-sprite-map.png); }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "squarepacking/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  // it("smart packing korf small 5", function (done) {
+  //   this.timeout(5000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkorf_small-sprite-map', sprite-layout(smartKorf, " +
+  //               // "()), 'squarepacking/*');" +
+  //               "(spacing: 50px, alignment: bottom)), 'squarepacking5_small/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkorf_small-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking5_small/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  // it("smart packing korf 5", function (done) {
+  //   this.timeout(5000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkorf5-sprite-map', sprite-layout(smartKorf, " +
+  //               // "()), 'squarepacking/*');" +
+  //               "(spacing: 50px, alignment: bottom)), 'squarepacking5/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkorf5-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking5/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  // it("smart packing korf 50", function (done) {
+  //   this.timeout(10000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkorf50-sprite-map', sprite-layout(smartKorf, " +
+  //               "()), 'squarepacking50/*');" +
+  //               // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkorf50-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking50/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  // it("smart packing korf 200", function (done) {
+  //   this.timeout(5000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkorf200-sprite-map', sprite-layout(smartKorf, " +
+  //               "()), 'squarepacking200/*');" +
+  //               // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkorf200-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking200/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  // it("smart packing kd", function (done) {
+  //   this.timeout(2000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkd-sprite-map', sprite-layout(smartKd, " +
+  //               "()), 'squarepacking/*');" +
+  //               // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkd-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  // it("smart packing kd 50", function (done) {
+  //   this.timeout(3000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkd50-sprite-map', sprite-layout(smartKd, " +
+  //               "()), 'squarepacking50/*');" +
+  //               // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkd50-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking50/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
+  // it("smart packing kd 200", function (done) {
+  //   this.timeout(5000);
+
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkd200-sprite-map', sprite-layout(smartKd, " +
+  //               "()), 'squarepacking200/*');" +
+  //               // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkd200-sprite-map.png); }\n";
+
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
+
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
+
+  //   eg.assets.addSource(rootDir, {pattern: "squarepacking200/**/*"});
+
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
+
   // it("gets sprite map data using app assets", function (done) {
   //   var input = "@import 'assets'; @import 'spriting'; " +
   //               ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +

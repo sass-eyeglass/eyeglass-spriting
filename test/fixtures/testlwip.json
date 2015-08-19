@@ -1,0 +1,27 @@
+{
+  "sprites": {
+    "lotsofimages/img1.png": {
+      "name": "lotsofimages/img1.png",
+      "originX": 0,
+      "originY": 35,
+      "lastModified": 1436292290000
+    },
+    "lotsofimages/img10.png": {
+      "name": "lotsofimages/img10.png",
+      "originX": 30,
+      "originY": 30,
+      "lastModified": 1436292290000
+    },
+    "lotsofimages/img100.png": {
+      "name": "lotsofimages/img100.png",
+      "originX": 63,
+      "originY": 46,
+      "lastModified": 1436292290000
+    }
+  },
+  "layout": {
+    "strategy": "horizontal",
+    "spacing": 5,
+    "alignment": "bottom"
+  }
+}

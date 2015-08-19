@@ -4,6 +4,8 @@
  * This file will be refactored.
  */
 
+ // TODO: add documentation for registering custom layouts
+
 "use strict";
 
 var sass = require("node-sass");
@@ -62,7 +64,6 @@ function horizontalLayout(options) {
   var alignment = options.alignment || "top";
 
   this.pack = function(sprites) {
-    // console.log("*** spacing:\n" + spacing);
     var width = sprites[0].width;
     var height = sprites[0].height;
     sprites[0].originX = 0;
@@ -112,6 +113,437 @@ function diagonalLayout(options) {
   };
 }
 
+var smartKdValidate = function(options) {
+  return true;
+};
+
+function smartKdLayout(options) {
+
+  this.pack = function(sprites) {
+    function Node(x1, y1, x2, y2) {
+      this.left = null;
+      this.right = null;
+
+      this.x1 = x1;
+      this.y1 = y1;
+      this.x2 = x2;
+      this.y2 = y2;
+
+      this.occupied = false;
+    }
+
+    Node.prototype.insert = function(sprite, splitVertically, depth) {
+      // console.log("(" + this.x1 + ", " + this.y1 + ") | (" + this.x2 + ", " + this.y2 + ")");
+
+      // not a leaf node
+      if (this.left && this.right) {
+        var newNode = this.left.insert(sprite, !splitVertically, depth + 1);
+        if (newNode) {
+          return newNode;
+        } else {
+          return this.right.insert(sprite, !splitVertically, depth + 1);
+        }
+      } else { // is a leaf node
+        // occupied node
+        if (this.occupied) {
+          return null;
+        }
+
+        // node is too small
+        var width = this.x2 - this.x1;
+        var height = this.y2 - this.y1;
+        if (sprite.width > width || sprite.height > height) {
+          return null;
+        }
+
+        // node is just right
+        if (sprite.width === width && sprite.height === height) {
+          // console.log("inserting in this node: ", this);
+          sprite.originX = this.x1;
+          sprite.originY = this.y1;
+          this.occupied = true;
+          return this;
+        }
+
+        if (splitVertically) {
+          // console.log("split node vertically");
+          this.left = new Node(this.x1, this.y1, this.x1 + sprite.width, this.y2);
+          this.right = new Node(this.x1 + sprite.width, this.y1, this.x2, this.y2);
+        } else {
+          // console.log("split node horizontally");
+          this.left = new Node(this.x1, this.y1, this.x2, this.y1 + sprite.height);
+          this.right = new Node(this.x1, this.y1 + sprite.height, this.x2, this.y2);
+        }
+        // console.log(this.left);
+        return this.left.insert(sprite, !splitVertically, depth + 1);
+      }
+    };
+
+    // shuffle sprites
+    for (var j, x, y = sprites.length; y; j = Math.floor(Math.random() * y),
+                                          x = sprites[--y],
+                                          sprites[y] = sprites[j],
+                                          sprites[j] = x) {
+      // meep
+    }
+
+    var firstNode = new Node(0, 0, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+
+    var spritemapWidth = 0;
+    var spritemapHeight = 0;
+
+    for (var i = 0; i < sprites.length; i++) {
+      // console.log("inserting sprite of dimensions: " + sprites[i].width
+      //           + " x " + sprites[i].height);
+      firstNode.insert(sprites[i], false, 0);
+      if (sprites[i].originX + sprites[i].width > spritemapWidth) {
+        spritemapWidth = sprites[i].originX + sprites[i].width;
+      }
+
+      if (sprites[i].originY + sprites[i].height > spritemapHeight) {
+        spritemapHeight = sprites[i].originY + sprites[i].height;
+      }
+    }
+
+    // console.log(sprites);
+    return [spritemapWidth, spritemapHeight];
+  };
+}
+
+var smartKorfValidate = function(options) {
+  return true;
+};
+
+function smartKorfLayout(options) {
+    this.pack = function(sprites) {
+
+    function Cells(width, height) {
+      this.rows = [{position: 0, height: height}];
+      this.cols = [{position: 0, width: width}];
+      this.occupied = [[false]];
+
+      // TODO: what if height = row.height?
+      this.insertRow = function(index, newHeight) {
+        if (newHeight < this.rows[index].height) {
+          // make new row and insert
+          var newRow = {
+            position: this.rows[index].position + newHeight,
+            height: this.rows[index].height - newHeight
+          };
+          this.rows.splice(index + 1, 0, newRow);
+
+          this.rows[index].height = newHeight;
+
+          // set occupied
+          var newOccupied = this.occupied[index].slice();
+          this.occupied.splice(index + 1, 0, newOccupied);
+        }
+      };
+
+      // TODO: what if width = col.width?
+      this.insertCol = function(index, newWidth) {
+        if (newWidth < this.cols[index].width) {
+          // make new col and insert
+          var newCol = {
+            position: this.cols[index].position + newWidth,
+            width: this.cols[index].width - newWidth
+          };
+          this.cols.splice(index + 1, 0, newCol);
+
+          this.cols[index].width = newWidth;
+
+          // set occupied
+          for (var row = 0; row < this.rows.length; row++) {
+            this.occupied[row].splice(index + 1, 0, this.occupied[row][index]);
+          }
+        }
+      };
+
+      // let's assume the sprite fits and doesn't cover any occupied cells
+      // TODO: make this a private function?
+      // TODO: refactor this pls
+      this.insertSprite = function(startRow, startCol, endRow, endCol, spriteWidth, spriteHeight) {
+        // what if endRow === startRow or something ugh ok
+        var row, col, remainingWidth, remainingHeight;
+
+        if (startRow === endRow && startCol === endCol) {
+          this.insertRow(startRow, spriteHeight);
+          this.insertCol(startCol, spriteWidth);
+          this.setOccupied(startRow, startCol, true);
+        } else if (startRow === endRow) {
+          for (col = startCol; col < endCol; col++) {
+            this.setOccupied(startRow, col, true);
+          }
+
+          remainingWidth = spriteWidth - (this.cols[endCol - 1].position
+                                      + this.cols[endCol - 1].width - this.cols[startCol].position);
+          this.insertCol(endCol, remainingWidth);
+          this.setOccupied(startRow, endCol, true);
+        } else if (startCol === endCol) {
+          for (row = startRow; row < endRow; row++) {
+            this.setOccupied(row, startCol, true);
+          }
+
+          remainingHeight = spriteHeight - (this.rows[endRow - 1].position
+                                      + this.rows[endRow - 1].height - this.rows[startRow].position);
+          this.insertRow(endRow, remainingHeight);
+          this.setOccupied(endRow, startCol, true);
+        } else {
+          for (row = startRow; row < endRow; row++) {
+            for (col = startCol; col < endCol; col++) {
+              this.setOccupied(row, col, true);
+            }
+          }
+
+          remainingWidth = spriteWidth - (this.cols[endCol - 1].position
+                                      + this.cols[endCol - 1].width - this.cols[startCol].position);
+          remainingHeight = spriteHeight - (this.rows[endRow - 1].position
+                                      + this.rows[endRow - 1].height - this.rows[startRow].position);
+
+          this.insertRow(endRow, remainingHeight);
+          this.insertCol(endCol, remainingWidth);
+
+          // set occupieds
+          for (row = startRow; row <= endRow; row++) {
+            this.setOccupied(row, endCol, true);
+          }
+
+          for (col = startCol; col <= endCol; col++) {
+            this.setOccupied(endRow, col, true);
+          }
+        }
+        this.setOccupied(endRow, endCol, true);
+      };
+
+      this.setOccupied = function(row, col, occupied) {
+        this.occupied[row][col] = occupied;
+      };
+
+      this.fitsCol = function(col, spriteWidth) {
+        return spriteWidth <= this.cols[col].width;
+      };
+
+      this.fitsRow = function(row, spriteHeight) {
+        return spriteHeight <= this.rows[row].height;
+      };
+
+      this.fits = function(row, col, spriteWidth, spriteHeight) {
+        // var fits = true;
+        var startRow = row;
+        var startCol = col;
+        var endRow = startRow;
+        var endCol = startCol;
+
+        // check all cells below and to the right of the current cell
+        // TODO: only check in the directions we need to
+        // increment endRow until totalHeight > spriteHeight
+        // increment endCol until totalWidth > spriteWidth
+        // then check if covers any occupied cells
+
+        // var totalWidth = this.cols[endCol].width;
+        // var totalHeight = this.rows[endRow].height;
+
+        // while (totalWidth < spriteWidth) {
+        //   endCol++;
+        //   if (endCol >= this.cols.length) {
+        //     fits = false;
+        //     break;
+        //   }
+
+        //   totalWidth += this.cols[endCol].width;
+        // }
+
+        // if (!fits) {
+        //   return false;
+        // }
+
+        // while (totalHeight < spriteHeight) {
+        //   endRow++;
+        //   if (endRow >= this.rows.length) {
+        //     fits = false;
+        //     break;
+        //   }
+
+        //   totalHeight += this.rows[endRow].height;
+        // }
+
+        // if (!fits) {
+        //   return false;
+        // }
+
+        // for (row = startRow; row < endRow && fits; row++) {
+        //   for (col = startCol; col < endCol && fits; col++) {
+        //     if (this.occupied[row][col]) {
+        //       fits = false;
+        //     }
+        //   }
+        // }
+
+        // if (fits) {
+        //   return [endRow, endCol];
+        // } else {
+        //   return null;
+        // }
+
+        // ===
+
+        for (endRow = startRow; endRow < this.rows.length; endRow++) {
+          for (endCol = startCol; endCol < this.cols.length; endCol++) {
+            var fits = true;
+
+            // check if any of the cells are occupied
+            // TODO: if an occupied cell is found, stop checking cell combinations that include it
+            // waow N^4 good job
+            for (var x = startCol; x <= endCol && fits; x++) {
+              for (var y = startRow; y <= endRow && fits; y++) {
+                if (this.occupied[y][x]) {
+                  fits = false;
+                }
+              }
+            }
+
+            // cells are all unoccupied, check if sprite actually fits
+            if (fits) {
+              var totalWidth = this.cols[endCol].position + this.cols[endCol].width - this.cols[startCol].position;
+              var totalHeight = this.rows[endRow].position + this.rows[endRow].height - this.rows[startRow].position;
+
+              if (spriteWidth > totalWidth || spriteHeight > totalHeight) {
+                fits = false;
+              }
+
+              if (fits) {
+                return [endRow, endCol];
+              }
+            }
+
+            // if (endRow < this.rows.length - 1) {
+            //   endRow++;
+            // } else if (endCol < this.cols.length - 1) {
+            //   endCol++;
+            // }
+          }
+        }
+
+        return false;
+
+        // if (this.occupied[row][col]) {
+        //   return false;
+        // }
+
+        // return this.fitsRow(row, spriteHeight) && this.fitsCol(col, spriteWidth);
+      };
+
+      // TODO: check if surrounding cells allow sprite to fit
+      this.addSprite = function(sprite) {
+        // check from left to right; put sprite in leftmost uppermost position possible
+        for (var col = 0; col < this.cols.length; col++) {
+          for (var row = 0; row < this.rows.length; row++) {
+            var endCell = this.fits(row, col, sprite.width, sprite.height);
+            if (endCell) {
+              var endRow = endCell[0];
+              var endCol = endCell[1];
+
+              this.insertSprite(row, col, endRow, endCol, sprite.width, sprite.height);
+
+              // console.log("adding sprite at " + row + ", " + col);
+              // this.insertRow(row, sprite.height);
+              // this.insertCol(col, sprite.width);
+              // this.setOccupied(row, col, true);
+
+              sprite.originX = this.cols[col].position;
+              sprite.originY = this.rows[row].position;
+              return true;
+            }
+          }
+        }
+        return false;
+      };
+    }
+
+    // sort sprites by height from biggest to smallest
+    sprites.sort(function(sprite1, sprite2) {
+      return sprite2.height - sprite1.height;
+    });
+
+    var spritemapWidth = 0;
+    var spritemapHeight = 0;
+    var cellsWidth = Number.POSITIVE_INFINITY;
+    var cellsHeight = sprites[0].height;
+    var smallestAreaSoFar = Number.POSITIVE_INFINITY;
+    var bestSoFar = [];
+
+    var numTrials = 0;
+
+    var done = false;
+    while (!done) {
+      // console.log(cellsWidth + ", " + cellsHeight);
+      numTrials++;
+      // console.log("trial #: " + numTrials + "| dimensions: ("
+      //           + cellsWidth + " x " + cellsHeight + ")");
+
+      var cells = new Cells(cellsWidth, cellsHeight);
+
+      var allSpritesAdded = true;
+      for (var i = 0; i < sprites.length; i++) {
+        if (!cells.addSprite(sprites[i])) {
+          allSpritesAdded = false;
+          break;
+        }
+      }
+
+      if (allSpritesAdded) {
+        spritemapWidth = 0;
+        spritemapHeight = 0;
+
+        for (var j = 0; j < sprites.length; j++) {
+          spritemapWidth = Math.max(spritemapWidth, sprites[j].originX + sprites[j].width);
+          spritemapHeight = Math.max(spritemapHeight, sprites[j].originY + sprites[j].height);
+        }
+
+        // TODO: use some sort of fit function
+        if (spritemapWidth * spritemapHeight < smallestAreaSoFar) {
+          smallestAreaSoFar = spritemapWidth * spritemapHeight;
+          bestSoFar = sprites.slice();
+        }
+      }
+
+      if (cellsWidth === Number.POSITIVE_INFINITY) {
+        cellsWidth = spritemapWidth - 1;
+      } else {
+        cellsWidth--;
+      }
+
+      cellsHeight++;
+
+      if (cellsWidth === 0) {
+        done = true;
+      }
+
+      // var rand = Math.floor(Math.random() * 1000);
+      // if (numTrials === rand) {
+      //   console.log("*** " + rand + " ***");
+      //   done = true;
+      // }
+
+      // if (numTrials >= 500) {
+      //   done = true;
+      // }
+
+      if (numTrials >= 121) {
+        done = true;
+      }
+
+      // done = true;
+    }
+
+    // console.log(spritemapWidth, spritemapHeight);
+    // console.log(bestSoFar);
+
+    sprites = bestSoFar;
+    return [spritemapWidth, spritemapHeight];
+  };
+}
+
 var registeredLayouts = {
   "vertical": {
     validate: verticalValidate,
@@ -124,6 +556,14 @@ var registeredLayouts = {
   "diagonal": {
     validate: diagonalValidate,
     constructor: diagonalLayout
+  },
+  "smartKd": {
+    validate: smartKdValidate,
+    constructor: smartKdLayout
+  },
+  "smartKorf": {
+    validate: smartKorfValidate,
+    constructor: smartKorfLayout
   }
 };
 
