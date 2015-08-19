@@ -273,6 +273,8 @@ function smartKorfLayout(options) {
           this.insertCol(startCol, spriteWidth);
           this.setOccupied(startRow, startCol, true);
         } else if (startRow === endRow) {
+          this.insertRow(startRow, spriteHeight);
+
           for (col = startCol; col < endCol; col++) {
             this.setOccupied(startRow, col, true);
           }
@@ -282,6 +284,8 @@ function smartKorfLayout(options) {
           this.insertCol(endCol, remainingWidth);
           this.setOccupied(startRow, endCol, true);
         } else if (startCol === endCol) {
+          this.insertCol(startCol, spriteWidth);
+
           for (row = startRow; row < endRow; row++) {
             this.setOccupied(row, startCol, true);
           }
@@ -331,7 +335,6 @@ function smartKorfLayout(options) {
 
       // check all cells below and to the right of the current cell
       this.fits = function(row, col, spriteWidth, spriteHeight) {
-
         var startRow = row;
         var startCol = col;
         var endRow = startRow;
@@ -371,7 +374,6 @@ function smartKorfLayout(options) {
         return [endRow, endCol];
       };
 
-      // TODO: check if surrounding cells allow sprite to fit
       this.addSprite = function(sprite) {
         // check from left to right; put sprite in leftmost uppermost position possible
         for (var col = 0; col < this.cols.length; col++) {
@@ -415,6 +417,9 @@ function smartKorfLayout(options) {
     var i;
 
     var numTrials = 0;
+    var numSuccessful = 0;
+    // var maxNumSuccessful = 100;
+    var maxNumSuccessful = Number.POSITIVE_INFINITY;
 
     var done = false;
     while (!done) {
@@ -434,6 +439,7 @@ function smartKorfLayout(options) {
       }
 
       if (allSpritesAdded) {
+        numSuccessful++;
         spritemapWidth = 0;
         spritemapHeight = 0;
 
@@ -470,6 +476,10 @@ function smartKorfLayout(options) {
       //   done = true;
       // }
 
+      // if (numTrials >= 500) {
+      //   done = true;
+      // }
+
       // if (numTrials >= 5000) {
       //   done = true;
       // }
@@ -478,8 +488,14 @@ function smartKorfLayout(options) {
       //   done = true;
       // }
 
+      if (numSuccessful >= maxNumSuccessful) {
+        done = true;
+      }
+
       // done = true;
     }
+
+    console.log(numSuccessful + " successful rectangles");
 
     for (i = 0; i < sprites.length; i++) {
       sprites[i].originX = bestSoFar[i].originX;
