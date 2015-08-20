@@ -407,102 +407,271 @@ function smartKorfLayout(options) {
       return sprite2.height - sprite1.height;
     });
 
-    var spritemapWidth = 0;
-    var spritemapHeight = 0;
-    var cellsWidth = Number.POSITIVE_INFINITY;
-    var cellsHeight = sprites[0].height;
-    var smallestAreaSoFar = Number.POSITIVE_INFINITY;
-    var bestSoFar = [];
-    var bestWidth, bestHeight;
+    var minArea = 0;
+    var maxHeight = 0;
+    for (var x = 0; x < sprites.length; x++) {
+      minArea += sprites[x].width * sprites[x].height;
+      maxHeight += sprites[x].height;
+    }
+
     var i;
 
-    var numTrials = 0;
-    var numSuccessful = 0;
-    // var maxNumSuccessful = 100;
-    var maxNumSuccessful = Number.POSITIVE_INFINITY;
+    // === simulated annealing ===
 
-    var done = false;
-    while (!done) {
-      // console.log(cellsWidth + ", " + cellsHeight);
-      numTrials++;
-      // console.log("trial #: " + numTrials + "| dimensions: ("
-      //           + cellsWidth + " x " + cellsHeight + ")");
-
-      var cells = new Cells(cellsWidth, cellsHeight);
-
-      var allSpritesAdded = true;
-      for (i = 0; i < sprites.length; i++) {
-        if (!cells.addSprite(sprites[i])) {
-          allSpritesAdded = false;
-          break;
-        }
+    var getAcceptanceProbability = function(area, newArea, temp) {
+      if (newArea < area) {
+        return 1.0;
       }
 
-      if (allSpritesAdded) {
-        numSuccessful++;
-        spritemapWidth = 0;
-        spritemapHeight = 0;
+      var delta = (area - newArea) / minArea;
+
+      // console.log(delta / temp);
+
+      return Math.exp(delta * 1000 / temp);
+    };
+
+    var getNeighbouringSolutionNext = function(solution) {
+      var width = solution.width - 1;
+      var height = solution.height + 1;
+
+      var neighbourFound = false;
+
+      while (!neighbourFound) {
+        var cells = new Cells(width, height);
+
+        var allSpritesAdded = true;
 
         for (i = 0; i < sprites.length; i++) {
-          spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
-          spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
+          if (!cells.addSprite(sprites[i])) {
+            allSpritesAdded = false;
+            break;
+          }
         }
 
-        // TODO: use some sort of fit function
-        if (spritemapWidth * spritemapHeight < smallestAreaSoFar) {
-          smallestAreaSoFar = spritemapWidth * spritemapHeight;
-          bestSoFar = JSON.parse(JSON.stringify(sprites));
-          bestWidth = spritemapWidth;
-          bestHeight = spritemapHeight;
-          console.log("found smaller enclosing rectangle: " + smallestAreaSoFar + " " + bestWidth + " " + bestHeight);
+        if (allSpritesAdded) {
+          neighbourFound = true;
+          var spritemapWidth = 0;
+          var spritemapHeight = 0;
+
+          for (i = 0; i < sprites.length; i++) {
+            spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
+            spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
+          }
+
+          return {
+            width: spritemapWidth,
+            height: spritemapHeight,
+            sprites: JSON.parse(JSON.stringify(sprites))
+          };
         }
+
+        width--;
+        height++;
       }
+    };
 
-      if (cellsWidth === Number.POSITIVE_INFINITY) {
-        cellsWidth = spritemapWidth - 1;
-      } else {
-        cellsWidth--;
-      }
+    var getNeighbouringSolutionRandom = function(solution) {
 
-      cellsHeight++;
+      var width = Number.POSITIVE_INFINITY;
+      var height = Math.ceil(Math.random() * maxHeight);
+      // var wider = solution.width < solution.height;
+      // // var wider = Math.random() < 0.5;
+      // // wider = false;
+      // var width, height, delta;
 
-      if (cellsWidth === 0) {
-        done = true;
-      }
-
-      // var rand = Math.floor(Math.random() * 1000);
-      // if (numTrials === rand) {
-      //   console.log("*** " + rand + " ***");
-      //   done = true;
+      // if (wider) {
+      //   delta = Math.floor(Math.random() * solution.height);
+      //   width = solution.width + delta;
+      //   height = solution.height - delta;
+      // } else {
+      //   delta = Math.floor(Math.random() * solution.width);
+      //   width = solution.width - delta;
+      //   height = solution.height + delta;
       // }
 
-      // if (numTrials >= 500) {
-      //   done = true;
-      // }
+      // console.log(width, height);
 
-      // if (numTrials >= 5000) {
-      //   done = true;
-      // }
+      // var width = Math.ceil(Math.random() * Math.sqrt(minArea) * 1.1);
+      // var height = Math.ceil(minArea / width * 1.1);
 
-      // if (numTrials >= 121) {
-      //   done = true;
-      // }
+      // console.log(minArea);
+      // console.log(width, height);
+      var neighbourFound = false;
 
-      if (numSuccessful >= maxNumSuccessful) {
-        done = true;
+      while (!neighbourFound) {
+        // console.log(height);
+        var cells = new Cells(width, height);
+
+        var allSpritesAdded = true;
+
+        for (i = 0; i < sprites.length; i++) {
+          if (!cells.addSprite(sprites[i])) {
+            allSpritesAdded = false;
+            break;
+          }
+        }
+
+        if (allSpritesAdded) {
+          neighbourFound = true;
+          var spritemapWidth = 0;
+          var spritemapHeight = 0;
+
+          for (i = 0; i < sprites.length; i++) {
+            spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
+            spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
+          }
+
+          return {
+            width: spritemapWidth,
+            height: spritemapHeight,
+            sprites: JSON.parse(JSON.stringify(sprites))
+          };
+        }
+
+        height = Math.ceil(Math.random() * maxHeight);
+      }
+    };
+
+    var runSimulatedAnnealing = function(temp, coolingRate, neighbourSolutionFn) {
+      console.log("cooling rate: " + coolingRate);
+      var minTemp = 1;
+      var spritemapWidth = 0;
+      var spritemapHeight = 0;
+
+      // get initial solution
+      // var cells = new Cells(Number.POSITIVE_INFINITY, sprites[0].height);
+      var cells = new Cells(Number.POSITIVE_INFINITY, Math.ceil(Math.random() * maxHeight));
+      for (i = 0; i < sprites.length; i++) {
+        cells.addSprite(sprites[i]);
+        spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
+        spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
+      }
+      var currentSolution = {
+        width: spritemapWidth,
+        height: spritemapHeight,
+        sprites: JSON.parse(JSON.stringify(sprites))
+      };
+
+      var bestSolution = currentSolution;
+
+      while (temp > minTemp) {
+        // console.log(temp);
+        // var newSolution = getNeighbouringSolutionNext(currentSolution);
+        var newSolution = neighbourSolutionFn(currentSolution);
+        var currentArea = currentSolution.width * currentSolution.height;
+        var newArea = newSolution.width * newSolution.height;
+
+        // console.log(getAcceptanceProbability(currentArea, newArea, temp));
+        var p = getAcceptanceProbability(currentArea, newArea, temp);
+        // console.log(p);
+        if (p > Math.random()) {
+          currentSolution = JSON.parse(JSON.stringify(newSolution));
+        }
+
+        if (currentSolution.width * currentSolution.height < bestSolution.width * bestSolution.height) {
+          bestSolution = JSON.parse(JSON.stringify(currentSolution));
+        }
+
+        temp *= 1 - coolingRate;
       }
 
-      // done = true;
-    }
+      for (i = 0; i < sprites.length; i++) {
+        sprites[i].originX = bestSolution.sprites[i].originX;
+        sprites[i].originY = bestSolution.sprites[i].originY;
+      }
 
-    console.log(numSuccessful + " successful rectangles");
+      var area = bestSolution.width * bestSolution.height;
 
-    for (i = 0; i < sprites.length; i++) {
-      sprites[i].originX = bestSoFar[i].originX;
-      sprites[i].originY = bestSoFar[i].originY;
-    }
+      console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
+      return [bestSolution.width, bestSolution.height];
+    };
 
-    return [bestWidth, bestHeight];
+    var temp = 10000;
+    var coolingRate = Math.min(0.9999, sprites.length / 400);
+
+    return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandom);
+
+
+    // === brute force ===
+
+    // var spritemapWidth = 0;
+    // var spritemapHeight = 0;
+    // var cellsWidth = Number.POSITIVE_INFINITY;
+    // var cellsHeight = sprites[0].height;
+    // var smallestAreaSoFar = Number.POSITIVE_INFINITY;
+    // var bestSoFar = [];
+    // var bestWidth, bestHeight;
+    // var i;
+
+    // var numTrials = 0;
+    // var numSuccessful = 0;
+    // // var maxNumSuccessful = 100;
+    // var maxNumSuccessful = Number.POSITIVE_INFINITY;
+
+    // var done = false;
+    // while (!done) {
+    //   numTrials++;
+
+    //   var cells = new Cells(cellsWidth, cellsHeight);
+
+    //   var allSpritesAdded = true;
+    //   for (i = 0; i < sprites.length; i++) {
+    //     if (!cells.addSprite(sprites[i])) {
+    //       allSpritesAdded = false;
+    //       break;
+    //     }
+    //   }
+
+    //   if (allSpritesAdded) {
+    //     numSuccessful++;
+    //     spritemapWidth = 0;
+    //     spritemapHeight = 0;
+
+    //     for (i = 0; i < sprites.length; i++) {
+    //       spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
+    //       spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
+    //     }
+    //     // console.log(cellsWidth * cellsHeight);
+    //     // console.log(spritemapWidth * spritemapHeight);
+    //     // TODO: use some sort of fit function
+    //     if (spritemapWidth * spritemapHeight < smallestAreaSoFar) {
+    //       smallestAreaSoFar = spritemapWidth * spritemapHeight;
+    //       bestSoFar = JSON.parse(JSON.stringify(sprites));
+    //       bestWidth = spritemapWidth;
+    //       bestHeight = spritemapHeight;
+    //       // console.log("found smaller enclosing rectangle: " + smallestAreaSoFar + " " + bestWidth + " " + bestHeight);
+    //     }
+    //   }
+
+    //   if (cellsWidth === Number.POSITIVE_INFINITY) {
+    //     cellsWidth = spritemapWidth - 1;
+    //   } else {
+    //     cellsWidth--;
+    //   }
+
+    //   cellsHeight++;
+
+    //   if (cellsWidth === 0) {
+    //     done = true;
+    //   }
+
+    //   if (numSuccessful >= maxNumSuccessful) {
+    //     done = true;
+    //   }
+    // }
+
+    // console.log(numSuccessful + " successful rectangles");
+    // console.log(numSuccessful * 100 / numTrials + "% successful");
+
+    // var area = bestWidth * bestHeight;
+    // console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
+
+    // for (i = 0; i < sprites.length; i++) {
+    //   sprites[i].originX = bestSoFar[i].originX;
+    //   sprites[i].originY = bestSoFar[i].originY;
+    // }
+
+    // return [bestWidth, bestHeight];
   };
 }
 
