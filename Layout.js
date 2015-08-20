@@ -217,6 +217,27 @@ var smartKorfValidate = function(options) {
 
 function smartKorfLayout(options) {
     this.pack = function(sprites) {
+      var i;
+      var sameHeights = true;
+      var sameWidths = true;
+
+      for (i = 0; i < sprites.length && (sameHeights || sameWidths); i++) {
+        if (i > 0 && sprites[i].height !== sprites[i - 1].height) {
+          sameHeights = false;
+        }
+
+        if (i > 0 && sprites[i].width !== sprites[i - 1].width) {
+          sameWidths = false;
+        }
+      }
+
+      if (sameHeights) {
+        console.log("sprites all have same height - pack horizontally");
+        return new horizontalLayout({}).pack(sprites);
+      } else if (sameWidths) {
+        console.log("sprites all have same widths - pack vertically");
+        return new verticalLayout({}).pack(sprites);
+      }
 
     function Cells(width, height) {
       this.rows = [{position: 0, height: height}];
@@ -414,7 +435,7 @@ function smartKorfLayout(options) {
       maxHeight += sprites[x].height;
     }
 
-    var i;
+    // var i;
 
     // === simulated annealing ===
 
@@ -532,6 +553,10 @@ function smartKorfLayout(options) {
       }
     };
 
+    var getNeighbouringSolutionReorder = function(solution) {
+
+    };
+
     var runSimulatedAnnealing = function(temp, coolingRate, neighbourSolutionFn) {
       console.log("cooling rate: " + coolingRate);
       var minTemp = 1;
@@ -590,7 +615,6 @@ function smartKorfLayout(options) {
     var coolingRate = Math.min(0.9999, sprites.length / 400);
 
     return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandom);
-
 
     // === brute force ===
 
