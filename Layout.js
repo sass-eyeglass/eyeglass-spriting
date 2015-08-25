@@ -417,20 +417,42 @@ function smartKorfLayout(options) {
       return new verticalLayout({}).pack(sprites);
     }
 
+    var minHeight = 0;
     var minArea = 0;
-    var maxHeight = 0;
+    var totalHeight = 0;
     for (i = 0; i < sprites.length; i++) {
+      if (sprites[i].height > minHeight) {
+        minHeight = sprites[i].height;
+      }
       minArea += sprites[i].width * sprites[i].height;
-      maxHeight += sprites[i].height;
+      totalHeight += sprites[i].height;
+      sprites[i].position = i;
     }
+
+    var compareByWidth = function(sprite1, sprite2) {
+      return sprite2.width - sprite1.width;
+    };
 
     var compareByHeight = function(sprite1, sprite2) {
       return sprite2.height - sprite1.height;
     };
 
-    // sort sprites by height
-    sprites.sort(compareByHeight);
-    var minHeight = sprites[0].height;
+    var compareByHeightStable = function(sprite1, sprite2) {
+      if (sprite2.height === sprite1.height) {
+        return sprite2.position - sprite1.position;
+      } else {
+        return sprite2.height - sprite1.height;
+      }
+    };
+
+    var compareByArea = function(sprite1, sprite2) {
+      return (sprite2.width * sprite2.height) - (sprite1.width * sprite1.height);
+    };
+
+    // sprites.sort(compareByArea);
+    sprites.sort(compareByWidth);
+    // sprites.sort(compareByHeightStable);
+    // sprites.sort(compareByHeight);
 
     var getByValue = function(thing) {
       return JSON.parse(JSON.stringify(thing));
@@ -487,7 +509,7 @@ function smartKorfLayout(options) {
 
     var getNeighbouringSolutionRandom = function(solution) {
       var width = Number.POSITIVE_INFINITY;
-      var height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+      var height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
 
       var neighbourFound = false;
 
@@ -522,18 +544,18 @@ function smartKorfLayout(options) {
           return newSolution;
         }
 
-        height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+        height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
       }
     };
 
     var getNeighbouringSolutionRandomish = function(solution) {
       var width = Number.POSITIVE_INFINITY;
-      var height = solution.height - Math.ceil(maxHeight / sprites.length);
+      var height = solution.height - Math.ceil(totalHeight / sprites.length);
       var pickRandom = false;
 
       if (solution.height === minHeight || Math.random() > 0.5) {
         pickRandom = true;
-        height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+        height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
       }
 
       var neighbourFound = false;
@@ -569,10 +591,10 @@ function smartKorfLayout(options) {
           return newSolution;
         }
 
-        height -= Math.ceil(maxHeight / sprites.length);
+        height -= Math.ceil(totalHeight / sprites.length);
 
         if (height < minHeight || pickRandom) {
-          height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+          height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
         }
       }
     };
@@ -584,18 +606,19 @@ function smartKorfLayout(options) {
       var pickRandom = false;
       var width = Number.POSITIVE_INFINITY;
       var height;
+      var maxSwaps = 5;
 
       if (Math.random() > 0.5) {
         pickRandom = true;
         reorderedSprites.sort(compareByHeight);
-        height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+        height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
       } else {
+        // randomly swap two sprites
         index1 = Math.floor(Math.random() * reorderedSprites.length);
         index2 = Math.floor(Math.random() * reorderedSprites.length);
         while (index2 === index1) {
           index2 = Math.floor(Math.random() * reorderedSprites.length);
         }
-        // swap random two sprites
         temp = reorderedSprites[index1];
         reorderedSprites[index1] = getByValue(reorderedSprites[index2]);
         reorderedSprites[index2] = getByValue(temp);
@@ -603,14 +626,10 @@ function smartKorfLayout(options) {
       }
 
       var neighbourFound = false;
-      var numTrials = 0;
-
-      var sortByHeight = function(sprite1, sprite2) {
-        return sprite2.height - sprite1.height;
-      };
+      var numSwaps = 0;
 
       while (!neighbourFound) {
-        numTrials++;
+        numSwaps++;
         var cells = new Cells(width, height);
 
         var allSpritesAdded = true;
@@ -627,7 +646,7 @@ function smartKorfLayout(options) {
           var spritemapWidth = 0;
           var spritemapHeight = 0;
 
-          for (i = 0; i < sprites.length; i++) {
+          for (i = 0; i < reorderedSprites.length; i++) {
             spritemapWidth = Math.max(spritemapWidth, reorderedSprites[i].originX + reorderedSprites[i].width);
             spritemapHeight = Math.max(spritemapHeight, reorderedSprites[i].originY + reorderedSprites[i].height);
           }
@@ -642,13 +661,12 @@ function smartKorfLayout(options) {
         }
 
         if (pickRandom) {
-          height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
-          continue;
+          height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
         } else {
-          if (numTrials > 5) {
-            numTrials = 0;
-            sprites.sort(sortByHeight);
-            height = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+          if (numSwaps > maxSwaps) {
+            pickRandom = true;
+            sprites.sort(compareByHeight);
+            height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
           } else {
             index1 = Math.floor(Math.random() * reorderedSprites.length);
             index2 = Math.floor(Math.random() * reorderedSprites.length);
@@ -674,7 +692,7 @@ function smartKorfLayout(options) {
       }
 
       if (getRandomHeight) {
-        height = Math.ceil(Math.random() * maxHeight);
+        height = Math.ceil(Math.random() * totalHeight);
       }
 
       var neighbourFound = false;
@@ -716,18 +734,20 @@ function smartKorfLayout(options) {
     };
 
     var runSimulatedAnnealing = function(temp, coolingRate, neighbourSolutionFn) {
-      console.log("cooling rate: " + coolingRate);
+      // console.log("cooling rate: " + coolingRate);
       var minTemp = 1;
       var spritemapWidth = 0;
       var spritemapHeight = 0;
       var numTrials = 0;
-      var intialHeight = minHeight + Math.ceil(Math.random() * (maxHeight - minHeight));
+      var intialHeight = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
 
       // get initial solution
       var cells = new Cells(Number.POSITIVE_INFINITY, intialHeight);
 
       for (i = 0; i < sprites.length; i++) {
-        cells.addSprite(sprites[i]);
+        if (!cells.addSprite(sprites[i])) {
+          throw Error("*** ~~~ wut ~~~ ***");
+        }
         spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
         spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
       }
@@ -760,32 +780,99 @@ function smartKorfLayout(options) {
       }
 
       for (i = 0; i < sprites.length; i++) {
-        // // sprites[i] = JSON.parse(JSON.stringify(bestSolution.sprites[i]));
+        // bc sprites in bestSolution might be reordered
         sprites[i].originX = bestSolution.sprites[i].originX;
         sprites[i].originY = bestSolution.sprites[i].originY;
-        sprites[i].name = bestSolution.sprites[i].name;
-        sprites[i].lastModified = bestSolution.sprites[i].lastModified;
-        sprites[i].filename = bestSolution.sprites[i].filename;
-        sprites[i].width = bestSolution.sprites[i].width;
-        sprites[i].height = bestSolution.sprites[i].height;
+        // sprites[i].name = bestSolution.sprites[i].name;
+        // sprites[i].lastModified = bestSolution.sprites[i].lastModified;
+        // sprites[i].filename = bestSolution.sprites[i].filename;
+        // sprites[i].width = bestSolution.sprites[i].width;
+        // sprites[i].height = bestSolution.sprites[i].height;
+        // // TODO: why do I need to do this
+        // bestSolution.width = Math.max(bestSolution.width, sprites[i].originX + sprites[i].width);
+        // bestSolution.height = Math.max(bestSolution.height, sprites[i].originY + sprites[i].height);
       }
 
       var area = bestSolution.width * bestSolution.height;
 
       console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
-      console.log(numTrials + " trials");
-      // console.log(maxHeight);
-      return [bestSolution.width, bestSolution.height, (area - minArea) * 100 / minArea];
-      // return [bestSolution.width, bestSolution.height];
+      // console.log(numTrials + " trials");
+      return [bestSolution.width, bestSolution.height];
+      // return [bestSolution.width, bestSolution.height, (area - minArea) * 100 / minArea];
     };
 
     var temp = 10000;
     var coolingRate = Math.min(0.999, sprites.length / 400);
 
-    // return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionReorder);
-    // return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionNextHeight);
-    // return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandom);
-    return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandomish);
+    return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandom);
+    // return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandomish);
+
+    // === random ===
+
+    // var width = Number.POSITIVE_INFINITY;
+    // var height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
+
+    // // var maxSolutions = 5000 / sprites.length;
+    // var maxSolutions = 14;
+    // var numSolutionsFound = 0;
+    // var done = false;
+    // var bestSolution;
+
+    // while (numSolutionsFound < maxSolutions) {
+    //   var cells = new Cells(width, height);
+
+    //   var allSpritesAdded = true;
+
+    //   for (i = 0; i < sprites.length; i++) {
+    //     if (!cells.addSprite(sprites[i])) {
+    //       allSpritesAdded = false;
+    //       break;
+    //     }
+    //   }
+
+    //   if (allSpritesAdded) {
+    //     numSolutionsFound++;
+
+    //     var spritemapWidth = 0;
+    //     var spritemapHeight = 0;
+
+    //     for (i = 0; i < sprites.length; i++) {
+    //       spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
+    //       spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
+    //     }
+
+    //     if (!bestSolution || spritemapWidth * spritemapHeight < bestSolution.width * bestSolution.height) {
+    //       bestSolution = {
+    //         width: spritemapWidth,
+    //         height: spritemapHeight,
+    //         sprites: getByValue(sprites)
+    //       };
+    //     }
+    //   }
+
+    //   height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
+    // }
+
+    // for (i = 0; i < sprites.length; i++) {
+    //   // bc sprites in bestSolution might be reordered
+    //   sprites[i].originX = bestSolution.sprites[i].originX;
+    //   sprites[i].originY = bestSolution.sprites[i].originY;
+    //   sprites[i].name = bestSolution.sprites[i].name;
+    //   sprites[i].lastModified = bestSolution.sprites[i].lastModified;
+    //   sprites[i].filename = bestSolution.sprites[i].filename;
+    //   sprites[i].width = bestSolution.sprites[i].width;
+    //   sprites[i].height = bestSolution.sprites[i].height;
+    //   // TODO: why do I need to do this
+    //   // bestSolution.width = Math.max(bestSolution.width, sprites[i].originX + sprites[i].width);
+    //   // bestSolution.height = Math.max(bestSolution.height, sprites[i].originY + sprites[i].height);
+    // }
+
+    // var area = bestSolution.width * bestSolution.height;
+
+    // console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
+    // console.log(numSolutionsFound + " solutions tested");
+
+    // return [bestSolution.width, bestSolution.height, (area - minArea) * 100 / minArea];
   };
 }
 
