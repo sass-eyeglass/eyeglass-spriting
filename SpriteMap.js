@@ -12,6 +12,8 @@ var ly = require("./Layout");
 var sass = require("node-sass");
 var sassUtils = require("node-sass-utils")(sass);
 
+var printTiming = true;
+
 var getLastModifiedDate = function(filename) {
   return fs.statSync(filename).mtime.getTime();
 };
@@ -153,7 +155,14 @@ SpriteMap.prototype.getSassData = function() {
 
 // get coordinates for each sprite & spritemap dimensions
 SpriteMap.prototype.pack = function() {
+  var t0 = Date.now();
   var dimensions = this.layout.pack(this.sprites);
+  var t1 = Date.now();
+  var elapsed = t1 - t0;
+  if (printTiming) {
+
+    console.log("packing:            " + elapsed + " ms.");
+  }
   this.width = dimensions[0];
   this.height = dimensions[1];
 };
@@ -254,12 +263,13 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
 
 // create spritemap image, only if it does not already exist or is out of date
 SpriteMap.prototype.createSpriteMap = function(dir, cb) {
+  var t0 = Date.now();
   var self = this;
   this.needsUpdating(dir, function(result) {
     result = true;
     if (result) {
 
-      console.log("spritemap \'" + self.name + "\' is being regenerated");
+      // console.log("spritemap \'" + self.name + "\' is being regenerated");
 
       var pasteImages = function(index, curSpritemap) {
         if (index < self.sprites.length) {
@@ -283,6 +293,11 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
             if (err) {
               cb(err, null);
             } else {
+              var t1 = Date.now();
+              var elapsed = t1 - t0;
+              if (printTiming) {
+                console.log("spritemap creation: " + elapsed + " ms.");
+              }
               cb(null, curSpritemap);
             }
           });
