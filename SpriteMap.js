@@ -12,7 +12,9 @@ var ly = require("./Layout");
 var sass = require("node-sass");
 var sassUtils = require("node-sass-utils")(sass);
 
-var printTiming = true;
+var printTiming = false;
+var useMetadata = true;
+// var useMetadata = false;
 
 var getLastModifiedDate = function(filename) {
   return fs.statSync(filename).mtime.getTime();
@@ -184,16 +186,6 @@ SpriteMap.prototype.getSpritesDataStr = function() {
 
 // save sprites data to file in json format
 SpriteMap.prototype.saveData = function(filename, cb) {
-  // var data = {
-  //   sprites: {},
-  //   layout: this.layout
-  // };
-
-  // for (var i = 0; i < this.sprites.length; i++) {
-  //   var spriteData = this.sprites[i];
-  //   delete spriteData.filename;
-  //   data.sprites[this.sprites[i].name] = spriteData;
-  // }
   var dataStr = this.getSpritesDataStr();
 
   fs.writeFile(filename, dataStr, function(err) {
@@ -207,10 +199,8 @@ SpriteMap.prototype.saveData = function(filename, cb) {
 
 // check if spritemap image needs to be updated
 SpriteMap.prototype.needsUpdating = function(dir, cb) {
-  var imageFile = path.join(dir, this.name + ".png");
-  var dataFile = path.join(dir, this.name + ".json");
-
   try {
+    var imageFile = path.join(dir, this.name + ".png");
     var spritemapDate = getLastModifiedDate(imageFile);
     var self = this;
 
@@ -220,10 +210,24 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
         cb(true);
       }
 
-      var metadata = image.getMetadata();
+      var metadata;
+
+      if (image.setMetadata && image.getMetadata && useMetadata) {
+        metadata = image.getMetadata();
+      } else {
+        try {
+          metadata = fs.readFileSync(path.join(dir, self.name + ".json"));
+        } catch (error) {
+          cb(true);
+        }
+      }
+
+      // console.log("metadata: " + metadata);
+
       if (!metadata) {
         // console.log("*** no metadata found");
         cb(true);
+        return;
       }
 
       var data = JSON.parse(metadata, "utf8");
@@ -266,9 +270,8 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
   var t0 = Date.now();
   var self = this;
   this.needsUpdating(dir, function(result) {
-    result = true;
+    // result = true;
     if (result) {
-
       // console.log("spritemap \'" + self.name + "\' is being regenerated");
 
       var pasteImages = function(index, curSpritemap) {
@@ -288,7 +291,12 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
           });
         } else {
           // save image with metadata
-          curSpritemap.setMetadata(self.getSpritesDataStr());
+          if (curSpritemap.setMetadata && curSpritemap.getMetadata && useMetadata) {
+            curSpritemap.setMetadata(self.getSpritesDataStr());
+          } else {
+            fs.writeFileSync(path.join(dir, self.name + ".json"), self.getSpritesDataStr());
+          }
+
           curSpritemap.writeFile(path.join(dir, self.name + ".png"), function(err) {
             if (err) {
               cb(err, null);
