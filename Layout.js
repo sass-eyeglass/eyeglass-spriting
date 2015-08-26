@@ -466,47 +466,6 @@ function smartKorfLayout(options) {
       return Math.exp(delta * 1000 / temp);
     };
 
-    // could infinite loop
-    var getNeighbouringSolutionNext = function(solution) {
-      var width = solution.width - 1;
-      var height = solution.height + 1;
-
-      var neighbourFound = false;
-
-      while (!neighbourFound) {
-        var cells = new Cells(width, height);
-
-        var allSpritesAdded = true;
-
-        for (i = 0; i < sprites.length; i++) {
-          if (!cells.addSprite(sprites[i])) {
-            allSpritesAdded = false;
-            break;
-          }
-        }
-
-        if (allSpritesAdded) {
-          neighbourFound = true;
-          var spritemapWidth = 0;
-          var spritemapHeight = 0;
-
-          for (i = 0; i < sprites.length; i++) {
-            spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
-            spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
-          }
-
-          return {
-            width: spritemapWidth,
-            height: spritemapHeight,
-            sprites: JSON.parse(JSON.stringify(sprites))
-          };
-        }
-
-        width--;
-        height++;
-      }
-    };
-
     var getNeighbouringSolutionRandom = function(solution) {
       var width = Number.POSITIVE_INFINITY;
       var height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
@@ -780,23 +739,14 @@ function smartKorfLayout(options) {
       }
 
       for (i = 0; i < sprites.length; i++) {
-        // bc sprites in bestSolution might be reordered
         sprites[i].originX = bestSolution.sprites[i].originX;
         sprites[i].originY = bestSolution.sprites[i].originY;
-        // sprites[i].name = bestSolution.sprites[i].name;
-        // sprites[i].lastModified = bestSolution.sprites[i].lastModified;
-        // sprites[i].filename = bestSolution.sprites[i].filename;
-        // sprites[i].width = bestSolution.sprites[i].width;
-        // sprites[i].height = bestSolution.sprites[i].height;
-        // // TODO: why do I need to do this
-        // bestSolution.width = Math.max(bestSolution.width, sprites[i].originX + sprites[i].width);
-        // bestSolution.height = Math.max(bestSolution.height, sprites[i].originY + sprites[i].height);
       }
 
       var area = bestSolution.width * bestSolution.height;
 
       console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
-      // console.log(numTrials + " trials");
+      console.log(numTrials + " trials");
       return [bestSolution.width, bestSolution.height];
       // return [bestSolution.width, bestSolution.height, (area - minArea) * 100 / minArea];
     };
