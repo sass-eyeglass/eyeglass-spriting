@@ -54,7 +54,7 @@ describe("spriting module", function () {
   //   testutils.assertCompiles(eg, expected, done);
   // });
 
-  it("smart packing korf rectangles 25", function (done) {
+  it("smart packing - 25 rectangles", function (done) {
     this.timeout(10000);
 
     var input = "@import 'assets'; @import 'spriting'; " +
@@ -76,7 +76,7 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("smart packing korf rectangles 50", function (done) {
+  it("smart packing - 50 rectangles", function (done) {
     this.timeout(10000);
 
     var input = "@import 'assets'; @import 'spriting'; " +
@@ -98,7 +98,7 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("smart packing korf rectangles 100", function (done) {
+  it("smart packing - 100 rectangles", function (done) {
     this.timeout(10000);
 
     var input = "@import 'assets'; @import 'spriting'; " +
@@ -120,7 +120,7 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("smart packing korf rectangles 200", function (done) {
+  it("smart packing - 200 rectangles", function (done) {
     this.timeout(10000);
 
     var input = "@import 'assets'; @import 'spriting'; " +
@@ -142,7 +142,7 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("smart packing korf rectangles 500", function (done) {
+  it("smart packing - 500 rectangles", function (done) {
     this.timeout(10000);
 
     var input = "@import 'assets'; @import 'spriting'; " +
@@ -164,7 +164,7 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("smart packing korf rectangles same height", function (done) {
+  it("smart packing - rectangles same height", function (done) {
     this.timeout(10000);
 
     var input = "@import 'assets'; @import 'spriting'; " +
@@ -186,27 +186,27 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
-  it("smart packing kd 100", function (done) {
-    this.timeout(2000);
+  // it("smart packing kd 100", function (done) {
+  //   this.timeout(2000);
 
-    var input = "@import 'assets'; @import 'spriting'; " +
-                "$sp-sprite-map: sprite-map('spkd100-sprite-map', sprite-layout(smartKd, " +
-                "()), 'rectangles100/*');" +
-                // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
-                ".test { foo: sprite-url($sp-sprite-map); }";
-    var expected = ".test {\n  foo: url(/spritemaps/spkd100-sprite-map.png); }\n";
+  //   var input = "@import 'assets'; @import 'spriting'; " +
+  //               "$sp-sprite-map: sprite-map('spkd100-sprite-map', sprite-layout(smartKd, " +
+  //               "()), 'rectangles100/*');" +
+  //               // "(spacing: 50px, alignment: bottom)), 'squarepacking/*');" +
+  //               ".test { foo: sprite-url($sp-sprite-map); }";
+  //   var expected = ".test {\n  foo: url(/spritemaps/spkd100-sprite-map.png); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+  //   var rootDir = testutils.fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
+  //   var eg = new Eyeglass({
+  //     root: rootDir,
+  //     data: input
+  //   }, sass);
 
-    eg.assets.addSource(rootDir, {pattern: "rectangles100/**/*"});
+  //   eg.assets.addSource(rootDir, {pattern: "rectangles100/**/*"});
 
-    testutils.assertCompiles(eg, expected, done);
-  });
+  //   testutils.assertCompiles(eg, expected, done);
+  // });
 
   it("gets sprite map data using app assets", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
