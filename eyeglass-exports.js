@@ -76,7 +76,12 @@ module.exports = function(eyeglass, sass) {
               done(sass.types.Error(err.toString()));
             }
 
-            sm.pack();
+            var spritemapsDir = path.join(eyeglass.options.cacheDir, "spritemaps");
+            if (!existsSync(spritemapsDir)) {
+              fs.mkdirSync(spritemapsDir);
+            }
+
+            sm.pack(spritemapsDir);
             done(sm.getSassData().toSassMap());
           });
       },

@@ -156,17 +156,26 @@ SpriteMap.prototype.getSassData = function() {
 };
 
 // get coordinates for each sprite & spritemap dimensions
-SpriteMap.prototype.pack = function() {
-  var t0 = Date.now();
-  var dimensions = this.layout.pack(this.sprites);
-  var t1 = Date.now();
-  var elapsed = t1 - t0;
-  if (printTiming) {
-
-    console.log("packing:            " + elapsed + " ms.");
-  }
-  this.width = dimensions[0];
-  this.height = dimensions[1];
+SpriteMap.prototype.pack = function(dir) {
+  var self = this;
+  this.needsUpdating(dir, function(result) {
+    if (result.needsUpdating) {
+      var t0 = Date.now();
+      var dimensions = self.layout.pack(self.sprites);
+      var t1 = Date.now();
+      var elapsed = t1 - t0;
+      if (printTiming) {
+        console.log("packing:            " + elapsed + " ms.");
+      }
+      self.width = dimensions[0];
+      self.height = dimensions[1];
+    } else { // read in positions
+      for (var i = 0; i < self.sprites.length; i++) {
+        self.sprites[i].originX = result.data.sprites[self.sprites[i].name].originX;
+        self.sprites[i].originY = result.data.sprites[self.sprites[i].name].originY;
+      }
+    }
+  });
 };
 
 SpriteMap.prototype.getSpritesDataStr = function() {
@@ -207,7 +216,7 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
     lwip.open(imageFile, function(err, image) {
       if (err) {
         // console.log("*** problem opening sprite map image");
-        cb(true);
+        cb({needsUpdating: true});
       }
 
       var metadata;
@@ -218,7 +227,7 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
         try {
           metadata = fs.readFileSync(path.join(dir, self.name + ".json"));
         } catch (error) {
-          cb(true);
+          cb({needsUpdating: true});
         }
       }
 
@@ -226,7 +235,7 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
 
       if (!metadata) {
         // console.log("*** no metadata found");
-        cb(true);
+        cb({needsUpdating: true});
         return;
       }
 
@@ -235,7 +244,8 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
       // check if number sprites is different
       if (self.sprites.length !== Object.keys(data.sprites).length) {
         // console.log("*** sprites added/deleted");
-        cb(true);
+        cb({needsUpdating: true});
+        return;
       }
 
       // check if layout has changed
@@ -243,7 +253,8 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
         || data.layout.spacing !== self.layout.spacing
         || data.layout.alignment !== self.layout.alignment) {
         // console.log("*** layout has changed");
-        cb(true);
+        cb({needsUpdating: true});
+        return;
       }
 
       // check if source images have been modified
@@ -252,16 +263,16 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
           || self.sprites[i].lastModified !== data.sprites[self.sprites[i].name].lastModified
           || self.sprites[i].lastModified > spritemapDate) {
           // console.log("*** sources modified");
-          cb(true);
+          cb({needsUpdating: true});
+          return;
         }
       }
 
-      cb(false);
-
+      cb({needsUpdating: false, data: data});
     });
   } catch(err) {
     // console.log("*** spritemap does not already exist");
-    cb(true);
+    cb({needsUpdating: true});
   }
 };
 
@@ -271,7 +282,7 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
   var self = this;
   this.needsUpdating(dir, function(result) {
     // result = true;
-    if (result) {
+    if (result.needsUpdating) {
       // console.log("spritemap \'" + self.name + "\' is being regenerated");
 
       var pasteImages = function(index, curSpritemap) {
