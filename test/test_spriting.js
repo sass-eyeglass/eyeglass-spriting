@@ -4,8 +4,6 @@ var Eyeglass = require("eyeglass").Eyeglass;
 var sass = require("node-sass");
 var path = require("path");
 
-// var path = require("path");
-// var fs = require("fs");
 var testutils = require("./testutils");
 
 describe("spriting module", function () {
@@ -412,9 +410,8 @@ describe("spriting module", function () {
 
   it("smart packing - 5 rectangles", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
-                "$sp-sprite-map: sprite-map('spkorf_rect5-sprite-map', sprite-layout(smart, " +
-                "(spacing: 50px, alignment: bottom)), 'rectangles5/*');" +
-                // "()), 'rectangles5/*');" +
+                "$sp-sprite-map: sprite-map('spkorf_rect5-sprite-map'," +
+                "sprite-layout(smart, ()), 'rectangles5/*');" +
                 ".test { foo: sprite-url($sp-sprite-map); }";
     var expected = ".test {\n  foo: url(/spritemaps/spkorf_rect5-sprite-map.png); }\n";
 

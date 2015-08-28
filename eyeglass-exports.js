@@ -81,11 +81,12 @@ module.exports = function(eyeglass, sass) {
               fs.mkdirSync(spritemapsDir);
             }
 
-            sm.pack(spritemapsDir);
-            // sm.pack(spritemapsDir, function() {
-            //   done(sm.getSassData.toSassMap());
-            // });
-            done(sm.getSassData().toSassMap());
+            // sm.pack(spritemapsDir);
+            // done(sm.getSassData().toSassMap());
+
+            sm.pack(spritemapsDir, function() {
+              done(sm.getSassData().toSassMap());
+            });
           });
       },
 
@@ -180,7 +181,7 @@ module.exports = function(eyeglass, sass) {
 
           done(position);
         } else {
-          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+          throw Error("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
         }
       },
 
@@ -192,7 +193,7 @@ module.exports = function(eyeglass, sass) {
 
           done(sassUtils.castToSass(positionX));
         } else {
-          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+          throw Error("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
         }
       },
 
@@ -204,7 +205,7 @@ module.exports = function(eyeglass, sass) {
 
           done(sassUtils.castToSass(positionY));
         } else {
-          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+          throw Error("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
         }
       },
 
@@ -216,7 +217,7 @@ module.exports = function(eyeglass, sass) {
 
           done(sassUtils.castToSass(width));
         } else {
-          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+          throw Error("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
         }
       },
 
@@ -228,7 +229,7 @@ module.exports = function(eyeglass, sass) {
 
           done(sassUtils.castToSass(height));
         } else {
-          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+          throw Error("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
         }
       },
 
@@ -253,7 +254,7 @@ module.exports = function(eyeglass, sass) {
 
           done(sassUtils.castToSass(identifier));
         } else {
-          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+          throw Error("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
         }
       }
 
