@@ -171,45 +171,65 @@ module.exports = function(eyeglass, sass) {
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
+        if (assets.has(spritename)) {
+          var sprite = assets.coerce.get(spritename);
 
-        var position = sprite.coerce.get("position");
-        position = sassUtils.castToSass(position);
-        position.setSeparator = false;
+          var position = sprite.coerce.get("position");
+          position = sassUtils.castToSass(position);
+          position.setSeparator = false;
 
-        done(position);
+          done(position);
+        } else {
+          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+        }
       },
 
       "sprite-position-x($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
-        var positionX = sprite.coerce.get("position")[0];
+        if (assets.has(spritename)) {
+          var sprite = assets.coerce.get(spritename);
+          var positionX = sprite.coerce.get("position")[0];
 
-        done(sassUtils.castToSass(positionX));
+          done(sassUtils.castToSass(positionX));
+        } else {
+          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+        }
       },
 
       "sprite-position-y($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
-        var positionY = sprite.coerce.get("position")[1];
+        if (assets.has(spritename)) {
+          var sprite = assets.coerce.get(spritename);
+          var positionY = sprite.coerce.get("position")[1];
 
-        done(sassUtils.castToSass(positionY));
+          done(sassUtils.castToSass(positionY));
+        } else {
+          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+        }
       },
 
       "sprite-width($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
-        var width = sprite.coerce.get("width");
+        if (assets.has(spritename)) {
+          var sprite = assets.coerce.get(spritename);
+          var width = sprite.coerce.get("width");
 
-        done(sassUtils.castToSass(width));
+          done(sassUtils.castToSass(width));
+        } else {
+          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+        }
       },
 
       "sprite-height($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
-        var height = sprite.coerce.get("height");
+        if (assets.has(spritename)) {
+          var sprite = assets.coerce.get(spritename);
+          var height = sprite.coerce.get("height");
 
-        done(sassUtils.castToSass(height));
+          done(sassUtils.castToSass(height));
+        } else {
+          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+        }
       },
 
       "sprite-map-width($spritemap)": function(spritemap, done) {
@@ -227,10 +247,14 @@ module.exports = function(eyeglass, sass) {
       // the base filename is not a legal css identifier
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
-        var identifier = sprite.coerce.get("identifier");
+        if (assets.has(spritename)) {
+          var sprite = assets.coerce.get(spritename);
+          var identifier = sprite.coerce.get("identifier");
 
-        done(sassUtils.castToSass(identifier));
+          done(sassUtils.castToSass(identifier));
+        } else {
+          throw Error ("Invalid sprite name \'" + sassUtils.castToJs(spritename) + "\'");
+        }
       }
 
     }
