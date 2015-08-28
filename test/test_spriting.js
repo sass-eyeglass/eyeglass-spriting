@@ -527,7 +527,8 @@ describe("spriting module", function () {
 
     var input = "@import 'assets'; @import 'spriting'; " +
                 "$sp-sprite-map: sprite-map('spkorf_rect500-sprite-map', sprite-layout(smart, " +
-                "(spacing: 50px, alignment: bottom)), 'rectangles500/*');" +
+                "()), 'rectangles500/*');" +
+                // "(spacing: 50px, alignment: bottom)), 'rectangles500/*');" +
                 ".test { foo: sprite-url($sp-sprite-map); }";
     var expected = ".test {\n  foo: url(/spritemaps/spkorf_rect500-sprite-map.png); }\n";
 

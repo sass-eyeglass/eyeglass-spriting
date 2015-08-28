@@ -34,3 +34,22 @@
   width: sprite-width($sprite-map, $sprite-name);
   height: sprite-height($sprite-map, $sprite-name);
 }
+
+// @mixin include-all-sprites($sprite-map) {
+@mixin sprite-all-sprites($sprite-map, $include-dimensions: true) {
+  $sprite-map-name: map-get($sprite-map, name);
+
+  %#{$sprite-map-name}-bg {
+    @include sprite-background($sprite-map);
+  }
+
+  @each $sprite in sprite-list($sprite-map) {
+    .#{$sprite-map-name}-#{sprite-identifier($sprite-map, $sprite)} {
+      @extend %#{$sprite-map-name}-bg;
+      @include sprite-position($sprite-map, $sprite);
+      @if $include-dimensions {
+        @include sprite-dimensions($sprite-map, $sprite);
+      }
+    }
+  }
+}
