@@ -119,6 +119,8 @@ Validates the given layout options, and returns a map of sprite layout settings 
 
 Possible strategies and corresponding alignments are:
 
+`"smart"` - no alignment or spacing needed
+
 `"vertical"` - alignment `"left"` or `"right"` (defaults to `"left"` if unspecified)
 
 `"horizontal"` - alignment `"top"` or `"bottom"` (defaults to `"top"` if unspecified)
@@ -143,7 +145,7 @@ Returns a list of the names of each sprite in the sprite map.
 sprite-url($sprite-map);
 ```
 
-Generates the sprite map image, and returns the path to the constructed sprite map image.
+Generates the sprite map image if sprite sources or layout style has been modified, and returns the path to the constructed sprite map image.
 
 For example,
 
@@ -176,7 +178,7 @@ Might compile to the following css:
 }
 ```
 
-Also causes the sprite map image to be generated.
+Also causes the sprite map image to be generated if sprite sources or layout style have been modified.
 
 ---
 ### sprite-position() *(mixin)*

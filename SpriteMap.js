@@ -291,7 +291,6 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
   var t0 = Date.now();
 
   this.needsUpdating(dir, function(result) {
-    // result = true;
     if (result.needsUpdating) {
       // console.log("spritemap \'" + self.name + "\' is being regenerated");
 
@@ -332,7 +331,7 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
           });
         }
       };
-      // console.log(self);
+
       lwip.create(self.width, self.height, function(err, spritemap) {
         if (err) {
           cb(err, null);
