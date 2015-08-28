@@ -156,26 +156,50 @@ SpriteMap.prototype.getSassData = function() {
 };
 
 // get coordinates for each sprite & spritemap dimensions
-SpriteMap.prototype.pack = function(dir) {
-  var self = this;
-  this.needsUpdating(dir, function(result) {
-    if (result.needsUpdating) {
-      var t0 = Date.now();
-      var dimensions = self.layout.pack(self.sprites);
-      var t1 = Date.now();
-      var elapsed = t1 - t0;
-      if (printTiming) {
-        console.log("packing:            " + elapsed + " ms.");
-      }
-      self.width = dimensions[0];
-      self.height = dimensions[1];
-    } else { // read in positions
-      for (var i = 0; i < self.sprites.length; i++) {
-        self.sprites[i].originX = result.data.sprites[self.sprites[i].name].originX;
-        self.sprites[i].originY = result.data.sprites[self.sprites[i].name].originY;
-      }
-    }
-  });
+SpriteMap.prototype.pack = function(dir, cb) {
+  var t0 = Date.now();
+  var dimensions = this.layout.pack(this.sprites);
+  var t1 = Date.now();
+  var elapsed = t1 - t0;
+  if (printTiming) {
+    console.log("packing:            " + elapsed + " ms.");
+  }
+  this.width = dimensions[0];
+  this.height = dimensions[1];
+  // var self = this;
+
+  // var packSprites = function(result) {
+  //   if (result.needsUpdating) {
+  //     console.log("* repack");
+  //     var t0 = Date.now();
+  //     var dimensions = self.layout.pack(self.sprites);
+  //     var t1 = Date.now();
+  //     var elapsed = t1 - t0;
+  //     if (printTiming) {
+  //       console.log("packing:            " + elapsed + " ms.");
+  //     }
+  //     self.width = dimensions[0];
+  //     self.height = dimensions[1];
+  //     console.log("* done repacking");
+  //     console.log(cb);
+  //     cb();
+  //     // console.log(self);
+  //     // console.log(this);
+  //   } else { // read in positions
+  //     console.log("* no need to repack");
+  //     self.width = 0;
+  //     self.height = 0;
+  //     for (var i = 0; i < self.sprites.length; i++) {
+  //       self.sprites[i].originX = result.data.sprites[self.sprites[i].name].originX;
+  //       self.sprites[i].originY = result.data.sprites[self.sprites[i].name].originY;
+  //       self.width = Math.max(self.width, self.sprites[i].originX + self.sprites[i].width);
+  //       self.height = Math.max(self.height, self.sprites[i].originY + self.sprites[i].height);
+  //     }
+  //     cb();
+  //   }
+  // };
+
+  // this.needsUpdating(dir, packSprites);
 };
 
 SpriteMap.prototype.getSpritesDataStr = function() {
@@ -278,8 +302,9 @@ SpriteMap.prototype.needsUpdating = function(dir, cb) {
 
 // create spritemap image, only if it does not already exist or is out of date
 SpriteMap.prototype.createSpriteMap = function(dir, cb) {
-  var t0 = Date.now();
   var self = this;
+  var t0 = Date.now();
+
   this.needsUpdating(dir, function(result) {
     // result = true;
     if (result.needsUpdating) {
@@ -322,7 +347,7 @@ SpriteMap.prototype.createSpriteMap = function(dir, cb) {
           });
         }
       };
-
+      // console.log(self);
       lwip.create(self.width, self.height, function(err, spritemap) {
         if (err) {
           cb(err, null);

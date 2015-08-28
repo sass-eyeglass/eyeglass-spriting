@@ -82,6 +82,9 @@ module.exports = function(eyeglass, sass) {
             }
 
             sm.pack(spritemapsDir);
+            // sm.pack(spritemapsDir, function() {
+            //   done(sm.getSassData.toSassMap());
+            // });
             done(sm.getSassData().toSassMap());
           });
       },

@@ -1,11 +1,23 @@
 /*
  * The pack function modifies the sprites array passed in and adds coordinates to each
  * element. It also calculates the spritemap width and height, and returns them in an array.
- * This file will be refactored.
  */
 
- // TODO: add documentation for registering custom layouts
- // TOOO: refactor registering layouts thing
+ /*
+  To register a custom layout:
+
+  var ly = require('./Layout');
+  ly.registerLayout("myLayout", validateFn, packFn);
+
+  where:
+
+  * validateFn - takes in an options object, returns true if the given options
+      are valid for your layout style
+  * packFn - takes in an array of sprites, where each element is an object with
+      a width and height property. This function must set the originX and originY
+      properties of each element, and return the total sprite map width and sprite
+      map height in a 2-element array [spritemapWidth, spritemapHeight]
+ */
 
 "use strict";
 
@@ -114,108 +126,12 @@ function diagonalLayout(options) {
   };
 }
 
-var smartKdValidate = function(options) {
+var smartValidate = function(options) {
   return true;
 };
 
-function smartKdLayout(options) {
-
-  this.pack = function(sprites) {
-    function Node(x1, y1, x2, y2) {
-      this.left = null;
-      this.right = null;
-
-      this.x1 = x1;
-      this.y1 = y1;
-      this.x2 = x2;
-      this.y2 = y2;
-
-      this.occupied = false;
-    }
-
-    Node.prototype.insert = function(sprite, splitVertically, depth) {
-      // console.log("(" + this.x1 + ", " + this.y1 + ") | (" + this.x2 + ", " + this.y2 + ")");
-
-      // not a leaf node
-      if (this.left && this.right) {
-        var newNode = this.left.insert(sprite, !splitVertically, depth + 1);
-        if (newNode) {
-          return newNode;
-        } else {
-          return this.right.insert(sprite, !splitVertically, depth + 1);
-        }
-      } else { // is a leaf node
-        // occupied node
-        if (this.occupied) {
-          return null;
-        }
-
-        // node is too small
-        var width = this.x2 - this.x1;
-        var height = this.y2 - this.y1;
-        if (sprite.width > width || sprite.height > height) {
-          return null;
-        }
-
-        // node is just right
-        if (sprite.width === width && sprite.height === height) {
-          // console.log("inserting in this node: ", this);
-          sprite.originX = this.x1;
-          sprite.originY = this.y1;
-          this.occupied = true;
-          return this;
-        }
-
-        if (splitVertically) {
-          // console.log("split node vertically");
-          this.left = new Node(this.x1, this.y1, this.x1 + sprite.width, this.y2);
-          this.right = new Node(this.x1 + sprite.width, this.y1, this.x2, this.y2);
-        } else {
-          // console.log("split node horizontally");
-          this.left = new Node(this.x1, this.y1, this.x2, this.y1 + sprite.height);
-          this.right = new Node(this.x1, this.y1 + sprite.height, this.x2, this.y2);
-        }
-        // console.log(this.left);
-        return this.left.insert(sprite, !splitVertically, depth + 1);
-      }
-    };
-
-    // shuffle sprites
-    for (var j, x, y = sprites.length; y; j = Math.floor(Math.random() * y),
-                                          x = sprites[--y],
-                                          sprites[y] = sprites[j],
-                                          sprites[j] = x) {
-      // meep
-    }
-
-    var firstNode = new Node(0, 0, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-
-    var spritemapWidth = 0;
-    var spritemapHeight = 0;
-
-    for (var i = 0; i < sprites.length; i++) {
-      // console.log("inserting sprite of dimensions: " + sprites[i].width
-      //           + " x " + sprites[i].height);
-      firstNode.insert(sprites[i], false, 0);
-      if (sprites[i].originX + sprites[i].width > spritemapWidth) {
-        spritemapWidth = sprites[i].originX + sprites[i].width;
-      }
-
-      if (sprites[i].originY + sprites[i].height > spritemapHeight) {
-        spritemapHeight = sprites[i].originY + sprites[i].height;
-      }
-    }
-
-    // console.log(sprites);
-    return [spritemapWidth, spritemapHeight];
-  };
-}
-
-var smartKorfValidate = function(options) {
-  return true;
-};
-
-function smartKorfLayout(options) {
+// TODO: spacing between sprites
+function smartLayout(options) {
   function Cells(width, height) {
     this.rows = [{position: 0, height: height}];
     this.cols = [{position: 0, width: width}];
@@ -502,179 +418,107 @@ function smartKorfLayout(options) {
 
     var area = bestSolution.width * bestSolution.height;
 
-    console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
-    console.log(numSolutionsFound + " solutions tested");
+    // console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
+    // console.log(numSolutionsFound + " solutions tested");
 
     return [bestSolution.width, bestSolution.height, (area - minArea) * 100 / minArea];
+  };
+}
 
-    // === simulated annealing ===
+var smartKdValidate = function(options) {
+  return true;
+};
 
-    // var getAcceptanceProbability = function(area, newArea, temp) {
-    //   if (newArea < area) {
-    //     return 1.0;
-    //   }
-    //   var delta = (area - newArea) / minArea;
-    //   return Math.exp(delta * 1000 / temp);
-    // };
+function smartKdLayout(options) {
 
-    // var getNeighbouringSolutionRandom = function(solution) {
-    //   var width = Number.POSITIVE_INFINITY;
-    //   var height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
+  this.pack = function(sprites) {
+    function Node(x1, y1, x2, y2) {
+      this.left = null;
+      this.right = null;
 
-    //   var neighbourFound = false;
+      this.x1 = x1;
+      this.y1 = y1;
+      this.x2 = x2;
+      this.y2 = y2;
 
-    //   while (!neighbourFound) {
-    //     var cells = new Cells(width, height);
+      this.occupied = false;
+    }
 
-    //     var allSpritesAdded = true;
+    Node.prototype.insert = function(sprite, splitVertically, depth) {
+      // console.log("(" + this.x1 + ", " + this.y1 + ") | (" + this.x2 + ", " + this.y2 + ")");
 
-    //     for (i = 0; i < sprites.length; i++) {
-    //       if (!cells.addSprite(sprites[i])) {
-    //         allSpritesAdded = false;
-    //         break;
-    //       }
-    //     }
+      // not a leaf node
+      if (this.left && this.right) {
+        var newNode = this.left.insert(sprite, !splitVertically, depth + 1);
+        if (newNode) {
+          return newNode;
+        } else {
+          return this.right.insert(sprite, !splitVertically, depth + 1);
+        }
+      } else { // is a leaf node
+        // occupied node
+        if (this.occupied) {
+          return null;
+        }
 
-    //     if (allSpritesAdded) {
-    //       neighbourFound = true;
-    //       var spritemapWidth = 0;
-    //       var spritemapHeight = 0;
+        // node is too small
+        var width = this.x2 - this.x1;
+        var height = this.y2 - this.y1;
+        if (sprite.width > width || sprite.height > height) {
+          return null;
+        }
 
-    //       for (i = 0; i < sprites.length; i++) {
-    //         spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
-    //         spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
-    //       }
+        // node is just right
+        if (sprite.width === width && sprite.height === height) {
+          // console.log("inserting in this node: ", this);
+          sprite.originX = this.x1;
+          sprite.originY = this.y1;
+          this.occupied = true;
+          return this;
+        }
 
-    //       var newSolution = {
-    //         width: spritemapWidth,
-    //         height: spritemapHeight,
-    //         sprites: getByValue(sprites)
-    //       };
+        if (splitVertically) {
+          // console.log("split node vertically");
+          this.left = new Node(this.x1, this.y1, this.x1 + sprite.width, this.y2);
+          this.right = new Node(this.x1 + sprite.width, this.y1, this.x2, this.y2);
+        } else {
+          // console.log("split node horizontally");
+          this.left = new Node(this.x1, this.y1, this.x2, this.y1 + sprite.height);
+          this.right = new Node(this.x1, this.y1 + sprite.height, this.x2, this.y2);
+        }
+        // console.log(this.left);
+        return this.left.insert(sprite, !splitVertically, depth + 1);
+      }
+    };
 
-    //       return newSolution;
-    //     }
+    // shuffle sprites
+    for (var j, x, y = sprites.length; y; j = Math.floor(Math.random() * y),
+                                          x = sprites[--y],
+                                          sprites[y] = sprites[j],
+                                          sprites[j] = x) {
+      // meep
+    }
 
-    //     height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
-    //   }
-    // };
+    var firstNode = new Node(0, 0, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
 
-    // var getNeighbouringSolutionRandomish = function(solution) {
-    //   var width = Number.POSITIVE_INFINITY;
-    //   var height = solution.height - Math.ceil(totalHeight / sprites.length);
-    //   var pickRandom = false;
+    var spritemapWidth = 0;
+    var spritemapHeight = 0;
 
-    //   if (solution.height === minHeight || Math.random() > 0.5) {
-    //     pickRandom = true;
-    //     height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
-    //   }
+    for (var i = 0; i < sprites.length; i++) {
+      // console.log("inserting sprite of dimensions: " + sprites[i].width
+      //           + " x " + sprites[i].height);
+      firstNode.insert(sprites[i], false, 0);
+      if (sprites[i].originX + sprites[i].width > spritemapWidth) {
+        spritemapWidth = sprites[i].originX + sprites[i].width;
+      }
 
-    //   var neighbourFound = false;
+      if (sprites[i].originY + sprites[i].height > spritemapHeight) {
+        spritemapHeight = sprites[i].originY + sprites[i].height;
+      }
+    }
 
-    //   while (!neighbourFound) {
-    //     var cells = new Cells(width, height);
-
-    //     var allSpritesAdded = true;
-
-    //     for (i = 0; i < sprites.length; i++) {
-    //       if (!cells.addSprite(sprites[i])) {
-    //         allSpritesAdded = false;
-    //         break;
-    //       }
-    //     }
-
-    //     if (allSpritesAdded) {
-    //       neighbourFound = true;
-    //       var spritemapWidth = 0;
-    //       var spritemapHeight = 0;
-
-    //       for (i = 0; i < sprites.length; i++) {
-    //         spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
-    //         spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
-    //       }
-
-    //       var newSolution = {
-    //         width: spritemapWidth,
-    //         height: spritemapHeight,
-    //         sprites: getByValue(sprites)
-    //       };
-
-    //       return newSolution;
-    //     }
-
-    //     height -= Math.ceil(totalHeight / sprites.length);
-
-    //     if (height < minHeight || pickRandom) {
-    //       height = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
-    //     }
-    //   }
-    // };
-
-
-
-    // var runSimulatedAnnealing = function(temp, coolingRate, neighbourSolutionFn) {
-    //   // console.log("cooling rate: " + coolingRate);
-    //   var minTemp = 1;
-    //   var spritemapWidth = 0;
-    //   var spritemapHeight = 0;
-    //   var numTrials = 0;
-    //   var intialHeight = minHeight + Math.ceil(Math.random() * (totalHeight - minHeight));
-
-    //   // get initial solution
-    //   var cells = new Cells(Number.POSITIVE_INFINITY, intialHeight);
-
-    //   for (i = 0; i < sprites.length; i++) {
-    //     if (!cells.addSprite(sprites[i])) {
-    //       throw Error("*** ~~~ wut ~~~ ***");
-    //     }
-    //     spritemapWidth = Math.max(spritemapWidth, sprites[i].originX + sprites[i].width);
-    //     spritemapHeight = Math.max(spritemapHeight, sprites[i].originY + sprites[i].height);
-    //   }
-
-    //   var currentSolution = {
-    //     width: spritemapWidth,
-    //     height: spritemapHeight,
-    //     sprites: getByValue(sprites)
-    //   };
-
-    //   var bestSolution = currentSolution;
-
-    //   // search for better solutions
-    //   while (temp > minTemp) {
-    //     numTrials++;
-
-    //     var newSolution = neighbourSolutionFn(currentSolution);
-    //     var currentArea = currentSolution.width * currentSolution.height;
-    //     var newArea = newSolution.width * newSolution.height;
-
-    //     if (getAcceptanceProbability(currentArea, newArea, temp) > Math.random()) {
-    //       currentSolution = getByValue(newSolution);
-    //     }
-
-    //     if (currentSolution.width * currentSolution.height < bestSolution.width * bestSolution.height) {
-    //       bestSolution = getByValue(currentSolution);
-    //     }
-
-    //     temp *= 1 - coolingRate;
-    //   }
-
-    //   for (i = 0; i < sprites.length; i++) {
-    //     sprites[i].originX = bestSolution.sprites[i].originX;
-    //     sprites[i].originY = bestSolution.sprites[i].originY;
-    //   }
-
-    //   var area = bestSolution.width * bestSolution.height;
-
-    //   console.log(((area - minArea) * 100 / minArea).toFixed(2) + "% bigger than min area");
-    //   console.log(numTrials + " trials");
-    //   return [bestSolution.width, bestSolution.height];
-    //   // return [bestSolution.width, bestSolution.height, (area - minArea) * 100 / minArea];
-    // };
-
-    // var temp = 10000;
-    // var coolingRate = Math.min(0.999, sprites.length / 400);
-
-    // return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandom);
-    // // return runSimulatedAnnealing(temp, coolingRate, getNeighbouringSolutionRandomish);
+    // console.log(sprites);
+    return [spritemapWidth, spritemapHeight];
   };
 }
 
@@ -691,16 +535,15 @@ var registeredLayouts = {
     validate: diagonalValidate,
     constructor: diagonalLayout
   },
+  "smart": {
+    validate: smartValidate,
+    constructor: smartLayout
+  },
   "smartKd": {
     validate: smartKdValidate,
     constructor: smartKdLayout
-  },
-  "smartKorf": {
-    validate: smartKorfValidate,
-    constructor: smartKorfLayout
   }
 };
-
 
 module.exports = {
   getLayout: function(options) {
