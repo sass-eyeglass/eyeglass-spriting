@@ -401,6 +401,31 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
+  it("helpers throw a helpful error message for bad sprite names", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-width($test-sprite-map, 'not-gonna-happen') }";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    var expectedError = "error in C function sprite-width: No sprite of name " +
+      "or identifier 'not-gonna-happen' exists.'\nSprites are named using " +
+      "their original asset source paths, like 'icons/shruggie.png'. You can " +
+      "also use a sprite identifier, like 'shruggie', which is provided via " +
+      "sprite-identifier(), as an argument to helper functions.)\n\n" +
+      "Backtrace:\n	stdin:1, in function `sprite-width`\n	stdin:1";
+
+    testutils.assertCompilationError(eg, expectedError, done);
+  });
+
   it("small images", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
                 "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
