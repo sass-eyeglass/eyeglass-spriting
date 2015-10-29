@@ -22,7 +22,10 @@ describe("spriting module", function () {
       "(path: " + testutils.fixtureDirectory(path.join("app_assets", "images", "img02.png")) + "," +
       " identifier: img02, position: -105px -250px, width: 50px, height: 50px), images/img03.png:" +
       " (path: " + testutils.fixtureDirectory(path.join("app_assets", "images", "img03.png")) +
-      ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, " +
+      ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), " +
+      "identifierMap: (img01: images/img01.png, img02: images/img02.png, " +
+      "img03: images/img03.png), " +
+      "width: 360px, " +
       "height: 300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
@@ -51,7 +54,10 @@ describe("spriting module", function () {
       "-105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: "
       + testutils.fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
       "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
-      "300px)), width: 360px, height: 300px); }\n";
+      "300px)), " +
+      "identifierMap: (img01: mod-one/img01.png, img02: mod-one/img02.png, " +
+      "img03: mod-one/img03.png), " +
+      "width: 360px, height: 300px); }\n";
 
     var rootDir = testutils.fixtureDirectory("app_assets");
 
