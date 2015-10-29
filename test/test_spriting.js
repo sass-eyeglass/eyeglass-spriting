@@ -420,7 +420,7 @@ describe("spriting module", function () {
       "or identifier 'not-gonna-happen' exists.'\nSprites are named using " +
       "their original asset source paths, like 'icons/shruggie.png'. You can " +
       "also use a sprite identifier, like 'shruggie', which is provided via " +
-      "sprite-identifier(), as an argument to helper functions.)\n\n" +
+      "sprite-identifier(), as an argument to helper functions.\n\n" +
       "Backtrace:\n	stdin:1, in function `sprite-width`\n	stdin:1";
 
     testutils.assertCompilationError(eg, expectedError, done);

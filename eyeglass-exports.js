@@ -78,7 +78,7 @@ module.exports = function(eyeglass, sass) {
         "'icons/shruggie.png'. You can also use a sprite identifier, " +
         "like 'shruggie', which is " +
         "provided via sprite-identifier(), " +
-        "as an argument to helper functions.)"
+        "as an argument to helper functions."
       );
     }
 
