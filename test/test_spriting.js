@@ -417,7 +417,7 @@ describe("spriting module", function () {
     eg.assets.addSource(rootDir, {pattern: "images/**/*"});
 
     var expectedError = "error in C function sprite-width: No sprite of name " +
-      "or identifier 'not-gonna-happen' exists.'\nSprites are named using " +
+      "or identifier 'not-gonna-happen' exists.\nSprites are named using " +
       "their original asset source paths, like 'icons/shruggie.png'. You can " +
       "also use a sprite identifier, like 'shruggie', which is provided via " +
       "sprite-identifier(), as an argument to helper functions.\n\n" +

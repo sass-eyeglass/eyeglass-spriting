@@ -74,7 +74,7 @@ module.exports = function(eyeglass, sass) {
       throw new Error("No sprite of name or identifier '" +
         sassUtils.castToJs(spritename) +
         "' exists." +
-        "'\nSprites are named using their original asset source paths, like " +
+        "\nSprites are named using their original asset source paths, like " +
         "'icons/shruggie.png'. You can also use a sprite identifier, " +
         "like 'shruggie', which is " +
         "provided via sprite-identifier(), " +
