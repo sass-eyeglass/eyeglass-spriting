@@ -1,4 +1,4 @@
-./node_modules
+node_modules
 .DS_Store
 test/fixtures/app_assets/.eyeglass_cache/
 spriting_api.scss
