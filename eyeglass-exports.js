@@ -55,6 +55,18 @@ module.exports = function(eyeglass, sass) {
     return imagePaths;
   }
 
+  function validateSpriteName(sprite, spritename) {
+    if (typeof sprite === "undefined") {
+      throw new Error("No sprite of that name exists. Sprite name: '" +
+        sassUtils.castToJs(spritename) +
+        "'\nSprites are named using their original asset source paths, like " +
+        "'icons/shruggie.png'. (Sprite identifiers, like 'shruggie', are " +
+        "provided via sprite-identifier() for CSS class name purposes, but are " +
+        "not currently accepted as arguments to helper functions.)"
+      );
+    }
+  }
+
   return {
     sassDir: path.join(__dirname, "sass"),
     functions: {
@@ -164,7 +176,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
-
+        validateSpriteName(sprite, spritename);
         var position = sprite.coerce.get("position");
         position = sassUtils.castToSass(position);
         position.setSeparator = false;
@@ -175,6 +187,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-position-x($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
+        validateSpriteName(sprite, spritename);
         var positionX = sprite.coerce.get("position")[0];
 
         done(sassUtils.castToSass(positionX));
@@ -183,6 +196,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-position-y($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
+        validateSpriteName(sprite, spritename);
         var positionY = sprite.coerce.get("position")[1];
 
         done(sassUtils.castToSass(positionY));
@@ -191,6 +205,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-width($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
+        validateSpriteName(sprite, spritename);
         var width = sprite.coerce.get("width");
 
         done(sassUtils.castToSass(width));
@@ -199,6 +214,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-height($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
+        validateSpriteName(sprite, spritename);
         var height = sprite.coerce.get("height");
 
         done(sassUtils.castToSass(height));
@@ -220,6 +236,7 @@ module.exports = function(eyeglass, sass) {
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
         var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
         var sprite = assets.coerce.get(spritename);
+        validateSpriteName(sprite, spritename);
         var identifier = sprite.coerce.get("identifier");
 
         done(sassUtils.castToSass(identifier));
