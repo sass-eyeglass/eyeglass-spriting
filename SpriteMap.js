@@ -124,6 +124,7 @@ SpriteMap.prototype.getSassData = function() {
   this.sassData.coerce.set("layout", this.sassLayout);
 
   var assets = new sassUtils.SassJsMap();
+  var identifierMap = new sassUtils.SassJsMap();
 
   for (var i = 0; i < this.sprites.length; i++) {
     var x = new sassUtils.SassDimension(-this.sprites[i].originX, "px");
@@ -135,16 +136,19 @@ SpriteMap.prototype.getSassData = function() {
     var height = new sassUtils.SassDimension(this.sprites[i].height, "px");
 
     var sprite = new sassUtils.SassJsMap();
+    var identifier = getIdentifier(this.sprites[i].name);
     sprite.coerce.set("path", this.sprites[i].filename);
-    sprite.coerce.set("identifier", getIdentifier(this.sprites[i].name));
+    sprite.coerce.set("identifier", identifier);
     sprite.coerce.set("position", position);
     sprite.coerce.set("width", width);
     sprite.coerce.set("height", height);
 
     assets.coerce.set(this.sprites[i].name, sprite);
+    identifierMap.coerce.set(identifier, this.sprites[i].name);
   }
 
   this.sassData.coerce.set("assets", assets);
+  this.sassData.coerce.set("identifierMap", identifierMap);
   this.sassData.coerce.set("width", new sassUtils.SassDimension(this.width, "px"));
   this.sassData.coerce.set("height", new sassUtils.SassDimension(this.height, "px"));
 
