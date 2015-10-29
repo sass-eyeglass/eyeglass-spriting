@@ -379,6 +379,28 @@ describe("spriting module", function () {
     testutils.assertCompiles(eg, expected, done);
   });
 
+  it("helpers allow use of identifier instead of name as argument", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-width($test-sprite-map, 'img02') " +
+                "sprite-height($test-sprite-map, 'img02') " +
+                "sprite-position-x($test-sprite-map, 'img02') " +
+                "sprite-position-y($test-sprite-map, 'img02') }";
+    var expected = ".test {\n  foo: 50px 50px -105px -250px; }\n";
+
+    var rootDir = testutils.fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
   it("small images", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
                 "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
