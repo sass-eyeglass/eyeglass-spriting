@@ -26,6 +26,7 @@
   "devDependencies": {
     "eyeglass": "^0.6.3",
     "eyeglass-dev-eslint": "^1.0.1",
+    "eyeglass-dev-testutils": "0.0.5",
     "grunt": "^0.4.5",
     "grunt-release": "^0.13.0",
     "gulp": "^3.9.0",

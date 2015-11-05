@@ -3,10 +3,11 @@
 var Eyeglass = require("eyeglass").Eyeglass;
 var sass = require("node-sass");
 var path = require("path");
+var testutils = require("eyeglass-dev-testutils");
 
-// var path = require("path");
-// var fs = require("fs");
-var testutils = require("./testutils");
+function fixtureDirectory(subpath) {
+  return path.resolve(__dirname, "fixtures", subpath);
+}
 
 describe("spriting module", function () {
 
@@ -17,15 +18,15 @@ describe("spriting module", function () {
     var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
       " images/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: " +
       "(images/img01.png: (path: "
-      + testutils.fixtureDirectory(path.join("app_assets", "images", "img01.png")) + ", " +
+      + fixtureDirectory(path.join("app_assets", "images", "img01.png")) + ", " +
       "identifier: img01, position: 0px -200px, width: 100px, height: 100px), images/img02.png: " +
-      "(path: " + testutils.fixtureDirectory(path.join("app_assets", "images", "img02.png")) + "," +
+      "(path: " + fixtureDirectory(path.join("app_assets", "images", "img02.png")) + "," +
       " identifier: img02, position: -105px -250px, width: 50px, height: 50px), images/img03.png:" +
-      " (path: " + testutils.fixtureDirectory(path.join("app_assets", "images", "img03.png")) +
+      " (path: " + fixtureDirectory(path.join("app_assets", "images", "img03.png")) +
       ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, " +
       "height: 300px); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -44,16 +45,16 @@ describe("spriting module", function () {
     var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
       " mod-one/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: " +
       "(mod-one/img01.png: (path: "
-      + testutils.fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
+      + fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
       "img01.png")) + ", identifier: img01, position: 0px -200px, width: 100px, height: 100px), " +
-      "mod-one/img02.png: (path: " + testutils.fixtureDirectory(path.join("app_assets",
+      "mod-one/img02.png: (path: " + fixtureDirectory(path.join("app_assets",
       "node_modules", "asset_mod_1", "images", "img02.png")) + ", identifier: img02, position: " +
       "-105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: "
-      + testutils.fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
+      + fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
       "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
       "300px)), width: 360px, height: 300px); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -72,7 +73,7 @@ describe("spriting module", function () {
                 ".test { foo: sprite-url($test-sprite-map); }";
     var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -129,7 +130,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-list($test-sprite-map) }";
     var expected = ".test {\n  foo: images/img01.png, images/img02.png, images/img03.png; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -148,7 +149,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-url($test-sprite-map) }";
     var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -167,7 +168,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-position($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  foo: -105px -250px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -186,7 +187,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-position-x($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  foo: -105px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -205,7 +206,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-position-y($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  foo: -250px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -224,7 +225,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-width($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  foo: 50px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -243,7 +244,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-height($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  foo: 50px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -262,7 +263,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-map-width($test-sprite-map) }";
     var expected = ".test {\n  foo: 360px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -281,7 +282,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-map-height($test-sprite-map) }";
     var expected = ".test {\n  foo: 300px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -300,7 +301,7 @@ describe("spriting module", function () {
                 ".test{ @include sprite-background($test-sprite-map) }";
     var expected = ".test {\n  background: url(/spritemaps/test-sprite-map.png) no-repeat; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -319,7 +320,7 @@ describe("spriting module", function () {
                 ".test{ @include sprite-position($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  background-position: -105px -250px; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -361,7 +362,7 @@ describe("spriting module", function () {
                 ".test{ foo: sprite-identifier($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  foo: img02; }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -380,7 +381,7 @@ describe("spriting module", function () {
                 ".test { foo: sprite-url($test-sprite-map); }";
     var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
@@ -399,7 +400,7 @@ describe("spriting module", function () {
                 ".test { foo: sprite-url($test-sprite-map); }";
     var expected = ".test {\n  foo: url(/spritemaps/test-sprite-map.png); }\n";
 
-    var rootDir = testutils.fixtureDirectory("app_assets");
+    var rootDir = fixtureDirectory("app_assets");
 
     var eg = new Eyeglass({
       root: rootDir,
