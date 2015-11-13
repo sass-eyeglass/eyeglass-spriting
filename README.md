@@ -191,6 +191,8 @@ A mixin that sets the background position to the position of the given sprite. F
 .icon-home {
   @include sprite-background($icon-sprite-map);
   @include sprite-position($icon-sprite-map, "icons/home.png");
+	// OR:
+  // @include sprite-position($icon-sprite-map, "home");
 }
 ```
 
@@ -214,8 +216,8 @@ A mixin that sets the dimensions of the element to the dimensions of the given s
 ```scss
 .icon-home {
   @include sprite-background($icon-sprite-map);
-  @include sprite-position($icon-sprite-map, "icons/home.png");
-  @include sprite-dimensions($icon-sprite-map, "icons/home.png");
+  @include sprite-position($icon-sprite-map, "home");
+  @include sprite-dimensions($icon-sprite-map, "home");
 }
 ```
 
@@ -240,7 +242,7 @@ sprite-position($sprite-map, $sprite-name);
 Returns the position for the given sprite name in the given sprite map, in a format that is suitable for use as a value to background-position:
 
 ```scss
-background-position: sprite-position($icons-sprite-map, "icons/home.png");
+background-position: sprite-position($icons-sprite-map, "home");
 ```
 
 Might generate something like:

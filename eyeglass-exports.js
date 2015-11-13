@@ -55,6 +55,36 @@ module.exports = function(eyeglass, sass) {
     return imagePaths;
   }
 
+  function spriteFromName(spritemap, spritename) {
+    var coercedSpritemap = sassUtils.castToJs(spritemap).coerce;
+    var identifierMap = coercedSpritemap.get("identifierMap");
+    var assets = coercedSpritemap.get("assets");
+    var sprite = assets.coerce.get(spritename);
+    var recoveredSpritename;
+
+    // Allow use of identifier 'bar' in lieu of name 'images/bar.png'
+    if (typeof sprite === "undefined") {
+      recoveredSpritename = identifierMap.coerce.get(spritename);
+      if (typeof recoveredSpritename !== "undefined") {
+        sprite = assets.coerce.get(identifierMap.coerce.get(spritename));
+      }
+    }
+
+    if (typeof sprite === "undefined") {
+      throw new Error("No sprite of name or identifier '" +
+        sassUtils.castToJs(spritename) +
+        "' exists." +
+        "\nSprites are named using their original asset source paths, like " +
+        "'icons/shruggie.png'. You can also use a sprite identifier, " +
+        "like 'shruggie', which is " +
+        "provided via sprite-identifier(), " +
+        "as an argument to helper functions."
+      );
+    }
+
+    return sprite;
+  }
+
   return {
     sassDir: path.join(__dirname, "sass"),
     functions: {
@@ -162,9 +192,7 @@ module.exports = function(eyeglass, sass) {
       },
 
       "sprite-position($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
-
+        var sprite = spriteFromName(spritemap, spritename);
         var position = sprite.coerce.get("position");
         position = sassUtils.castToSass(position);
         position.setSeparator = false;
@@ -173,32 +201,28 @@ module.exports = function(eyeglass, sass) {
       },
 
       "sprite-position-x($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
+        var sprite = spriteFromName(spritemap, spritename);
         var positionX = sprite.coerce.get("position")[0];
 
         done(sassUtils.castToSass(positionX));
       },
 
       "sprite-position-y($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
+        var sprite = spriteFromName(spritemap, spritename);
         var positionY = sprite.coerce.get("position")[1];
 
         done(sassUtils.castToSass(positionY));
       },
 
       "sprite-width($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
+        var sprite = spriteFromName(spritemap, spritename);
         var width = sprite.coerce.get("width");
 
         done(sassUtils.castToSass(width));
       },
 
       "sprite-height($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
+        var sprite = spriteFromName(spritemap, spritename);
         var height = sprite.coerce.get("height");
 
         done(sassUtils.castToSass(height));
@@ -218,8 +242,7 @@ module.exports = function(eyeglass, sass) {
       // TODO: raise an error if called for an image that has no specified identifer or
       // the base filename is not a legal css identifier
       "sprite-identifier($spritemap, $spritename)": function(spritemap, spritename, done) {
-        var assets = sassUtils.castToJs(spritemap).coerce.get("assets");
-        var sprite = assets.coerce.get(spritename);
+        var sprite = spriteFromName(spritemap, spritename);
         var identifier = sprite.coerce.get("identifier");
 
         done(sassUtils.castToSass(identifier));

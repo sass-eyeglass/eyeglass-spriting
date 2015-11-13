@@ -23,7 +23,10 @@ describe("spriting module", function () {
       "(path: " + fixtureDirectory(path.join("app_assets", "images", "img02.png")) + "," +
       " identifier: img02, position: -105px -250px, width: 50px, height: 50px), images/img03.png:" +
       " (path: " + fixtureDirectory(path.join("app_assets", "images", "img03.png")) +
-      ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, " +
+      ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), " +
+      "identifierMap: (img01: images/img01.png, img02: images/img02.png, " +
+      "img03: images/img03.png), " +
+      "width: 360px, " +
       "height: 300px); }\n";
 
     var rootDir = fixtureDirectory("app_assets");
@@ -52,7 +55,10 @@ describe("spriting module", function () {
       "-105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: "
       + fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
       "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
-      "300px)), width: 360px, height: 300px); }\n";
+      "300px)), " +
+      "identifierMap: (img01: mod-one/img01.png, img02: mod-one/img02.png, " +
+      "img03: mod-one/img03.png), " +
+      "width: 360px, height: 300px); }\n";
 
     var rootDir = fixtureDirectory("app_assets");
 
@@ -372,6 +378,53 @@ describe("spriting module", function () {
     eg.assets.addSource(rootDir, {pattern: "images/**/*"});
 
     testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("helpers allow use of identifier instead of name as argument", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-width($test-sprite-map, 'img02') " +
+                "sprite-height($test-sprite-map, 'img02') " +
+                "sprite-position-x($test-sprite-map, 'img02') " +
+                "sprite-position-y($test-sprite-map, 'img02') }";
+    var expected = ".test {\n  foo: 50px 50px -105px -250px; }\n";
+
+    var rootDir = fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    testutils.assertCompiles(eg, expected, done);
+  });
+
+  it("helpers throw a helpful error message for bad sprite names", function (done) {
+    var input = "@import 'assets'; @import 'spriting'; " +
+                "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*');" +
+                ".test{ foo: sprite-width($test-sprite-map, 'not-gonna-happen') }";
+
+    var rootDir = fixtureDirectory("app_assets");
+
+    var eg = new Eyeglass({
+      root: rootDir,
+      data: input
+    }, sass);
+
+    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+
+    var expectedError = "error in C function sprite-width: No sprite of name " +
+      "or identifier 'not-gonna-happen' exists.\nSprites are named using " +
+      "their original asset source paths, like 'icons/shruggie.png'. You can " +
+      "also use a sprite identifier, like 'shruggie', which is provided via " +
+      "sprite-identifier(), as an argument to helper functions.\n\n" +
+      "Backtrace:\n	stdin:1, in function `sprite-width`\n	stdin:1";
+
+    testutils.assertCompilationError(eg, expectedError, done);
   });
 
   it("small images", function (done) {
