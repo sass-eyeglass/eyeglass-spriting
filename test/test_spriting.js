@@ -13,9 +13,9 @@ describe("spriting module", function () {
 
   it("gets sprite map data using app assets", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
-                ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
-                "(spacing: 5px, alignment: bottom)), 'images/*'); }";
-    var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
+                "/* #{inspect(sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'images/*'))} */";
+    var expected = "/* (sprite-map: true, name: test-sprite-map, sources:" +
       " images/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: " +
       "(images/img01.png: (path: "
       + fixtureDirectory(path.join("app_assets", "images", "img01.png")) + ", " +
@@ -24,7 +24,7 @@ describe("spriting module", function () {
       " identifier: img02, position: -105px -250px, width: 50px, height: 50px), images/img03.png:" +
       " (path: " + fixtureDirectory(path.join("app_assets", "images", "img03.png")) +
       ", identifier: img03, position: -160px 0px, width: 200px, height: 300px)), width: 360px, " +
-      "height: 300px); }\n";
+      "height: 300px) */";
 
     var rootDir = fixtureDirectory("app_assets");
 
@@ -40,9 +40,9 @@ describe("spriting module", function () {
 
   it("gets sprite map data using module assets", function (done) {
     var input = "@import 'assets'; @import 'mod-one/assets'; @import 'spriting'; " +
-                ".sprite-map-test { foo: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
-                "(spacing: 5px, alignment: bottom)), 'mod-one/*'); }";
-    var expected = ".sprite-map-test {\n  foo: (sprite-map: true, name: test-sprite-map, sources:" +
+                "/* #{inspect(sprite-map('test-sprite-map', sprite-layout(horizontal, " +
+                "(spacing: 5px, alignment: bottom)), 'mod-one/*'))} */";
+    var expected = "/* (sprite-map: true, name: test-sprite-map, sources:" +
       " mod-one/*, layout: (strategy: horizontal, spacing: 5px, alignment: bottom), assets: " +
       "(mod-one/img01.png: (path: "
       + fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
@@ -52,7 +52,7 @@ describe("spriting module", function () {
       "-105px -250px, width: 50px, height: 50px), mod-one/img03.png: (path: "
       + fixtureDirectory(path.join("app_assets", "node_modules", "asset_mod_1", "images",
       "img03.png")) + ", identifier: img03, position: -160px 0px, width: 200px, height: " +
-      "300px)), width: 360px, height: 300px); }\n";
+      "300px)), width: 360px, height: 300px) */";
 
     var rootDir = fixtureDirectory("app_assets");
 
@@ -92,10 +92,10 @@ describe("spriting module", function () {
 
   it("sprite-layout() sanity check", function (done) {
     var options = {
-      data: ".test { foo: sprite-layout(horizontal, (spacing: 50px, alignment: bottom)) }"
+      data: "/* #{inspect(sprite-layout(horizontal, (spacing: 50px, alignment: bottom)))} */"
     };
-    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 50px, alignment: " +
-      "bottom); }\n";
+    var expectedOutput = "/* (strategy: horizontal, spacing: 50px, alignment: " +
+      "bottom) */";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompiles(eg, expectedOutput, done);
@@ -103,10 +103,10 @@ describe("spriting module", function () {
 
   it("sprite-layout() check missing parameters", function (done) {
     var options = {
-      data: ".test { foo: sprite-layout(horizontal, (alignment: bottom)) }"
+      data: "/* #{inspect(sprite-layout(horizontal, (alignment: bottom)))} */"
     };
-    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px, " +
-                         "alignment: bottom); }\n";
+    var expectedOutput = "/* (strategy: horizontal, spacing: 0px, " +
+                         "alignment: bottom) */";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompiles(eg, expectedOutput, done);
@@ -114,10 +114,9 @@ describe("spriting module", function () {
 
   it("sprite-layout() no options", function (done) {
     var options = {
-      data: ".test { foo: sprite-layout(horizontal, ()) }"
+      data: "/* #{inspect(sprite-layout(horizontal, ()))} */"
     };
-    var expectedOutput = ".test {\n  foo: (strategy: horizontal, spacing: 0px); }"
-    + "\n";
+    var expectedOutput = "/* (strategy: horizontal, spacing: 0px) */";
 
     var eg = new Eyeglass(options, sass);
     testutils.assertCompiles(eg, expectedOutput, done);
