@@ -143,7 +143,7 @@ module.exports = function(eyeglass, sass) {
           sm.getDataFromSass(spritemap);
 
           // create the image in the eyeglass cache
-          var spritemapsDir = path.join(eyeglass.options.cacheDir, "spritemaps");
+          var spritemapsDir = path.join(eyeglass.options.eyeglass.cacheDir, "spritemaps");
           if (!existsSync(spritemapsDir)) {
             fs.mkdirSync(spritemapsDir);
           }
