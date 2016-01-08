@@ -6,9 +6,6 @@
 
 "use strict";
 
-var sass = require("node-sass");
-var sassUtils = require("node-sass-utils")(sass);
-
 var verticalValidate = function(options) {
   if (options.alignment && options.alignment !== "left" && options.alignment !== "right") {
     throw new Error("Invalid layout alignment: \'" + options.alignment + "\'.");
@@ -128,56 +125,60 @@ var registeredLayouts = {
 };
 
 
-module.exports = {
-  getLayout: function(options) {
-    options = sassUtils.castToJs(options);
+module.exports = function(sass) {
+  var sassUtils = require("node-sass-utils")(sass);
 
-    var unpackedOptions = {
-      strategy: options.coerce.get("strategy"),
-      spacing: options.coerce.get("spacing").value,
-      alignment: options.coerce.get("alignment")
-    };
+  return {
+    getLayout: function(options) {
+      options = sassUtils.castToJs(options);
 
-    var strategy = unpackedOptions.strategy;
+      var unpackedOptions = {
+        strategy: options.coerce.get("strategy"),
+        spacing: options.coerce.get("spacing").value,
+        alignment: options.coerce.get("alignment")
+      };
 
-    if (registeredLayouts[strategy]) {
-      registeredLayouts[strategy].validate(unpackedOptions);
+      var strategy = unpackedOptions.strategy;
 
-      var newLayout = new registeredLayouts[strategy].constructor(unpackedOptions);
-      newLayout.strategy = unpackedOptions.strategy;
-      newLayout.spacing = unpackedOptions.spacing;
-      newLayout.alignment = unpackedOptions.alignment;
+      if (registeredLayouts[strategy]) {
+        registeredLayouts[strategy].validate(unpackedOptions);
 
-      return newLayout;
-    } else {
-      throw new Error("Invalid layout strategy: \'" + strategy + "\'.");
-    }
-  },
+        var newLayout = new registeredLayouts[strategy].constructor(unpackedOptions);
+        newLayout.strategy = unpackedOptions.strategy;
+        newLayout.spacing = unpackedOptions.spacing;
+        newLayout.alignment = unpackedOptions.alignment;
 
-  registerLayout: function(name, validate, pack) {
-    registeredLayouts[name] = {
-      validate: validate,
-      constructor: function(options) {
-        this.pack = pack;
+        return newLayout;
+      } else {
+        throw new Error("Invalid layout strategy: \'" + strategy + "\'.");
       }
-    };
-  },
+    },
 
-  validate: function(options) {
-    options = sassUtils.castToJs(options);
+    registerLayout: function(name, validate, pack) {
+      registeredLayouts[name] = {
+        validate: validate,
+        constructor: function(options) {
+          this.pack = pack;
+        }
+      };
+    },
 
-    var unpackedOptions = {
-      strategy: options.coerce.get("strategy"),
-      spacing: options.coerce.get("spacing").value,
-      alignment: options.coerce.get("alignment")
-    };
+    validate: function(options) {
+      options = sassUtils.castToJs(options);
 
-    if (!registeredLayouts[unpackedOptions.strategy]) {
-      throw new Error("Invalid layout strategy: \'" + unpackedOptions.strategy + "\'.");
-    } else {
-      return registeredLayouts[unpackedOptions.strategy].validate(unpackedOptions);
-    }
-  },
+      var unpackedOptions = {
+        strategy: options.coerce.get("strategy"),
+        spacing: options.coerce.get("spacing").value,
+        alignment: options.coerce.get("alignment")
+      };
 
-  registeredLayouts: registeredLayouts
+      if (!registeredLayouts[unpackedOptions.strategy]) {
+        throw new Error("Invalid layout strategy: \'" + unpackedOptions.strategy + "\'.");
+      } else {
+        return registeredLayouts[unpackedOptions.strategy].validate(unpackedOptions);
+      }
+    },
+
+    registeredLayouts: registeredLayouts
+  };
 };

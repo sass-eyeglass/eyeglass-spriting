@@ -1,13 +1,13 @@
 "use strict";
 
-var SpriteMap = require("./SpriteMap");
-var ly = require("./Layout");
 var path = require("path");
 var fs = require("fs");
 var minimatch = require("minimatch");
 
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
+  var SpriteMap = require("./SpriteMap")(sass);
+  var ly = require("./Layout")(sass);
 
   function existsSync(file) {
     // This fs method is going to be deprecated but can be re-implemented with fs.accessSync later.
