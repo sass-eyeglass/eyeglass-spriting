@@ -33,11 +33,11 @@
     "gulp-eslint": "^0.14.0",
     "gulp-mocha": "^2.1.1",
     "mocha": "^2.3.3",
+    "node-sass": "^3.4.2",
     "should": "^7.1.0"
   },
   "dependencies": {
     "lwip": "^0.0.8",
-    "node-sass": "^3.4.2",
     "node-sass-utils": "^1.1.2",
     "minimatch": "^2.0.8"
   },
