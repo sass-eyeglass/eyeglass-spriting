@@ -1,13 +1,13 @@
 "use strict";
 
-var SpriteMap = require("./SpriteMap");
-var ly = require("./Layout");
 var path = require("path");
 var fs = require("fs");
 var minimatch = require("minimatch");
 
 module.exports = function(eyeglass, sass) {
   var sassUtils = require("node-sass-utils")(sass);
+  var SpriteMap = require("./SpriteMap")(sass);
+  var ly = require("./Layout")(sass);
 
   function existsSync(file) {
     // This fs method is going to be deprecated but can be re-implemented with fs.accessSync later.
@@ -143,7 +143,9 @@ module.exports = function(eyeglass, sass) {
           sm.getDataFromSass(spritemap);
 
           // create the image in the eyeglass cache
-          var spritemapsDir = path.join(eyeglass.options.cacheDir, "spritemaps");
+          var options = eyeglass.options;
+          var cacheDir = options.eyeglass && options.eyeglass.cacheDir || options.cacheDir;
+          var spritemapsDir = path.join(cacheDir, "spritemaps");
           if (!existsSync(spritemapsDir)) {
             fs.mkdirSync(spritemapsDir);
           }

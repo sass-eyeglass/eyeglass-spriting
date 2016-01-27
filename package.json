@@ -19,12 +19,12 @@
     "sprite"
   ],
   "eyeglass": {
-    "needs": "^0.6.3",
+    "needs": "^0.8.0",
     "name": "spriting",
     "exports": "eyeglass-exports.js"
   },
   "devDependencies": {
-    "eyeglass": "^0.6.3",
+    "eyeglass": "^0.8.2",
     "eyeglass-dev-eslint": "^1.0.1",
     "eyeglass-dev-testutils": "0.0.5",
     "grunt": "^0.4.5",
@@ -32,13 +32,13 @@
     "gulp": "^3.9.0",
     "gulp-eslint": "^0.14.0",
     "gulp-mocha": "^2.1.1",
-    "mocha": "^2.2.5",
-    "node-sass": "^3.3.3",
-    "should": "^6.0.3"
+    "mocha": "^2.3.3",
+    "node-sass": "^3.4.2",
+    "should": "^7.1.0"
   },
   "dependencies": {
     "lwip": "^0.0.8",
-    "node-sass-utils": "^1.1.1",
+    "node-sass-utils": "^1.1.2",
     "minimatch": "^2.0.8"
   },
   "scripts": {
