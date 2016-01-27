@@ -1,9 +1,15 @@
 "use strict";
 
-var Eyeglass = require("eyeglass").Eyeglass;
+var Eyeglass = require("eyeglass");
 var sass = require("node-sass");
 var path = require("path");
-var testutils = require("eyeglass-dev-testutils");
+var Testutils = require("eyeglass-dev-testutils");
+var testutils = new Testutils({
+  engines: {
+    sass: sass,
+    eyeglass: Eyeglass
+  }
+});
 
 function fixtureDirectory(subpath) {
   return path.resolve(__dirname, "fixtures", subpath);
@@ -28,14 +34,19 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
+    var eyeglass = new Eyeglass({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        engines: {
+          sass: sass
+        }
+      }
+    });
 
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
+    eyeglass.assets.addSource(rootDir, {pattern: "images/**/*"});
 
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles(eyeglass, expected, done);
   });
 
   it("gets sprite map data using module assets", function (done) {
@@ -56,14 +67,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("creates the sprite map image and gets url", function (done) {
@@ -75,14 +90,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   // it("gets sprite map data using app & module assets with conflicting names", function (done) {
@@ -97,8 +116,7 @@ describe("spriting module", function () {
     var expectedOutput = "/* (strategy: horizontal, spacing: 50px, alignment: " +
       "bottom) */";
 
-    var eg = new Eyeglass(options, sass);
-    testutils.assertCompiles(eg, expectedOutput, done);
+    testutils.assertCompiles(options, expectedOutput, done);
   });
 
   it("sprite-layout() check missing parameters", function (done) {
@@ -108,8 +126,7 @@ describe("spriting module", function () {
     var expectedOutput = "/* (strategy: horizontal, spacing: 0px, " +
                          "alignment: bottom) */";
 
-    var eg = new Eyeglass(options, sass);
-    testutils.assertCompiles(eg, expectedOutput, done);
+    testutils.assertCompiles(options, expectedOutput, done);
   });
 
   it("sprite-layout() no options", function (done) {
@@ -118,8 +135,7 @@ describe("spriting module", function () {
     };
     var expectedOutput = "/* (strategy: horizontal, spacing: 0px) */";
 
-    var eg = new Eyeglass(options, sass);
-    testutils.assertCompiles(eg, expectedOutput, done);
+    testutils.assertCompiles(options, expectedOutput, done);
   });
 
   it("sprite-list()", function (done) {
@@ -131,14 +147,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-url()", function (done) {
@@ -150,14 +170,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-position()", function (done) {
@@ -169,14 +193,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-position-x()", function (done) {
@@ -188,14 +216,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-position-y()", function (done) {
@@ -207,14 +239,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-width()", function (done) {
@@ -226,14 +262,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-height()", function (done) {
@@ -245,14 +285,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-map-width()", function (done) {
@@ -264,14 +308,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-map-height()", function (done) {
@@ -283,52 +331,64 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-background mixin", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
                 "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'images/*');" +
-                ".test{ @include sprite-background($test-sprite-map) }";
+                ".test{@include sprite-background($test-sprite-map) }";
     var expected = ".test {\n  background: url(/spritemaps/test-sprite-map.png) no-repeat; }\n";
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-position mixin", function (done) {
     var input = "@import 'assets'; @import 'spriting'; " +
                 "$test-sprite-map: sprite-map('test-sprite-map', sprite-layout(horizontal, " +
                 "(spacing: 5px, alignment: bottom)), 'images/*');" +
-                ".test{ @include sprite-position($test-sprite-map, 'images/img02.png') }";
+                ".test{@include sprite-position($test-sprite-map, 'images/img02.png') }";
     var expected = ".test {\n  background-position: -105px -250px; }\n";
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("sprite-layout() throws error for invalid layout", function (done) {
@@ -338,8 +398,7 @@ describe("spriting module", function () {
     var expectedError = "error in C function sprite-layout: Error: Invalid layout alignment: " +
                         "'right'.\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`\n\tstdin:1";
 
-    var eg = new Eyeglass(options, sass);
-    testutils.assertCompilationError(eg, expectedError, done);
+    testutils.assertCompilationError(options, expectedError, done);
   });
 
   it("sprite-layout() throws error for invalid strategy", function (done) {
@@ -350,8 +409,7 @@ describe("spriting module", function () {
                         "'horizntal'.\n\nBacktrace:\n\tstdin:1, in function `sprite-layout`" +
                         "\n\tstdin:1";
 
-    var eg = new Eyeglass(options, sass);
-    testutils.assertCompilationError(eg, expectedError, done);
+    testutils.assertCompilationError(options, expectedError, done);
   });
 
   it("sprite-identifier()", function (done) {
@@ -363,14 +421,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "images/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "images/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("small images", function (done) {
@@ -382,14 +444,18 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "smallimages/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "smallimages/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 
   it("lots of images", function (done) {
@@ -401,13 +467,17 @@ describe("spriting module", function () {
 
     var rootDir = fixtureDirectory("app_assets");
 
-    var eg = new Eyeglass({
-      root: rootDir,
-      data: input
-    }, sass);
-
-    eg.assets.addSource(rootDir, {pattern: "lotsofimages/**/*"});
-
-    testutils.assertCompiles(eg, expected, done);
+    testutils.assertCompiles({
+      data: input,
+      eyeglass: {
+        root: rootDir,
+        assets: {
+          sources: [{directory: rootDir, pattern: "lotsofimages/**/*"}]
+        },
+        engines: {
+          sass: sass
+        }
+      }
+    }, expected, done);
   });
 });
