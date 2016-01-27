@@ -24,7 +24,7 @@
     "exports": "eyeglass-exports.js"
   },
   "devDependencies": {
-    "eyeglass": "^0.8.0",
+    "eyeglass": "^0.8.2",
     "eyeglass-dev-eslint": "^1.0.1",
     "eyeglass-dev-testutils": "0.0.5",
     "grunt": "^0.4.5",

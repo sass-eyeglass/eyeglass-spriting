@@ -1,3 +1,5 @@
+@import "eyeglass/assets";
+
 // use assets.js resolveAsset / resolveAssetToPath
 @function sprite-map($name, $layout, $paths...) {
   @return sprite-map-assets($name, $layout, $eg-registered-assets, $paths...);
