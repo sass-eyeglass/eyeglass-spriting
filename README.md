@@ -11,7 +11,12 @@ To use spriting, install eyeglass and eyeglass-spriting:
 
 Register your sprite source images as [eyeglass assets](https://github.com/sass-eyeglass/eyeglass#working-with-assets), and `@import 'spriting'` in your sass files.
 
-Please also note this requires use of `node` version `0.12` or newer. (Check with `node -v`.)
+Please also note this requires either:
+
+  - `node` version `0.12` or newer (check with `node -v`), or
+  - the [Babel polyfill] for node `0.10` compatibility (`npm install --save-dev babel-core` and add `require("babel-core/polyfill");` to the top of your build file (like `Brocfile.js` or `ember-cli-build.js`).
+
+[Babel polyfill]: http://babeljs.io/docs/usage/polyfill/ "Babel.js polyfill information"
 
 # Quick Start
 
